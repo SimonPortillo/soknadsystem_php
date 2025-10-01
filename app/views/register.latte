@@ -1,0 +1,33 @@
+{layout 'layout.latte'}
+
+{block title}Welcome - FlightPHP{/block}
+
+{block content}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm mt-5">
+            <div class="card-body">
+                <h2 class="mb-4 text-center">Registrer bruker</h2>
+                <form method="post" action="/register" novalidate>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Brukernavn</label>
+                        <input type="text" class="form-control" id="username" name="username" required autocomplete="username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-post</label>
+                        <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Passord</label>
+                        <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Registrer</button>
+                    <div class="mt-3 text-center">
+                        <a href="/login" class="link-secondary">Har du konto? Logg inn</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
