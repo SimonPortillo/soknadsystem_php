@@ -13,6 +13,6 @@ class HomeController {
 	}
 
 	public function index() {
-		$this->app->latte()->render(__DIR__ . '/../views/home.latte');
+		$this->app->latte()->render(__DIR__ . '/../views/home/home.latte');
 	}
 }

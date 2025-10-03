@@ -13,11 +13,11 @@ class AuthController {
 	}
 
 	public function index() {
-		$this->app->latte()->render(__DIR__ . '/../views/login.latte');
+		$this->app->latte()->render(__DIR__ . '/../views/auth/login.latte');
 	}
 
     public function showRegister() {
-        $this->app->latte()->render(__DIR__ . '/../views/register.latte');
+        $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte');
     }
 
     public function register() {
@@ -36,7 +36,7 @@ class AuthController {
 
         if ($errors) {
         // Pass errors to the view
-            $this->app->latte()->render(__DIR__ . '/../views/register.latte', [
+            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => $errors
             ]);
             return;
@@ -49,7 +49,7 @@ class AuthController {
         // database logic here
 
         // return page on success
-        $this->app->latte()->render(__DIR__ . '/../views/positions.latte');
+        $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte');
     }
 
     public function login() {
@@ -57,10 +57,13 @@ class AuthController {
         $username = $data->username ?? '';
         $password = $data->password ?? '';
         // create validation logic by comparing with database
-
+  
+        // if (password_verify($password, $stored_hash)) {
+        //     // Password matches
+        // }
         
         // return page on success
-        $this->app->latte()->render(__DIR__ . '/../views/positions.latte');
+        $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte');
     }
 
     public function logout() {
