@@ -3,66 +3,123 @@
 namespace app\controllers;
 
 use flight\Engine;
+use app\models\User;
 
 class AuthController {
 
-	protected Engine $app;
+    protected Engine $app;
 
-	public function __construct(Engine $app) {
-		$this->app = $app;
-	}
+    public function __construct(Engine $app) {
+        $this->app = $app;
+    }
 
-	public function index() {
-		$this->app->latte()->render(__DIR__ . '/../views/auth/login.latte');
-	}
+    public function index() {
+        $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte');
+    }
 
     public function showRegister() {
         $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte');
     }
 
-    public function register() {
-        $data = $this->app->request()->data;
+    private function validateRegistration($username, $password, $email) {
         $errors = [];
 
-        if (empty($data->username)) {
+        if (empty($username)) {
             $errors[] = 'Brukernavn er påkrevd.';
         }
-        if (empty($data->email) || !filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
+        if (empty($email) || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             $errors[] = 'Gyldig e-postadresse er påkrevd.';
         }
-        if (empty($data->password) || strlen($data->password) < 8) {
+        if (strlen($password) < 8) {
             $errors[] = 'Passord må være minst 8 tegn.';
         }
 
+        return $errors;
+    }
+
+    public function register() {
+        $data = $this->app->request()->data;
+        $username = $data->username ?? '';
+        $password = $data->password ?? '';
+        $email = $data->email ?? '';
+        
+        $errors = $this->validateRegistration($username, $password, $email);
+        
         if ($errors) {
-        // Pass errors to the view
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => $errors
             ]);
             return;
         }
+        
+        // Check if username already exists
+        $userModel = new User($this->app->db());
+        $existingUser = $userModel->findByUsername($username);
+        if ($existingUser) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
+                'errors' => ['Brukernavnet er allerede i bruk.']
+            ]);
+            return;
+        }
+        
+        try {
+            // Create new user
+            $user = new User($this->app->db());
+            $result = $user->create($username, $password);
+            
+            if (!$result) {
+                throw new \Exception('Kunne ikke opprette bruker');
+            }
+            
+            // Redirect to positions page on success
+            $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte');
+            
+        } catch (\Exception $e) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
+                'errors' => ['En feil oppstod ved registrering. Vennligst prøv igjen.']
+            ]);
+        }
+    }
 
-        $username = $data->username ?? '';
-        $password = $data->password ?? '';
-        $email = $data->email ?? '';
-        $password = password_hash($password, PASSWORD_DEFAULT);
-        // database logic here
+    private function validateLogin($username, $password) {
+        $errors = [];
 
-        // return page on success
-        $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte');
+        if (empty($username) || empty($password)) {
+            $errors[] = 'Feil brukernavn eller passord.';
+        }
+
+        return $errors;
     }
 
     public function login() {
         $data = $this->app->request()->data;
         $username = $data->username ?? '';
         $password = $data->password ?? '';
-        // create validation logic by comparing with database
-  
-        // if (password_verify($password, $stored_hash)) {
-        //     // Password matches
-        // }
+
+        $errors = $this->validateLogin($username, $password);
+
+        if ($errors) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
+                'errors' => $errors
+            ]);
+            return;
+        }
         
-        // return page on success
+        // Find user by username
+        $userModel = new User($this->app->db());
+        $user = $userModel->findByUsername($username);
+        
+        if (!$user || !$user->verifyPassword($password)) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
+                'errors' => ['Feil brukernavn eller passord.']
+            ]);
+            return;
+        }
+        
+        // Login successful - set session variables 
+        // $_SESSION['user_id'] = $user->id;
+        // $_SESSION['username'] = $user->username;
+        
         $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte');
     }
 
