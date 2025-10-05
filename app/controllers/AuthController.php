@@ -13,12 +13,52 @@ class AuthController {
         $this->app = $app;
     }
 
+    /**
+     * Show the login page
+     */
     public function index() {
-        $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte');
+        // Don't show login if user is already logged in
+        if ($this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/positions');
+            return;
+        }
+        
+        $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
+            'isLoggedIn' => false,
+            'username' => null
+        ]);
     }
 
+    /**
+     * Show the registration page
+     */
     public function showRegister() {
-        $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte');
+        // Don't show register if user is already logged in
+        if ($this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/positions');
+            return;
+        }
+        
+        $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
+            'isLoggedIn' => false,
+            'username' => null
+        ]);
+    }
+    
+    /**
+     * Show the positions page (requires authentication)
+     */
+    public function showPositions() {
+        // Redirect to login if not authenticated
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+        
+        $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte', [
+            'isLoggedIn' => true,
+            'username' => $this->app->session()->get('username')
+        ]);
     }
 
     private function validateRegistration($username, $password, $email) {
@@ -71,8 +111,8 @@ class AuthController {
                 throw new \Exception('Kunne ikke opprette bruker');
             }
             
-            // Redirect to positions page on success
-            $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte');
+            // Set up user session and redirect to positions page
+            $this->createUserSession($user);
             
         } catch (\Exception $e) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
@@ -116,14 +156,30 @@ class AuthController {
             return;
         }
         
-        // Login successful - set session variables 
-        // $_SESSION['user_id'] = $user->id;
-        // $_SESSION['username'] = $user->username;
-        
-        $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte');
+        // Login successful - set session variables using our modularized method
+        $this->createUserSession($user);
     }
 
     public function logout() {
-        // logic for logging out
+        // Clear all session data
+        $this->app->session()->clear();
+        
+        // Redirect to login page
+        $this->app->redirect('/login');
+    }
+    
+    /**
+     * Set up a user session after successful login or registration
+     * 
+     * @param \app\models\User $user The user to create a session for
+     * @return void
+     */
+    private function createUserSession($user) {
+        $this->app->session()->set('user_id', $user->id);
+        $this->app->session()->set('username', $user->username);
+        $this->app->session()->set('is_logged_in', true);
+        
+        // Redirect to the positions page
+        $this->app->redirect('/positions');
     }
 }

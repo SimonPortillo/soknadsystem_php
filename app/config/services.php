@@ -21,20 +21,21 @@ use Tracy\Debugger;
 /*********************************************
  *           Session Service Setup           *
  *********************************************
- * To enable sessions in FlightPHP, register the session service.
- * Docs: https://docs.flightphp.com/awesome-plugins/session
- *
- * Example:
- *   $app->register('session', \flight\Session::class, [
- *       [
- *           'prefix' 		=> 'flight_session_', 	  // Prefix for the session cookie
- *           'save_path'    => 'path/to/my/sessions', // Path to save session files
- *           // ...other options...
- *       ]
- *   ]);
- *
- * For advanced options, see the plugin documentation above.
+ * Session configuration using the official flightphp/session package
  **********************************************/
+
+// Register the session service with the Flight framework
+$app->register('session', \flight\Session::class, [
+    [
+        // Set your preferred session configuration options
+        'name'           => 'soknadsystem_session',    // Name of the session cookie
+        'autostart'      => true,                      // Start the session automatically
+        'use_cookies'    => true,                      // Use cookies to store session ID on client side
+        'cookie_timeout' => 86400,                     // Session lifetime in seconds (24 hours)
+        'cookie_secure'  => isset($_SERVER['HTTPS']),  // Set to true if using HTTPS
+        'cookie_httponly'=> true                       // Make cookies inaccessible to client-side JS
+    ]
+]);
 
 /*********************************************
  *           Tracy Debugger Setup            *
@@ -101,15 +102,5 @@ $app->register('db', $pdoClass, [ $dsn, $config['database']['user'] ?? null, $co
 
 // Add more service registrations below as needed
 
-// Register Latte
-Flight::register('latte', \Latte\Engine::class, [], function($latte) use ($config) {
-    // Set the cache directory
-    $cacheDirectory = $config['latte']['cache_dir'] ?? __DIR__ . '/../../cache/latte';
-    
-    // Create cache directory if it doesn't exist
-    if (!file_exists($cacheDirectory)) {
-        mkdir($cacheDirectory, 0755, true);
-    }
-    
-    $latte->setTempDirectory($cacheDirectory);
-});
+// Register Latte using our SessionAwareLatte wrapper
+$app->register('latte', \app\utils\SessionAwareLatte::class, [$app]);

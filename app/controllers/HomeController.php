@@ -13,6 +13,9 @@ class HomeController {
 	}
 
 	public function index() {
-		$this->app->latte()->render(__DIR__ . '/../views/home/home.latte');
+		$this->app->latte()->render(__DIR__ . '/../views/home/home.latte', [
+			'isLoggedIn' => $this->app->session()->get('is_logged_in'),
+			'username' => $this->app->session()->get('username')
+		]);
 	}
 }
