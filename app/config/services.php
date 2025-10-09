@@ -102,5 +102,15 @@ $app->register('db', $pdoClass, [ $dsn, $config['database']['user'] ?? null, $co
 
 // Add more service registrations below as needed
 
-// Register Latte using our SessionAwareLatte wrapper
-$app->register('latte', \app\utils\SessionAwareLatte::class, [$app]);
+// Register Latte templating engine
+Flight::register('latte', \Latte\Engine::class, [], function($latte) use ($config) {
+    // Set the cache directory
+    $cacheDirectory = $config['latte']['cache_dir'] ?? __DIR__ . '/../../cache/latte';
+    
+    // Create cache directory if it doesn't exist
+    if (!file_exists($cacheDirectory)) {
+        mkdir($cacheDirectory, 0755, true);
+    }
+    
+    $latte->setTempDirectory($cacheDirectory);
+});
