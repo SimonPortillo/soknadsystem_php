@@ -187,7 +187,7 @@ class AuthController {
                 throw new \Exception('Kunne ikke opprette bruker');
             }
             
-            // Set up user session and redirect to positions page
+            // Set up user session and redirect to positions page (handled inside createUserSession)
             $this->createUserSession($user);
             
         } catch (\Exception $e) {
