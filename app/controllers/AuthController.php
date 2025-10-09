@@ -5,16 +5,47 @@ namespace app\controllers;
 use flight\Engine;
 use app\models\User;
 
+/**
+ * AuthController
+ * 
+ * Handles all authentication-related functionality including login, registration,
+ * logout, and displaying authentication-protected pages. Uses the FlightPHP session
+ * library for session management.
+ * 
+ * Responsibilities:
+ *   - Display login and registration forms
+ *   - Process login and registration submissions
+ *   - Manage user sessions (create, destroy)
+ *   - Protect routes that require authentication
+ *   - Display authentication-protected pages (e.g., positions)
+ * 
+ * @package app\controllers
+ */
 class AuthController {
 
+    /**
+     * @var Engine The FlightPHP Engine instance
+     */
     protected Engine $app;
 
+    /**
+     * Constructor
+     * 
+     * @param Engine $app The FlightPHP Engine instance injected by the framework
+     */
     public function __construct(Engine $app) {
         $this->app = $app;
     }
 
     /**
-     * Show the login page
+     * Display the login page
+     * 
+     * Shows the login form to guest users. If the user is already authenticated,
+     * they are redirected to the positions page.
+     * 
+     * Route: GET /login
+     * 
+     * @return void
      */
     public function index() {
         // Don't show login if user is already logged in
@@ -30,7 +61,14 @@ class AuthController {
     }
 
     /**
-     * Show the registration page
+     * Display the registration page
+     * 
+     * Shows the registration form to guest users. If the user is already authenticated,
+     * they are redirected to the positions page.
+     * 
+     * Route: GET /register
+     * 
+     * @return void
      */
     public function showRegister() {
         // Don't show register if user is already logged in
@@ -46,7 +84,14 @@ class AuthController {
     }
     
     /**
-     * Show the positions page (requires authentication)
+     * Display the positions page
+     * 
+     * Shows the job positions page to authenticated users. If the user is not
+     * authenticated, they are redirected to the login page.
+     * 
+     * Route: GET /positions
+     * 
+     * @return void
      */
     public function showPositions() {
         // Redirect to login if not authenticated
@@ -61,6 +106,21 @@ class AuthController {
         ]);
     }
 
+    /**
+     * Validate registration input
+     * 
+     * Performs server-side validation on registration form data.
+     * 
+     * Validation rules:
+     *   - Username must not be empty
+     *   - Email must be valid format
+     *   - Password must be at least 8 characters
+     * 
+     * @param string $username The username to validate
+     * @param string $password The password to validate
+     * @param string $email The email address to validate
+     * @return array Array of error messages (empty if validation passes)
+     */
     private function validateRegistration($username, $password, $email) {
         $errors = [];
 
@@ -77,6 +137,22 @@ class AuthController {
         return $errors;
     }
 
+    /**
+     * Process user registration
+     * 
+     * Handles registration form submission. Validates input, checks for existing
+     * users, creates the new user account, and automatically logs them in by
+     * creating a session.
+     * 
+     * Route: POST /register
+     * 
+     * Expected POST data:
+     *   - username: User's chosen username
+     *   - password: User's chosen password (will be hashed)
+     *   - email: User's email address
+     * 
+     * @return void Redirects to positions page on success, re-renders form with errors on failure
+     */
     public function register() {
         $data = $this->app->request()->data;
         $username = $data->username ?? '';
@@ -121,6 +197,19 @@ class AuthController {
         }
     }
 
+    /**
+     * Validate login input
+     * 
+     * Performs basic validation on login form data.
+     * 
+     * Validation rules:
+     *   - Username must not be empty
+     *   - Password must not be empty
+     * 
+     * @param string $username The username to validate
+     * @param string $password The password to validate
+     * @return array Array of error messages (empty if validation passes)
+     */
     private function validateLogin($username, $password) {
         $errors = [];
 
@@ -131,6 +220,25 @@ class AuthController {
         return $errors;
     }
 
+    /**
+     * Process user login
+     * 
+     * Handles login form submission. Validates input, verifies credentials,
+     * and creates a session if authentication is successful.
+     * 
+     * Route: POST /login
+     * 
+     * Expected POST data:
+     *   - username: User's username
+     *   - password: User's password (will be verified against hashed password)
+     * 
+     * Security:
+     *   - Uses password_verify() to check against hashed password
+     *   - Returns generic error message to prevent username enumeration
+     *   - Creates secure session upon successful authentication
+     * 
+     * @return void Redirects to positions page on success, re-renders form with errors on failure
+     */
     public function login() {
         $data = $this->app->request()->data;
         $username = $data->username ?? '';
@@ -160,6 +268,20 @@ class AuthController {
         $this->createUserSession($user);
     }
 
+    /**
+     * Logout user and destroy session
+     * 
+     * Clears all session data using the FlightPHP session library and
+     * redirects the user to the login page.
+     * 
+     * Route: GET /logout
+     * 
+     * Security:
+     *   - Completely clears session data
+     *   - Redirects to login page to prevent unauthorized access
+     * 
+     * @return void Redirects to login page after clearing session
+     */
     public function logout() {
         // Clear all session data
         $this->app->session()->clear();
@@ -169,10 +291,21 @@ class AuthController {
     }
     
     /**
-     * Set up a user session after successful login or registration
+     * Create a user session after successful authentication
      * 
-     * @param \app\models\User $user The user to create a session for
-     * @return void
+     * This private method centralizes session creation logic to follow the DRY
+     * (Don't Repeat Yourself) principle. It's used by both login() and register()
+     * methods to set up user sessions consistently.
+     * 
+     * Session variables set:
+     *   - user_id: The unique ID of the authenticated user
+     *   - username: The username of the authenticated user
+     *   - is_logged_in: Boolean flag indicating successful authentication
+     * 
+     * After setting session variables, the user is redirected to the positions page.
+     * 
+     * @param User $user The authenticated user object
+     * @return void Redirects to positions page after setting session
      */
     private function createUserSession($user) {
         $this->app->session()->set('user_id', $user->id);
