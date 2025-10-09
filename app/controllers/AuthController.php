@@ -264,7 +264,7 @@ class AuthController {
             return;
         }
         
-        // Login successful - set session variables using our modularized method
+        // Login successful - create session and redirect to positions page using createUserSession()
         $this->createUserSession($user);
     }
 
