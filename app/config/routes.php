@@ -20,7 +20,6 @@ use app\controllers\ApiExampleController;
 use app\controllers\HomeController;
 use app\controllers\AuthController;
 use app\middlewares\SecurityHeadersMiddleware;
-use app\middlewares\AuthMiddleware;
 use flight\Engine;
 use flight\net\Router;
 
@@ -28,9 +27,6 @@ use flight\net\Router;
  * @var Router $router 
  * @var Engine $app
  */
-
-// Create auth middleware instance
-$authMiddleware = new AuthMiddleware($app);
 
 /**
  * Main Route Group
@@ -75,6 +71,8 @@ $router->group('', function(Router $router) use ($app) {
 	/**
 	 * API Route Group
 	 * 
+	 * RESTful API endpoints for user management.
+	 * These routes may require additional authentication/authorization in production.
 	 */
 	$router->group('/api', function() use ($router) {
 		// Get all users
@@ -84,12 +82,6 @@ $router->group('', function(Router $router) use ($app) {
 		$router->get('/users/@id:[0-9]', [ ApiExampleController::class, 'getUser' ]);
 		
 		// Update specific user by ID
-		$router->post('/users/@id:[0-9]', [ ApiExampleController::class, 'updateUser' ]);
-	});
-
-	$router->group('/api', function() use ($router) {
-		$router->get('/users', [ ApiExampleController::class, 'getUsers' ]);
-		$router->get('/users/@id:[0-9]', [ ApiExampleController::class, 'getUser' ]);
 		$router->post('/users/@id:[0-9]', [ ApiExampleController::class, 'updateUser' ]);
 	});
 	
