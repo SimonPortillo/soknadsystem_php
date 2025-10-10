@@ -13,13 +13,13 @@
                     <!-- Username field: Required, must be unique -->
                     <div class="mb-3">
                         <label for="username" class="form-label">Brukernavn</label>
-                        <input type="text" class="form-control" id="username" name="username" value="{$username ?? ''}" autocomplete="username">
+                        <input type="text" class="form-control" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
                     </div>
 
                     <!-- Email field: Required, must be a valid email format -->
                     <div class="mb-3">
                         <label for="email" class="form-label">E-post</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{$email ?? ''}" autocomplete="email">
+                        <input type="email" class="form-control" id="email" name="email" required value="{$email ?? ''}" autocomplete="email">
                     </div>
 
                     <!-- Password field: Required, minimum 8 characters -->
@@ -29,7 +29,7 @@
                         <small class="form-text text-muted">
                             Minst 8 tegn, én stor bokstav, én liten bokstav og to tall
                         </small>
-                        <input type="password" class="form-control" id="password" name="password"  autocomplete="current-password">
+                        <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100">Registrer</button>

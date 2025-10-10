@@ -148,17 +148,13 @@ class AuthController {
      */
 
     private function validatePassword($password): string|true {
-        if(strlen($password) < 8) 
-            return "Passordet må være minst 8 tegn langt.";
+        if(strlen($password) < 8) { return "Passordet må være minst 8 tegn langt."; }
 
-        if(!preg_match('/[A-ZÆØÅ]/', $password))
-            return "Passordet må inneholde minst én stor bokstav.";
+        if(!preg_match('/[A-ZÆØÅ]/', $password)) { return "Passordet må inneholde minst én stor bokstav."; }
 
-        if(!preg_match('/[a-zæøå]/', $password)) 
-            return "Passordet må inneholde minst én liten bokstav.";
+        if(!preg_match('/[a-zæøå]/', $password)) { return "Passordet må inneholde minst én liten bokstav."; }
 
-        if(preg_match_all('/[0-9]/', $password) < 2) 
-            return "Passordet må inneholde minst to tall.";
+        if(preg_match_all('/[0-9]/', $password) < 2) { return "Passordet må inneholde minst to tall."; }
 
         return true;
     }
