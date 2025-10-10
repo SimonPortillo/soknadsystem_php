@@ -121,7 +121,7 @@ class AuthController {
      * @param string $email The email address to validate
      * @return array Array of error messages (empty if validation passes)
      */
-    private function validateRegistration($username, $password, $email) {
+    private function validateRegistration($username, $password, $email): array {
         $errors = [];
 
         if (empty($username)) {
@@ -130,12 +130,39 @@ class AuthController {
         if (empty($email) || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             $errors[] = 'Gyldig e-postadresse er påkrevd.';
         }
-        if (strlen($password) < 8) {
-            $errors[] = 'Passord må være minst 8 tegn.';
+        $passwordValidation = $this->validatePassword($password);
+        if ($passwordValidation !== true) {
+            $errors[] = $passwordValidation;
         }
 
         return $errors;
     }
+
+    /**
+     * Validate password complexity
+     * 
+     * Checks if the provided password meets the complexity requirements.
+     * 
+     * @param string $password The password to validate
+     * @return string|true Error message if validation fails, true if it passes
+     */
+
+    private function validatePassword($password): string|true {
+        if(strlen($password) < 8) 
+            return "Passordet må være minst 8 tegn langt.";
+
+        if(!preg_match('/[A-ZÆØÅ]/', $password))
+            return "Passordet må inneholde minst én stor bokstav.";
+
+        if(!preg_match('/[a-zæøå]/', $password)) 
+            return "Passordet må inneholde minst én liten bokstav.";
+
+        if(preg_match_all('/[0-9]/', $password) < 2) 
+            return "Passordet må inneholde minst to tall.";
+
+        return true;
+    }
+
 
     /**
      * Process user registration
@@ -163,7 +190,9 @@ class AuthController {
         
         if ($errors) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
-                'errors' => $errors
+                'errors' => $errors,
+                'username' => $username,
+                'email' => $email
             ]);
             return;
         }
@@ -173,7 +202,9 @@ class AuthController {
         $existingUser = $userModel->findByUsername($username);
         if ($existingUser) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
-                'errors' => ['Brukernavnet er allerede i bruk.']
+                'errors' => ['Brukernavnet er allerede i bruk.'],
+                'username' => $username,
+                'email' => $email
             ]);
             return;
         }
@@ -192,7 +223,9 @@ class AuthController {
             
         } catch (\Exception $e) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
-                'errors' => ['En feil oppstod ved registrering. Vennligst prøv igjen.']
+                'errors' => ['En feil oppstod ved registrering. Vennligst prøv igjen.'],
+                'username' => $username,
+                'email' => $email
             ]);
         }
     }
