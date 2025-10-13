@@ -1,0 +1,124 @@
+{layout '../layout.latte'}
+
+{block title}Min Side{/block}
+
+{block content}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm mt-5">
+            <div class="card-body">
+                <h2 class="mb-4">Min Side</h2>
+                <form method="post" action="/min-side/update" enctype="multipart/form-data" novalidate>
+                    <h5 class="mb-3">Kontoinformasjon</h5>
+                    
+                    <!-- Username field: Disabled (cannot be changed) -->
+                    <div class="mb-3">
+                        <label for="username" class="form-label d-flex justify-content-between align-items-center">
+                            <span>Brukernavn</span>
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username" value="{$user->username}" disabled>
+                    </div>
+
+                    <!-- Email field: Disabled (cannot be changed) -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label d-flex justify-content-between align-items-center">
+                            <span>E-post</span>
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" value="{$user->email}" disabled>
+                    </div>
+
+                    <!-- Role field: Disabled (cannot be changed) -->
+                    <div class="mb-3">
+                        <label for="role" class="form-label d-flex justify-content-between align-items-center">
+                            <span>Rolle</span>
+                        </label>
+                        <div class="mb-3">
+                            {if $user->role === 'student'}
+                                <h3><span class="badge bg-primary ">Student</span></h3>
+                            {elseif $user->role === 'employee'}
+                                <h3><span class="badge bg-success">Ansatt</span></h3>
+                            {elseif $user->role === 'admin'}
+                                <h3><span class="badge bg-danger">Admin</span></h3>
+                            {/if}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="mb-3">Personlig informasjon</h5>
+
+                    <!-- Full Name field: Editable -->
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">
+                            <span>Fullt navn</span>
+                            <span class="badge rounded-pill text-bg-secondary">valgfritt</span>
+                        </label>
+                        <input type="text" class="form-control" id="full_name" name="full_name" value="{$user->full_name ?? ''}" autocomplete="name">
+                    </div>  
+
+                    <!-- Phone field: Editable -->
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">
+                            <span>Telefon</span>
+                            <span class="badge rounded-pill text-bg-secondary">valgfritt</span>
+                        </label>
+                        <input type="tel" class="form-control" id="phone" name="phone" value="{$user->phone ?? ''}" autocomplete="tel">
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="mb-3">Søknadsdokumenter</h5>
+
+                    <!-- CV/Resume upload field -->
+                    <div class="mb-3">
+                        <label for="cv_file" class="form-label">
+                            <span>CV</span>
+                        </label>
+                        <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
+                        <div class="form-text">
+                            Aksepterte formater: PDF, DOC, DOCX. Maks størrelse: 5MB.
+                        </div>
+                    </div>
+
+                    <!-- Cover letter upload field -->
+                    <div class="mb-3">
+                        <label for="cover_letter_file" class="form-label">
+                            <span>Søknadsbrev</span>
+                        </label>
+                        <input type="file" class="form-control" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx">
+                        <div class="form-text">
+                            Aksepterte formater: PDF, DOC, DOCX. Maks størrelse: 5MB.
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="mb-3">Kontoinformasjon</h5>
+
+                    <!-- Account created date: Disabled (read-only) -->
+                    <div class="mb-3">
+                        <label for="created_at" class="form-label d-flex justify-content-between align-items-center">
+                            <span>Konto opprettet</span>
+                           
+                        </label>
+                        <input type="text" class="form-control" id="created_at" name="created_at" value="{$user->created_at}" disabled>
+                    </div>
+
+                    <!-- Account status: Disabled (read-only) -->
+                    <div class="mb-3">
+                        <label for="is_active" class="form-label d-flex justify-content-between align-items-center">
+                            <span>Kontostatus</span>
+                            
+                        </label>
+                        <input type="text" class="form-control" id="is_active" name="is_active" value="{$user->is_active ? 'Aktiv' : 'Inaktiv'}" disabled>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary" disabled>Lagre endringer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}

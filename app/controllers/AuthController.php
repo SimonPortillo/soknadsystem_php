@@ -181,6 +181,12 @@ class AuthController {
         $username = $data->username ?? '';
         $password = $data->password ?? '';
         $email = $data->email ?? '';
+        $full_name = $data->full_name ?? null;
+        $phone = $data->phone ?? null;
+        
+        // Trim whitespace and convert empty strings to null for optional fields
+        $full_name = !empty(trim($full_name)) ? trim($full_name) : null;
+        $phone = !empty(trim($phone)) ? trim($phone) : null;
         
         $errors = $this->validateRegistration($username, $password, $email);
         
@@ -188,7 +194,9 @@ class AuthController {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => $errors,
                 'username' => $username,
-                'email' => $email
+                'email' => $email,
+                'full_name' => $full_name,
+                'phone' => $phone
             ]);
             return;
         }
@@ -200,7 +208,22 @@ class AuthController {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => ['Brukernavnet er allerede i bruk.'],
                 'username' => $username,
-                'email' => $email
+                'email' => $email,
+                'full_name' => $full_name,
+                'phone' => $phone
+            ]);
+            return;
+        }
+
+        // Check if email already exists
+        $existingEmail = $userModel->findByEmail($email);
+        if ($existingEmail) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
+                'errors' => ['En bruker med denne E-postadressen finnes allerede.'],
+                'username' => $username,
+                'email' => $email,
+                'full_name' => $full_name,
+                'phone' => $phone
             ]);
             return;
         }
@@ -208,7 +231,7 @@ class AuthController {
         try {
             // Create new user
             $user = new User($this->app->db());
-            $result = $user->create($username, $password);
+            $result = $user->create($username, $password, $email, $full_name, $phone);
             
             if (!$result) {
                 throw new \Exception('Kunne ikke opprette bruker');
@@ -221,7 +244,9 @@ class AuthController {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => ['En feil oppstod ved registrering. Vennligst prøv igjen.'],
                 'username' => $username,
-                'email' => $email
+                'email' => $email,
+                'full_name' => $full_name,
+                'phone' => $phone
             ]);
         }
     }

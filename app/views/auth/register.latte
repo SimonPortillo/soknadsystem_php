@@ -1,6 +1,6 @@
 {layout '../layout.latte'}
 
-{block title}Welcome - FlightPHP{/block}
+{block title}Registrer{/block}
 
 {block content}
 <div class="row justify-content-center">
@@ -20,6 +20,18 @@
                     <div class="mb-3">
                         <label for="email" class="form-label">E-post</label>
                         <input type="email" class="form-control" id="email" name="email" required value="{$email ?? ''}" autocomplete="email">
+                    </div>
+
+                    <!-- Full Name field: Optional -->
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">Fullt navn <span class="badge rounded-pill bg-secondary">valgfritt</span></label>
+                        <input type="text" class="form-control" id="full_name" name="full_name" value="{$full_name ?? ''}" autocomplete="name">
+                    </div>
+
+                    <!-- Phone field: Optional -->
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Telefon <span class="badge rounded-pill bg-secondary">valgfritt</span></label>
+                        <input type="tel" class="form-control" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
                     </div>
 
                     <!-- Password field: Required, minimum 8 characters -->
