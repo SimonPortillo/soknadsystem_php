@@ -83,19 +83,33 @@
                             <span class="input-group-text" id="basic-addon1">+47</span>
                         <input type="tel" class="form-control" id="phone" name="phone" value="{$user->phone ?? ''}" autocomplete="tel">
                     </div>
+                     <div class="d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn btn-outline-primary btn-loader">Oppdater</button>
+                    </div>
+                </form>
 
                     <hr class="my-4">
 
                     <h5 class="mb-3">Søknadsdokumenter</h5>
                     <p class="form-text"> her kan du laste opp dokumenter du ønsker å bruke i jobbsøknader </p>
+                <form method="post" action="/min-side/upload" enctype="multipart/form-data" novalidate>
                     <!-- CV/Resume upload field -->
                     <div class="mb-3">
                         <label for="cv_file" class="form-label">
                             <span>CV</span>
                         </label>
+                        {if isset($cv_document)}
+                            <div class="alert alert-info mb-2">
+                                <i class="bi bi-file-earmark-text"></i> 
+                                <strong>Nåværende fil:</strong> {$cv_document['original_name']}
+                                <br>
+                                <small class="text-muted">Lastet opp: {$cv_document['uploaded_at']}</small>
+                            </div>
+                        {/if}
                         <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
                         <div class="form-text">
                             Aksepterte formater: PDF, DOC, DOCX. Maks størrelse: 5MB.
+                            {if isset($cv_document)}Last opp en ny fil for å erstatte den eksisterende.{/if}
                         </div>
                     </div>
 
@@ -104,15 +118,25 @@
                         <label for="cover_letter_file" class="form-label">
                             <span>Søknadsbrev</span>
                         </label>
+                        {if isset($cover_letter_document)}
+                            <div class="alert alert-info mb-2">
+                                <i class="bi bi-file-earmark-text"></i> 
+                                <strong>Nåværende fil:</strong> {$cover_letter_document['original_name']}
+                                <br>
+                                <small class="text-muted">Lastet opp: {$cover_letter_document['uploaded_at']}</small>
+                            </div>
+                        {/if}
                         <input type="file" class="form-control" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx">
                         <div class="form-text">
                             Aksepterte formater: PDF, DOC, DOCX. Maks størrelse: 5MB.
+                            {if isset($cover_letter_document)}Last opp en ny fil for å erstatte den eksisterende.{/if}
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <button type="submit" class="btn btn-primary">Lagre endringer</button>
+                        <button type="submit" class="btn btn-outline-primary btn-loader">Last opp</button>
                     </div>
+                </form>
 
                     <hr class="my-4">
 
@@ -126,8 +150,8 @@
                         </label>
                         <input type="text" class="form-control" id="created_at" name="created_at" value="{$user->created_at}" disabled>
                     </div>
+                
 
-                </form>
                 <hr class="my-4">
                 <h5 class="mb-3">Slett konto</h5>
                 <span class="badge rounded-pill bg-warning text-dark">Advarsel</span>
@@ -135,7 +159,7 @@
                 Dette vil slette kontoen din permanent og kan ikke angres.
                 </strong></p>
                 <div class="d-grid">
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
                         Slett konto
                     </button>
                 </div>
@@ -143,19 +167,19 @@
         <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteAccountModalLabel">Bekreft sletting</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
-                </div>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteAccountModalLabel">Bekreft sletting</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                    </div>
                 <div class="modal-body">
                     Er du sikker på at du vil slette kontoen din? Dette kan ikke angres.
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Avbryt</button>
-                    <form method="post" action="/min-side/delete" style="display:inline;">
-                    <button type="submit" class="btn btn-danger">Slett konto</button>
-                    </form>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                        <form method="post" action="/min-side/delete" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-loader">Slett konto</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

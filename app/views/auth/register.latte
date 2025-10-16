@@ -8,6 +8,15 @@
         <div class="card shadow-sm mt-5">
             <div class="card-body">
                 <h2 class="mb-4 text-center">Registrer bruker</h2>
+
+                <!-- Error Message -->
+                {if isset($error_message)}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {$error_message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {/if}
+
                 <!-- The form does NOT use client-side validation and relies on server-side PHP validation entirely -->
                 <form method="post" action="/register" novalidate> 
                     <!-- Username field: Required, must be unique -->

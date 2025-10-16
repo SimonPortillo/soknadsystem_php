@@ -87,7 +87,7 @@ $router->group('', function(Router $router) use ($app) {
 	/**
 	 * Document Routes
 	 */
-	$router->post('/upload-document', [ DocumentController::class, 'upload' ]);
+	$router->post('/min-side/upload', [ DocumentController::class, 'upload' ]);
 	
 	/**
 	 * API Route Group

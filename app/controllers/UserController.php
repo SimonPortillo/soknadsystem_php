@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use flight\Engine;
 use app\models\User;
+use app\models\Document;
 
 /**
  * UserController
@@ -86,6 +87,21 @@ class UserController {
         $this->app->session()->delete('success_message');
         $this->app->session()->delete('error_message');
 
+        // Fetch user's documents
+        $documentModel = new Document($this->app->db());
+        $documents = $documentModel->findByUser($userId);
+        
+        // Organize documents by type
+        $cvDocument = null;
+        $coverLetterDocument = null;
+        foreach ($documents as $doc) {
+            if ($doc['type'] === 'cv') {
+                $cvDocument = $doc;
+            } elseif ($doc['type'] === 'cover_letter') {
+                $coverLetterDocument = $doc;
+            }
+        }
+
         // Render the profile page with user data
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [
             'isLoggedIn' => true,
@@ -93,7 +109,9 @@ class UserController {
             'user' => $user,
             'csp_nonce' => $nonce,
             'success_message' => $successMessage,
-            'error_message' => $errorMessage
+            'error_message' => $errorMessage,
+            'cv_document' => $cvDocument,
+            'cover_letter_document' => $coverLetterDocument
         ]);
     }
 
@@ -114,7 +132,6 @@ class UserController {
         // Sanitize input (strip tags and trim whitespace)
         $fullName = $fullName ? trim(strip_tags($fullName)) : null;
         $phone = $phone ? trim(strip_tags($phone)) : null;
-
         // Validate phone number if provided
         if ($phone !== null && strlen($phone) !== 8) {
             $this->app->session()->set('error_message', 'Telefonnummeret må være nøyaktig 8 sifre.');
@@ -164,9 +181,20 @@ class UserController {
     }
 
     public function delete() {
+        // Redirect to login if not authenticated
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
         $userId = $this->app->session()->get('user_id');
+        $docModel = new Document($this->app->db());
+        if ($docModel->findByUser($userId)) {
+            $docModel->deleteByUser($userId); // ← Deletes files & DB records if user has documents
+        }
+
         $userModel = new User($this->app->db());
-        $userModel->delete($userId);
+        $userModel->delete($userId); // ← deletes the user
         
         // clear session and redirect to home
         $this->app->session()->clear();
