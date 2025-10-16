@@ -66,6 +66,8 @@ class UserController {
 
         // Get the current user's ID from session
         $userId = $this->app->session()->get('user_id');
+
+        $nonce = $this->app->get('csp_nonce');
         
         // Fetch user data from database
         $userModel = new User($this->app->db());
@@ -82,7 +84,8 @@ class UserController {
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [
             'isLoggedIn' => true,
             'username' => $user->username,
-            'user' => $user
+            'user' => $user,
+            'csp_nonce' => $nonce
         ]);
     }
 }

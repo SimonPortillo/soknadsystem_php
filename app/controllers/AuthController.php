@@ -53,10 +53,11 @@ class AuthController {
             $this->app->redirect('/positions');
             return;
         }
-        
+
         $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
             'isLoggedIn' => false,
-            'username' => null
+            'username' => null,
+            'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
 
@@ -79,7 +80,8 @@ class AuthController {
         
         $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
             'isLoggedIn' => false,
-            'username' => null
+            'username' => null,
+            'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
     
@@ -102,7 +104,8 @@ class AuthController {
         
         $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte', [
             'isLoggedIn' => true,
-            'username' => $this->app->session()->get('username')
+            'username' => $this->app->session()->get('username'),
+            'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
 
@@ -196,7 +199,8 @@ class AuthController {
                 'username' => $username,
                 'email' => $email,
                 'full_name' => $full_name,
-                'phone' => $phone
+                'phone' => $phone,
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
@@ -210,7 +214,8 @@ class AuthController {
                 'username' => $username,
                 'email' => $email,
                 'full_name' => $full_name,
-                'phone' => $phone
+                'phone' => $phone,
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
@@ -223,7 +228,8 @@ class AuthController {
                 'username' => $username,
                 'email' => $email,
                 'full_name' => $full_name,
-                'phone' => $phone
+                'phone' => $phone,
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
@@ -246,7 +252,8 @@ class AuthController {
                 'username' => $username,
                 'email' => $email,
                 'full_name' => $full_name,
-                'phone' => $phone
+                'phone' => $phone,
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
         }
     }
@@ -302,7 +309,8 @@ class AuthController {
 
         if ($errors) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
-                'errors' => $errors
+                'errors' => $errors,
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
@@ -313,7 +321,8 @@ class AuthController {
         
         if (!$user || !$user->verifyPassword($password)) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
-                'errors' => ['Feil brukernavn eller passord.']
+                'errors' => ['Feil brukernavn eller passord.'],
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
