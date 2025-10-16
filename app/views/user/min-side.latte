@@ -99,11 +99,16 @@
                             <span>CV</span>
                         </label>
                         {if isset($cv_document)}
-                            <div class="alert alert-info mb-2">
-                                <i class="bi bi-file-earmark-text"></i> 
-                                <strong>Nåværende fil:</strong> {$cv_document['original_name']}
-                                <br>
-                                <small class="text-muted">Lastet opp: {$cv_document['uploaded_at']}</small>
+                            <div class="alert alert-info mb-2 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-file-earmark-text"></i> 
+                                    <strong>Nåværende fil:</strong> {$cv_document['original_name']}
+                                    <br>
+                                    <small class="text-muted">Lastet opp: {$cv_document['uploaded_at']}</small>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#deleteCvModal">
+                                    <i class="bi bi-trash"></i> Slett
+                                </button>
                             </div>
                         {/if}
                         <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
@@ -119,11 +124,16 @@
                             <span>Søknadsbrev</span>
                         </label>
                         {if isset($cover_letter_document)}
-                            <div class="alert alert-info mb-2">
-                                <i class="bi bi-file-earmark-text"></i> 
-                                <strong>Nåværende fil:</strong> {$cover_letter_document['original_name']}
-                                <br>
-                                <small class="text-muted">Lastet opp: {$cover_letter_document['uploaded_at']}</small>
+                            <div class="alert alert-info mb-2 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-file-earmark-text"></i> 
+                                    <strong>Nåværende fil:</strong> {$cover_letter_document['original_name']}
+                                    <br>
+                                    <small class="text-muted">Lastet opp: {$cover_letter_document['uploaded_at']}</small>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#deleteCoverLetterModal">
+                                    <i class="bi bi-trash"></i> Slett
+                                </button>
                             </div>
                         {/if}
                         <input type="file" class="form-control" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx">
@@ -183,6 +193,54 @@
                 </div>
             </div>
         </div>
+
+        <!-- Delete CV Modal -->
+        {if isset($cv_document)}
+        <div class="modal fade" id="deleteCvModal" tabindex="-1" aria-labelledby="deleteCvModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteCvModalLabel">Bekreft sletting av CV</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                    </div>
+                    <div class="modal-body">
+                        Er du sikker på at du vil slette CV-en <strong>{$cv_document['original_name']}</strong>?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                        <form method="post" action="/min-side/documents/delete" style="display:inline;">
+                            <input type="hidden" name="document_id" value="{$cv_document['id']}">
+                            <button type="submit" class="btn btn-danger btn-loader">Slett CV</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/if}
+
+        <!-- Delete Cover Letter Modal -->
+        {if isset($cover_letter_document)}
+        <div class="modal fade" id="deleteCoverLetterModal" tabindex="-1" aria-labelledby="deleteCoverLetterModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteCoverLetterModalLabel">Bekreft sletting av søknadsbrev</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                    </div>
+                    <div class="modal-body">
+                        Er du sikker på at du vil slette søknadsbrevet <strong>{$cover_letter_document['original_name']}</strong>?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                        <form method="post" action="/min-side/documents/delete" style="display:inline;">
+                            <input type="hidden" name="document_id" value="{$cover_letter_document['id']}">
+                            <button type="submit" class="btn btn-danger btn-loader">Slett søknadsbrev</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/if}
     </div>
 </div>
 {/block}

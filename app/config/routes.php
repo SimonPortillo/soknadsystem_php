@@ -73,21 +73,28 @@ $router->group('', function(Router $router) use ($app) {
 	/**
 	 * User Profile Routes
 	 * 
-	 * Routes for managing user profile information.
+	 * Routes for managing user profile information and documents.
 	 * All routes require authentication (checked within controller methods).
 	 */
 	
 	// Display user profile page "Min Side" (authenticated users only)
 	$router->get('/min-side', [ UserController::class, 'index' ]);
 
+	// Update user profile information
 	$router->post('/min-side/update', [ UserController::class, 'update' ]);
-	
+
+	// Delete user account and associated documents
 	$router->post('/min-side/delete', [ UserController::class, 'delete' ]);
 
 	/**
-	 * Document Routes
+	 * Document Management Routes (under min-side)
 	 */
+
+	// Upload user documents (CV, cover letter)
 	$router->post('/min-side/upload', [ DocumentController::class, 'upload' ]);
+
+	// Delete user document by ID
+	$router->post('/min-side/documents/delete', [ DocumentController::class, 'delete' ]);
 	
 	/**
 	 * API Route Group

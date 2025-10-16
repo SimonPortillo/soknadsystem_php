@@ -158,8 +158,40 @@ class DocumentController
         return ['success' => true, 'error' => null];
     }
 
+    /**
+     * Delete a document
+     * 
+     * Deletes a specific document by ID. Verifies user ownership before deletion.
+     * 
+     * @return void Redirects back to min-side with success/error message
+     */
     public function delete() {
-        
+        // Check authentication
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        $userId = $this->app->session()->get('user_id');
+        $documentId = $this->app->request()->data->document_id ?? null;
+
+        if (!$documentId) {
+            $this->app->session()->set('error_message', 'Ugyldig dokument-ID.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Delete the document
+        $documentModel = new Document($this->app->db());
+        $success = $documentModel->deleteById((int)$documentId, $userId);
+
+        if ($success) {
+            $this->app->session()->set('success_message', 'Dokumentet ble slettet.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke slette dokumentet. Det tilhører kanskje ikke deg.');
+        }
+
+        $this->app->redirect('/min-side');
     }
         
 }

@@ -146,5 +146,50 @@ class Document
         $stmt = $this->db->prepare('DELETE FROM documents WHERE user_id = :user_id');
         return $stmt->execute([':user_id' => $userId]);
     }
+
+    /**
+     * Find a document by ID
+     * 
+     * @param int $documentId The document ID
+     * @return array|null Document data or null if not found
+     */
+    public function findById(int $documentId): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM documents WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $documentId]);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        return $result ?: null;
+    }
+
+    /**
+     * Delete a specific document by ID
+     * 
+     * This method deletes both the physical file and database record.
+     * It verifies that the document belongs to the specified user for security.
+     * 
+     * @param int $documentId The document ID
+     * @param int $userId The user ID (for verification)
+     * @return bool True on success, false on failure
+     */
+    public function deleteById(int $documentId, int $userId): bool
+    {
+        // First, fetch the document to verify ownership and get file path
+        $document = $this->findById($documentId);
+        
+        if (!$document || $document['user_id'] !== $userId) {
+            return false; // Document not found or doesn't belong to user
+        }
+        
+        // Delete physical file
+        $filePath = __DIR__ . '/../../uploads/' . $document['file_path'];
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+        
+        // Delete database record
+        $stmt = $this->db->prepare('DELETE FROM documents WHERE id = :id AND user_id = :user_id');
+        return $stmt->execute([':id' => $documentId, ':user_id' => $userId]);
+    }
     
 }
