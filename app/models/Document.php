@@ -186,6 +186,13 @@ class Document
         if (file_exists($filePath)) {
             unlink($filePath);
         }
+
+        // Try to remove the user's directory if it's empty
+        $userDir = __DIR__ . '/../../uploads/users/' . $userId . '/';
+        if (is_dir($userDir)) {
+            // Remove directory only if empty
+            @rmdir($userDir);
+        }
         
         // Delete database record
         $stmt = $this->db->prepare('DELETE FROM documents WHERE id = :id AND user_id = :user_id');
