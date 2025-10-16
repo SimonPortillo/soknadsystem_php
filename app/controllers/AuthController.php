@@ -53,10 +53,11 @@ class AuthController {
             $this->app->redirect('/positions');
             return;
         }
-        
+
         $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
             'isLoggedIn' => false,
-            'username' => null
+            'username' => null,
+            'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
 
@@ -79,7 +80,8 @@ class AuthController {
         
         $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
             'isLoggedIn' => false,
-            'username' => null
+            'username' => null,
+            'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
     
@@ -102,7 +104,8 @@ class AuthController {
         
         $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte', [
             'isLoggedIn' => true,
-            'username' => $this->app->session()->get('username')
+            'username' => $this->app->session()->get('username'),
+            'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
 
@@ -181,6 +184,12 @@ class AuthController {
         $username = $data->username ?? '';
         $password = $data->password ?? '';
         $email = $data->email ?? '';
+        $full_name = $data->full_name ?? null;
+        $phone = $data->phone ?? null;
+        
+        // Trim whitespace and convert empty strings to null for optional fields
+        $full_name = !empty(trim($full_name)) ? trim($full_name) : null;
+        $phone = !empty(trim($phone)) ? trim($phone) : null;
         
         $errors = $this->validateRegistration($username, $password, $email);
         
@@ -188,7 +197,10 @@ class AuthController {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => $errors,
                 'username' => $username,
-                'email' => $email
+                'email' => $email,
+                'full_name' => $full_name,
+                'phone' => $phone,
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
@@ -200,7 +212,24 @@ class AuthController {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => ['Brukernavnet er allerede i bruk.'],
                 'username' => $username,
-                'email' => $email
+                'email' => $email,
+                'full_name' => $full_name,
+                'phone' => $phone,
+                'csp_nonce' => $this->app->get('csp_nonce')
+            ]);
+            return;
+        }
+
+        // Check if email already exists
+        $existingEmail = $userModel->findByEmail($email);
+        if ($existingEmail) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
+                'errors' => ['En bruker med denne E-postadressen finnes allerede.'],
+                'username' => $username,
+                'email' => $email,
+                'full_name' => $full_name,
+                'phone' => $phone,
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
@@ -208,7 +237,7 @@ class AuthController {
         try {
             // Create new user
             $user = new User($this->app->db());
-            $result = $user->create($username, $password);
+            $result = $user->create($username, $password, $email, $full_name, $phone);
             
             if (!$result) {
                 throw new \Exception('Kunne ikke opprette bruker');
@@ -221,7 +250,10 @@ class AuthController {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => ['En feil oppstod ved registrering. Vennligst prøv igjen.'],
                 'username' => $username,
-                'email' => $email
+                'email' => $email,
+                'full_name' => $full_name,
+                'phone' => $phone,
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
         }
     }
@@ -277,7 +309,8 @@ class AuthController {
 
         if ($errors) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
-                'errors' => $errors
+                'errors' => $errors,
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
@@ -288,7 +321,8 @@ class AuthController {
         
         if (!$user || !$user->verifyPassword($password)) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
-                'errors' => ['Feil brukernavn eller passord.']
+                'errors' => ['Feil brukernavn eller passord.'],
+                'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }

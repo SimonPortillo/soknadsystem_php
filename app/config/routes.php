@@ -19,6 +19,7 @@
 use app\controllers\ApiExampleController;
 use app\controllers\HomeController;
 use app\controllers\AuthController;
+use app\controllers\UserController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -67,6 +68,16 @@ $router->group('', function(Router $router) use ($app) {
 	
 	// Logout user and destroy session (authenticated users only)
 	$router->get('/logout', [ AuthController::class, 'logout' ]);
+
+	/**
+	 * User Profile Routes
+	 * 
+	 * Routes for managing user profile information.
+	 * All routes require authentication (checked within controller methods).
+	 */
+	
+	// Display user profile page "Min Side" (authenticated users only)
+	$router->get('/min-side', [ UserController::class, 'index' ]);
 	
 	/**
 	 * API Route Group

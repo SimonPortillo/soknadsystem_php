@@ -42,7 +42,8 @@ class HomeController {
 	public function index() {
 		$this->app->latte()->render(__DIR__ . '/../views/home/home.latte', [
 			'isLoggedIn' => $this->app->session()->get('is_logged_in'),
-			'username' => $this->app->session()->get('username')
+			'username' => $this->app->session()->get('username'),
+			'csp_nonce' => $this->app->get('csp_nonce')
 		]);
 	}
 }
