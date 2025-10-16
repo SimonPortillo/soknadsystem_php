@@ -124,7 +124,7 @@ class AuthController {
      * @param string $email The email address to validate
      * @return array Array of error messages (empty if validation passes)
      */
-    private function validateRegistration($username, $password, $email): array {
+    private function validateRegistration($username, $password, $email, $phone): array {
         $errors = [];
 
         if (empty($username)) {
@@ -132,6 +132,9 @@ class AuthController {
         }
         if (empty($email) || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             $errors[] = 'Gyldig e-postadresse er påkrevd.';
+        }
+        if($phone && strlen($phone) !== 8) {
+            $errors[] = "Telefonnummer må være nøyaktig 8 siffer.";
         }
         $passwordValidation = $this->validatePassword($password);
         if ($passwordValidation !== true) {
@@ -191,7 +194,7 @@ class AuthController {
         $full_name = !empty(trim($full_name)) ? trim($full_name) : null;
         $phone = !empty(trim($phone)) ? trim($phone) : null;
         
-        $errors = $this->validateRegistration($username, $password, $email);
+        $errors = $this->validateRegistration($username, $password, $email, $phone);
         
         if ($errors) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
@@ -224,7 +227,7 @@ class AuthController {
         $existingEmail = $userModel->findByEmail($email);
         if ($existingEmail) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
-                'errors' => ['En bruker med denne E-postadressen finnes allerede.'],
+                'errors' => ['En bruker med denne e-postadressen finnes allerede.'],
                 'username' => $username,
                 'email' => $email,
                 'full_name' => $full_name,
@@ -264,18 +267,18 @@ class AuthController {
      * Performs basic validation on login form data.
      * 
      * Validation rules:
-     *   - Username must not be empty
+     *   - Username/Email must not be empty
      *   - Password must not be empty
      * 
-     * @param string $username The username to validate
+     * @param string $usernameOrEmail The username or email to validate
      * @param string $password The password to validate
      * @return array Array of error messages (empty if validation passes)
      */
-    private function validateLogin($username, $password) {
+    private function validateLogin($usernameOrEmail, $password) {
         $errors = [];
 
-        if (empty($username) || empty($password)) {
-            $errors[] = 'Feil brukernavn eller passord.';
+        if (empty($usernameOrEmail) || empty($password)) {
+            $errors[] = 'Feil brukernavn/e-post eller passord.';
         }
 
         return $errors;
@@ -290,22 +293,23 @@ class AuthController {
      * Route: POST /login
      * 
      * Expected POST data:
-     *   - username: User's username
+     *   - username: User's username or email address
      *   - password: User's password (will be verified against hashed password)
      * 
      * Security:
      *   - Uses password_verify() to check against hashed password
-     *   - Returns generic error message to prevent username enumeration
+     *   - Returns generic error message to prevent username/email enumeration
      *   - Creates secure session upon successful authentication
+     *   - Accepts both username and email for login
      * 
      * @return void Redirects to positions page on success, re-renders form with errors on failure
      */
     public function login() {
         $data = $this->app->request()->data;
-        $username = $data->username ?? '';
+        $usernameOrEmail = $data->username ?? '';
         $password = $data->password ?? '';
 
-        $errors = $this->validateLogin($username, $password);
+        $errors = $this->validateLogin($usernameOrEmail, $password);
 
         if ($errors) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
@@ -315,13 +319,19 @@ class AuthController {
             return;
         }
         
-        // Find user by username
+        // Find user by username or email
         $userModel = new User($this->app->db());
-        $user = $userModel->findByUsername($username);
+        
+        // Check if input looks like an email
+        if (filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL)) {
+            $user = $userModel->findByEmail($usernameOrEmail);
+        } else {
+            $user = $userModel->findByUsername($usernameOrEmail);
+        }
         
         if (!$user || !$user->verifyPassword($password)) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
-                'errors' => ['Feil brukernavn eller passord.'],
+                'errors' => ['Feil brukernavn/e-post eller passord.'],
                 'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;

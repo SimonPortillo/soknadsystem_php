@@ -5,3 +5,4 @@ composer.lock
 .vagrant/
 .runway-creds.json
 cache/latte/
+uploads/
