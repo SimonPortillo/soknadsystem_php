@@ -189,7 +189,7 @@ class UserController {
 
         $userId = $this->app->session()->get('user_id');
         $docModel = new Document($this->app->db());
-        if ($docModel->findByUser($userId)) {
+        if (!empty($docModel->findByUser($userId))) {
             $docModel->deleteByUser($userId); // ← Deletes files & DB records if user has documents
         }
 
