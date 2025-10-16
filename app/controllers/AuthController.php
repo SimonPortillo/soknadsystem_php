@@ -124,7 +124,7 @@ class AuthController {
      * @param string $email The email address to validate
      * @return array Array of error messages (empty if validation passes)
      */
-    private function validateRegistration($username, $password, $email): array {
+    private function validateRegistration($username, $password, $email, $phone): array {
         $errors = [];
 
         if (empty($username)) {
@@ -132,6 +132,9 @@ class AuthController {
         }
         if (empty($email) || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             $errors[] = 'Gyldig e-postadresse er påkrevd.';
+        }
+        if($phone && strlen($phone) !== 8) {
+            $errors[] = "Telefonnummer må være nøyaktig 8 siffer.";
         }
         $passwordValidation = $this->validatePassword($password);
         if ($passwordValidation !== true) {
@@ -191,7 +194,7 @@ class AuthController {
         $full_name = !empty(trim($full_name)) ? trim($full_name) : null;
         $phone = !empty(trim($phone)) ? trim($phone) : null;
         
-        $errors = $this->validateRegistration($username, $password, $email);
+        $errors = $this->validateRegistration($username, $password, $email, $phone);
         
         if ($errors) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [

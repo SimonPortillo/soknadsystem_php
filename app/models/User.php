@@ -207,4 +207,41 @@ class User
         
         return $user;
     }
+
+    /**
+     * Update user profile
+     * 
+     * @param int $userId The user ID to update
+     * @param array $data Array of fields to update (only full_name and phone are allowed)
+     * @return bool True on success, false on failure
+     */
+    public function update(int $userId, array $data): bool
+    {
+        // Only allow updating specific fields
+        $allowedFields = ['full_name', 'phone'];
+        $updates = [];
+        $params = [':id' => $userId];
+        
+        foreach ($allowedFields as $field) {
+            if (array_key_exists($field, $data)) {
+                $updates[] = "$field = :$field";
+                $params[":$field"] = $data[$field];
+            }
+        }
+        
+        if (empty($updates)) {
+            return false;
+        }
+        
+        $sql = 'UPDATE users SET ' . implode(', ', $updates) . ', updated_at = NOW() WHERE id = :id';
+        $stmt = $this->db->prepare($sql);
+        
+        return $stmt->execute($params);
+    }
+
+    public function delete(int $userId): bool
+    {
+        $stmt = $this->db->prepare('DELETE FROM users WHERE id = :id');
+        return $stmt->execute([':id' => $userId]);
+    }
 }

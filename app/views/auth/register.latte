@@ -15,7 +15,10 @@
                         <label for="username" class="form-label">Brukernavn
                             <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span>
                         </label>
-                        <input type="text" class="form-control" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
+                         <div class="input-group mb-3">
+                         <span class="input-group-text" id="basic-addon1">@</span>
+                            <input type="text" class="form-control" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
+                        </div>
                     </div>
 
                     <!-- Email field: Required, must be a valid email format -->
@@ -35,7 +38,11 @@
                     <!-- Phone field: Optional -->
                     <div class="mb-3">
                         <label for="phone" class="form-label">Telefon</label>
-                        <input type="tel" class="form-control" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
+                        
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">+47</span>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
+                        </div>
                     </div>
 
                     <!-- Password field: Required, minimum 8 characters -->

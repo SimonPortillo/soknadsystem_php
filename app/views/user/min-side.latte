@@ -8,6 +8,23 @@
         <div class="card shadow-sm mt-5">
             <div class="card-body">
                 <h2 class="mb-4">Min Side</h2>
+
+                <!-- Success Message -->
+                {if isset($success_message)}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {$success_message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {/if}
+
+                <!-- Error Message -->
+                {if isset($error_message)}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {$error_message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {/if}
+
                 <form method="post" action="/min-side/update" enctype="multipart/form-data" novalidate>
                     <h5 class="mb-3">Kontoinformasjon</h5>
                     
@@ -62,13 +79,15 @@
                             <span>Telefon</span>
                             <span class="badge rounded-pill text-bg-secondary">valgfritt</span>
                         </label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">+47</span>
                         <input type="tel" class="form-control" id="phone" name="phone" value="{$user->phone ?? ''}" autocomplete="tel">
                     </div>
 
                     <hr class="my-4">
 
                     <h5 class="mb-3">Søknadsdokumenter</h5>
-
+                    <p class="form-text"> her kan du laste opp dokumenter du ønsker å bruke i jobbsøknader </p>
                     <!-- CV/Resume upload field -->
                     <div class="mb-3">
                         <label for="cv_file" class="form-label">
@@ -91,6 +110,10 @@
                         </div>
                     </div>
 
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn btn-primary">Lagre endringer</button>
+                    </div>
+
                     <hr class="my-4">
 
                     <h5 class="mb-3">Kontoinformasjon</h5>
@@ -104,10 +127,36 @@
                         <input type="text" class="form-control" id="created_at" name="created_at" value="{$user->created_at}" disabled>
                     </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary" disabled>Lagre endringer</button>
-                    </div>
                 </form>
+                <hr class="my-4">
+                <h5 class="mb-3">Slett konto</h5>
+                <span class="badge rounded-pill bg-warning text-dark">Advarsel</span>
+                <p class="form-text"><strong>
+                Dette vil slette kontoen din permanent og kan ikke angres.
+                </strong></p>
+                <div class="d-grid">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                        Slett konto
+                    </button>
+                </div>
+            </div>
+        <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAccountModalLabel">Bekreft sletting</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                </div>
+                <div class="modal-body">
+                    Er du sikker på at du vil slette kontoen din? Dette kan ikke angres.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Avbryt</button>
+                    <form method="post" action="/min-side/delete" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Slett konto</button>
+                    </form>
+                </div>
+                </div>
             </div>
         </div>
     </div>

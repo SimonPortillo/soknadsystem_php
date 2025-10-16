@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-100">
+<html lang="no" class="h-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,15 +56,21 @@
 
     <main class="container flex-shrink-0 mb-5">
         {if isset($errors) && $errors}
-            <div class="alert alert-danger">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <ul>
                     {foreach $errors as $error}
                         <li>{$error}</li>
                     {/foreach}
                 </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {/if}
-        
+        {if isset($message) && $message}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {$message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {/if}
         {include content}
     </main>
 

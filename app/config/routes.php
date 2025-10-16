@@ -20,6 +20,7 @@ use app\controllers\ApiExampleController;
 use app\controllers\HomeController;
 use app\controllers\AuthController;
 use app\controllers\UserController;
+use app\controllers\DocumentController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -78,6 +79,15 @@ $router->group('', function(Router $router) use ($app) {
 	
 	// Display user profile page "Min Side" (authenticated users only)
 	$router->get('/min-side', [ UserController::class, 'index' ]);
+
+	$router->post('/min-side/update', [ UserController::class, 'update' ]);
+	
+	$router->post('/min-side/delete', [ UserController::class, 'delete' ]);
+
+	/**
+	 * Document Routes
+	 */
+	$router->post('/upload-document', [ DocumentController::class, 'upload' ]);
 	
 	/**
 	 * API Route Group

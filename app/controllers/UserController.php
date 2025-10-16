@@ -80,12 +80,97 @@ class UserController {
             return;
         }
 
+        // Get flash messages and clear them
+        $successMessage = $this->app->session()->get('success_message');
+        $errorMessage = $this->app->session()->get('error_message');
+        $this->app->session()->delete('success_message');
+        $this->app->session()->delete('error_message');
+
         // Render the profile page with user data
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [
             'isLoggedIn' => true,
             'username' => $user->username,
             'user' => $user,
-            'csp_nonce' => $nonce
+            'csp_nonce' => $nonce,
+            'success_message' => $successMessage,
+            'error_message' => $errorMessage
         ]);
+    }
+
+    public function update() {
+        // Redirect to login if not authenticated
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        // Get the current user's ID from session
+        $userId = $this->app->session()->get('user_id');
+
+        // Get the submitted form data
+        $fullName = $this->app->request()->data->full_name ?? null;
+        $phone = $this->app->request()->data->phone ?? null;
+
+        // Sanitize input (strip tags and trim whitespace)
+        $fullName = $fullName ? trim(strip_tags($fullName)) : null;
+        $phone = $phone ? trim(strip_tags($phone)) : null;
+
+        // Validate phone number if provided
+        if ($phone !== null && strlen($phone) !== 8) {
+            $this->app->session()->set('error_message', 'Telefonnummeret må være nøyaktig 8 sifre.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Fetch current user data
+        $userModel = new User($this->app->db());
+        $user = $userModel->findById($userId);
+
+        if (!$user) {
+            $this->app->session()->set('error_message', 'Bruker ikke funnet.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Check if data is unchanged
+        $isFullNameSame = ($fullName === null || $fullName === $user->full_name);
+        $isPhoneSame = ($phone === null || $phone === $user->phone);
+
+        if ($isFullNameSame && $isPhoneSame) {
+            $this->app->session()->set('error_message', 'Ingen endringer gjort.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Prepare data for update (only non-empty strings)
+        $updateData = [];
+        if ($fullName !== null && $fullName !== '') {
+            $updateData['full_name'] = $fullName;
+        }
+        if ($phone !== null && $phone !== '') {
+            $updateData['phone'] = $phone;
+        }
+
+        // Update user in database
+        $success = $userModel->update($userId, $updateData);
+
+        if ($success) {
+            $this->app->session()->set('success_message', 'Profilen din har blitt oppdatert.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke oppdatere profilen. Prøv igjen.');
+        }
+
+        $this->app->redirect('/min-side');
+    }
+
+    public function delete() {
+        $userId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $userModel->delete($userId);
+        
+        // clear session and redirect to home
+        $this->app->session()->clear();
+
+        $this->app->redirect('/');
     }
 }
