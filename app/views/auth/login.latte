@@ -1,13 +1,13 @@
 {layout '../layout.latte'}
 
-{block title}Login{/block}
+{block title}Logg inn{/block}
 
 {block content}
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
         <div class="card shadow-sm mt-5">
             <div class="card-body">
-                <h2 class="mb-4 text-center">Login</h2>
+                <h2 class="mb-4 text-center">Logg inn</h2>
                 <form method="post" action="/login" novalidate>
                     <div class="mb-3">
                         <label for="username" class="form-label">Brukernavn</label>
@@ -17,7 +17,7 @@
                         <label for="password" class="form-label">Passord</label>
                         <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
                     </div>
-                    <button type="submit" class="btn btn-primary btn-loader w-100">Login</button>
+                    <button type="submit" class="btn btn-primary btn-loader w-100">Logg inn</button>
                     <div class="mt-3 text-center">
                         <a href="/register" class="link-secondary">Har du ikke konto? Registrer deg</a>
                     </div>

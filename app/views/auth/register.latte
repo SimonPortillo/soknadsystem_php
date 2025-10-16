@@ -12,31 +12,37 @@
                 <form method="post" action="/register" novalidate> 
                     <!-- Username field: Required, must be unique -->
                     <div class="mb-3">
-                        <label for="username" class="form-label">Brukernavn</label>
+                        <label for="username" class="form-label">Brukernavn
+                            <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span>
+                        </label>
                         <input type="text" class="form-control" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
                     </div>
 
                     <!-- Email field: Required, must be a valid email format -->
                     <div class="mb-3">
-                        <label for="email" class="form-label">E-post</label>
+                        <label for="email" class="form-label">E-post
+                            <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span>
+                        </label>
                         <input type="email" class="form-control" id="email" name="email" required value="{$email ?? ''}" autocomplete="email">
                     </div>
 
                     <!-- Full Name field: Optional -->
                     <div class="mb-3">
-                        <label for="full_name" class="form-label">Fullt navn <span class="badge rounded-pill bg-secondary">valgfritt</span></label>
+                        <label for="full_name" class="form-label">Fullt navn</label>
                         <input type="text" class="form-control" id="full_name" name="full_name" value="{$full_name ?? ''}" autocomplete="name">
                     </div>
 
                     <!-- Phone field: Optional -->
                     <div class="mb-3">
-                        <label for="phone" class="form-label">Telefon <span class="badge rounded-pill bg-secondary">valgfritt</span></label>
+                        <label for="phone" class="form-label">Telefon</label>
                         <input type="tel" class="form-control" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
                     </div>
 
                     <!-- Password field: Required, minimum 8 characters -->
                     <div class="mb-3">
-                        <label for="password" class="form-label">Passord</label>
+                        <label for="password" class="form-label">Passord
+                            <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span>
+                        </label>
                         <br>
                         <small class="form-text text-muted">
                             Minst 8 tegn, én stor bokstav, én liten bokstav og to tall
