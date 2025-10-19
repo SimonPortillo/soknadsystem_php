@@ -87,20 +87,11 @@ class UserController {
         $this->app->session()->delete('success_message');
         $this->app->session()->delete('error_message');
 
-        // Fetch user's documents
-        $documentModel = new Document($this->app->db());
-        $documents = $documentModel->findByUser($userId);
+        // Fetch user's documents 
+        $docModel = new Document($this->app->db());
+        $cvDocuments = $docModel->findByUser($userId, 'cv');
+        $coverLetterDocuments = $docModel->findByUser($userId, 'cover_letter'); 
         
-        // Organize documents by type
-        $cvDocument = null;
-        $coverLetterDocument = null;
-        foreach ($documents as $doc) {
-            if ($doc['type'] === 'cv') {
-                $cvDocument = $doc;
-            } elseif ($doc['type'] === 'cover_letter') {
-                $coverLetterDocument = $doc;
-            }
-        }
 
         // Render the profile page with user data
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [
@@ -110,8 +101,8 @@ class UserController {
             'csp_nonce' => $nonce,
             'success_message' => $successMessage,
             'error_message' => $errorMessage,
-            'cv_document' => $cvDocument,
-            'cover_letter_document' => $coverLetterDocument
+            'cv_documents' => $cvDocuments, 
+            'cover_letter_documents' => $coverLetterDocuments, 
         ]);
     }
 
