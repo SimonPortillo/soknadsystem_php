@@ -65,7 +65,7 @@ class PositionController {
         }
         
         // Render the create position form
-        $this->app->latte()->render(__DIR__ . '/../views/auth/create-position.latte', [
+        $this->app->latte()->render(__DIR__ . '/../views/user/create-position.latte', [
             'isLoggedIn' => true,
             'username' => $user->username,
             'role' => $user->role,
@@ -122,7 +122,7 @@ class PositionController {
         
         // If validation fails, re-render form with errors
         if (!empty($errors)) {
-            $this->app->latte()->render(__DIR__ . '/../views/auth/create-position.latte', [
+            $this->app->latte()->render(__DIR__ . '/../views/user/create-position.latte', [
                 'isLoggedIn' => true,
                 'username' => $user->username,
                 'role' => $user->role,
@@ -146,7 +146,7 @@ class PositionController {
             $this->app->redirect('/positions');
         } else {
             // Re-render form with error
-            $this->app->latte()->render(__DIR__ . '/../views/auth/create-position.latte', [
+            $this->app->latte()->render(__DIR__ . '/../views/user/create-position.latte', [
                 'isLoggedIn' => true,
                 'username' => $user->username,
                 'role' => $user->role,

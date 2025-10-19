@@ -114,7 +114,7 @@ class AuthController {
         $errorMessage = $this->app->session()->get('position_error');
         $this->app->session()->delete('position_error');
         
-        $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte', [
+        $this->app->latte()->render(__DIR__ . '/../views/user/positions.latte', [
             'isLoggedIn' => true,
             'username' => $this->app->session()->get('username'),
             'role' => $this->app->session()->get('role'),

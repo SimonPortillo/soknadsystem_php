@@ -64,7 +64,7 @@ class ApplicationController {
         $this->app->session()->delete('application_error');
         
         // Render the application form
-        $this->app->latte()->render(__DIR__ . '/../views/auth/apply-position.latte', [
+        $this->app->latte()->render(__DIR__ . '/../views/user/apply-position.latte', [
             'isLoggedIn' => true,
             'username' => $user->username,
             'role' => $user->role,
@@ -74,7 +74,9 @@ class ApplicationController {
             'error_message' => $errorMessage,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
-    }    /**
+    }
+
+    /**
      * Process position application
      * 
      * Handles form submission for applying to a position.

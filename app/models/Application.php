@@ -21,8 +21,14 @@ class Application
      */
     public $user_id;
 
+    /**
+     * @var int
+     */
     public $cv_document_id;
 
+    /**
+     * @var int
+     */
     public $cover_letter_document_id;
 
     /**
