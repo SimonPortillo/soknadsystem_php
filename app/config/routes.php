@@ -22,6 +22,7 @@ use app\controllers\AuthController;
 use app\controllers\UserController;
 use app\controllers\DocumentController;
 use app\controllers\PositionController;
+use app\controllers\ApplicationController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -75,8 +76,8 @@ $router->group('', function(Router $router) use ($app) {
 	$router->post('/positions/create', [ PositionController::class, 'create' ]);
 	
 	// Apply for a position
-	$router->get('/positions/@id:[0-9]+/apply', [ PositionController::class, 'showApply' ]);
-	$router->post('/positions/@id:[0-9]+/apply', [ PositionController::class, 'apply' ]);
+	$router->get('/positions/@id:[0-9]+/apply', [ ApplicationController::class, 'index' ]);
+	$router->post('/positions/@id:[0-9]+/apply', [ ApplicationController::class, 'apply' ]);
 	
 	// Logout user and destroy session (authenticated users only)
 	$router->get('/logout', [ AuthController::class, 'logout' ]);

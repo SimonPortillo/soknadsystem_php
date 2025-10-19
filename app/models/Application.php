@@ -21,6 +21,10 @@ class Application
      */
     public $user_id;
 
+    public $cv_document_id;
+
+    public $cover_letter_document_id;
+
     /**
      * @var string
      */
@@ -59,20 +63,24 @@ class Application
      * 
      * @param int $positionId The position ID
      * @param int $userId The user ID
+     * @param int $cvDocumentId The CV document ID (required)
+     * @param int $coverLetterId The cover letter document ID (required)
      * @param string|null $notes Optional notes with the application
      * @return bool True on success, false on failure
      */
-    public function create(int $positionId, int $userId, ?string $notes = null): bool
+    public function create(int $positionId, int $userId, int $cvDocumentId, int $coverLetterId, ?string $notes = null): bool
     {
         try {
             $stmt = $this->db->prepare(
-                'INSERT INTO applications (position_id, user_id, notes) 
-                VALUES (:position_id, :user_id, :notes)'
+                'INSERT INTO applications (position_id, user_id, cv_document_id, cover_letter_document_id, notes) 
+                VALUES (:position_id, :user_id, :cv_document_id, :cover_letter_document_id, :notes)'
             );
             
             $result = $stmt->execute([
                 ':position_id' => $positionId,
                 ':user_id' => $userId,
+                ':cv_document_id' => $cvDocumentId,
+                ':cover_letter_document_id' => $coverLetterId,
                 ':notes' => $notes
             ]);
             

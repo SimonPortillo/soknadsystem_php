@@ -4,7 +4,7 @@ namespace app\controllers;
 
 use flight\Engine;
 use app\models\Position;
-
+use app\models\User;
 /**
  * PositionController
  * 
@@ -55,7 +55,7 @@ class PositionController {
 
         // Get the current user's role
         $userId = $this->app->session()->get('user_id');
-        $userModel = new \app\models\User($this->app->db());
+        $userModel = new User($this->app->db());
         $user = $userModel->findById($userId);
         
         // Only allow admin and employee roles
@@ -92,7 +92,7 @@ class PositionController {
 
         // Get the current user's role
         $userId = $this->app->session()->get('user_id');
-        $userModel = new \app\models\User($this->app->db());
+        $userModel = new User($this->app->db());
         $user = $userModel->findById($userId);
         
         // Only allow admin and employee roles
@@ -159,116 +159,5 @@ class PositionController {
             ]);
         }
     }
-    
-    /**
-     * Display the position application form
-     * 
-     * Shows the form for applying to a position. Only accessible to authenticated users.
-     * 
-     * Route: GET /positions/{id}/apply
-     * 
-     * @param int $id The position ID
-     * @return void
-     */
-    public function showApply($id) {
-        // Redirect to login if not authenticated
-        if (!$this->app->session()->get('is_logged_in')) {
-            $this->app->redirect('/login');
-            return;
-        }
-
-        // Get the current user
-        $userId = $this->app->session()->get('user_id');
-        $userModel = new \app\models\User($this->app->db());
-        $user = $userModel->findById($userId);
-        
-        if (!$user) {
-            $this->app->redirect('/login');
-            return;
-        }
-        
-        // Get position details
-        $positionModel = new Position($this->app->db());
-        $position = $positionModel->findById($id);
-        
-        if (!$position) {
-            $this->app->redirect('/positions');
-            return;
-        }
-        
-        // Check if user has already applied
-        $applicationModel = new \app\models\Application($this->app->db());
-        $hasApplied = $applicationModel->hasApplied($id, $userId);
-        
-        // Render the application form
-        $this->app->latte()->render(__DIR__ . '/../views/auth/apply-position.latte', [
-            'isLoggedIn' => true,
-            'username' => $user->username,
-            'role' => $user->role,
-            'position' => $position,
-            'hasApplied' => $hasApplied,
-            'csp_nonce' => $this->app->get('csp_nonce')
-        ]);
-    }
-    
-    /**
-     * Process position application
-     * 
-     * Handles form submission for applying to a position.
-     * Only accessible to authenticated users.
-     * 
-     * Route: POST /positions/{id}/apply
-     * 
-     * @param int $id The position ID
-     * @return void
-     */
-    public function apply($id) {
-        // Redirect to login if not authenticated
-        if (!$this->app->session()->get('is_logged_in')) {
-            $this->app->redirect('/login');
-            return;
-        }
-
-        // Get the current user
-        $userId = $this->app->session()->get('user_id');
-        $userModel = new \app\models\User($this->app->db());
-        $user = $userModel->findById($userId);
-        
-        if (!$user) {
-            $this->app->redirect('/login');
-            return;
-        }
-        
-        // Get position details
-        $positionModel = new Position($this->app->db());
-        $position = $positionModel->findById($id);
-        
-        if (!$position) {
-            $this->app->redirect('/positions');
-            return;
-        }
-        
-        // Check if user has already applied
-        $applicationModel = new \app\models\Application($this->app->db());
-        if ($applicationModel->hasApplied($id, $userId)) {
-            $this->app->session()->set('position_error', 'Du har allerede søkt på denne stillingen.');
-            $this->app->redirect('/positions');
-            return;
-        }
-        
-        // Get form data
-        $data = $this->app->request()->data;
-        $notes = $data->notes ?? null;
-        
-        // Create the application
-        $result = $applicationModel->create($id, $userId, $notes);
-        
-        if ($result) {
-            $this->app->session()->set('position_success', 'Søknaden din er sendt inn.');
-        } else {
-            $this->app->session()->set('position_error', 'Kunne ikke sende inn søknaden. Prøv igjen senere.');
-        }
-        
-        $this->app->redirect('/positions');
-    }
+   
 }
