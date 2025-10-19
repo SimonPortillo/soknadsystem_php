@@ -51,7 +51,9 @@ class DocumentController
         }
 
         // Set appropriate message
-        if ($uploadedCount > 0 && empty($errors)) {
+        if ($uploadedCount === 1 && empty($errors)) {
+            $this->app->session()->set('success_message', 'Dokumentet ble lastet opp.');
+        } elseif ($uploadedCount > 1 && empty($errors)) {
             $this->app->session()->set('success_message', 'Dokumenter ble lastet opp.');
         } elseif ($uploadedCount > 0 && !empty($errors)) {
             $this->app->session()->set('error_message', 'Noen dokumenter ble lastet opp, men det oppstod feil: ' . implode(', ', $errors));
@@ -127,16 +129,7 @@ class DocumentController
 
         // Delete old document of the same type
         $documentModel = new Document($this->app->db());
-        $oldDocuments = $documentModel->findByUser($userId, $type);
         
-        foreach ($oldDocuments as $oldDoc) {
-            $oldFilePath = __DIR__ . '/../../uploads/' . $oldDoc['file_path'];
-            if (file_exists($oldFilePath)) {
-                unlink($oldFilePath);
-            }
-        }
-        
-        $documentModel->deleteByUserAndType($userId, $type);
 
         // Save to database
         $success = $documentModel->create(

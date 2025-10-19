@@ -9,21 +9,30 @@
             <div class="card-body">
                 <h2 class="mb-4">Min Side</h2>
 
-                <!-- Success Message -->
-                {if isset($success_message)}
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {$success_message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div aria-live="polite" aria-atomic="true"
+                     class="position-fixed top-0 start-50 translate-middle-x p-3"
+                     style="z-index: 1080;">
+                    {if isset($success_message)}
+                        <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    {$success_message}
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    {/if}
+                    {if isset($error_message)}
+                        <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    {$error_message}
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    {/if}
                 </div>
-                {/if}
-
-                <!-- Error Message -->
-                {if isset($error_message)}
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {$error_message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {/if}
 
                 <form method="post" action="/min-side/update" enctype="multipart/form-data" novalidate>
                     <h5 class="mb-3">Kontoinformasjon</h5>
@@ -51,14 +60,26 @@
                         </label>
                         <div class="mb-3">
                             {if $user->role === 'student'}
-                                <h3><span class="badge bg-primary ">Student</span></h3>
+                                <h3><span class="badge rounded-pill bg-primary ">Student</span></h3>
                             {elseif $user->role === 'employee'}
-                                <h3><span class="badge bg-success">Ansatt</span></h3>
+                                <h3><span class="badge rounded-pill bg-success">Ansatt</span></h3>
                             {elseif $user->role === 'admin'}
-                                <h3><span class="badge bg-danger">Admin</span></h3>
+                                <h3><span class="badge rounded-pill bg-danger">Admin</span></h3>
                             {/if}
                         </div>
                     </div>
+
+
+                    <!-- Account created date: Disabled (read-only) -->
+                    <div class="mb-3">
+                        <label for="created_at" class="form-label d-flex justify-content-between align-items-center">
+                            <span>Konto opprettet</span>
+                           
+                        </label>
+                        <input type="text" class="form-control" id="created_at" name="created_at" value="{$user->created_at}" disabled>
+                    </div>
+                
+
 
                     <hr class="my-4">
 
@@ -91,55 +112,73 @@
                     <hr class="my-4">
 
                     <h5 class="mb-3">Søknadsdokumenter</h5>
-                    <p class="form-text"> her kan du laste opp dokumenter du ønsker å bruke i jobbsøknader </p>
+                    <p class="form-text"> Her kan du laste opp dokumenter du ønsker å bruke i jobbsøknader, du kan laste opp flere</p>
                 <form method="post" action="/min-side/upload" enctype="multipart/form-data" novalidate>
                     <!-- CV/Resume upload field -->
                     <div class="mb-3">
                         <label for="cv_file" class="form-label">
-                            <span>CV</span>
+                            <span class="badge rounded-pill text-bg-primary">
+                                {if !empty($cv_documents) && count($cv_documents) > 1}
+                                    Dine CV-er:
+                                {elseif !empty($cv_documents) && count($cv_documents) == 1}
+                                    Din CV:
+                                {else}
+                                    Last opp CV:
+                                {/if}
+                            </span>
                         </label>
-                        {if isset($cv_document)}
-                            <div class="alert alert-info mb-2 d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="bi bi-file-earmark-text"></i> 
-                                    <strong>Nåværende fil:</strong> {$cv_document['original_name']}
-                                    <br>
-                                    <small class="text-muted">Lastet opp: {$cv_document['uploaded_at']}</small>
+                        {if !empty($cv_documents)}
+                            {foreach $cv_documents as $cv}
+                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-file-earmark-text"></i> 
+                                        <strong>{$cv['original_name']}</strong>
+                                        <br>
+                                        <small class="text-muted">Lastet opp: {$cv['uploaded_at']}</small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCvModal{$cv['id']}">
+                                        <i class="bi bi-trash"></i> Slett
+                                    </button>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#deleteCvModal">
-                                    <i class="bi bi-trash"></i> Slett
-                                </button>
-                            </div>
+                            {/foreach}
                         {/if}
                         <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
                         <div class="form-text">
-                            Aksepterte formater: PDF, DOC, DOCX. Maks størrelse: 5MB.
-                            {if isset($cv_document)}Last opp en ny fil for å erstatte den eksisterende.{/if}
+                            Aksepterte filformater: PDF, DOC, DOCX. Maks filstørrelse: 5MB.
                         </div>
                     </div>
 
                     <!-- Cover letter upload field -->
                     <div class="mb-3">
                         <label for="cover_letter_file" class="form-label">
-                            <span>Søknadsbrev</span>
+                        <span class="badge rounded-pill text-bg-primary">
+                                {if !empty($cover_letter_documents) && count($cover_letter_documents) > 1}
+                                    Dine søknadsbrev:
+                                {elseif !empty($cover_letter_documents) && count($cover_letter_documents) == 1}
+                                    Ditt søknadsbrev:
+                                {else}
+                                    Last opp søknadsbrev:
+                                {/if}
+                            </span>
                         </label>
-                        {if isset($cover_letter_document)}
-                            <div class="alert alert-info mb-2 d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="bi bi-file-earmark-text"></i> 
-                                    <strong>Nåværende fil:</strong> {$cover_letter_document['original_name']}
-                                    <br>
-                                    <small class="text-muted">Lastet opp: {$cover_letter_document['uploaded_at']}</small>
+                        {if !empty($cover_letter_documents)}
+                            {foreach $cover_letter_documents as $coverLetter}
+                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-file-earmark-text"></i> 
+                                        <strong>{$coverLetter['original_name']}</strong>
+                                        <br>
+                                        <small class="text-muted">Lastet opp: {$coverLetter['uploaded_at']}</small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCoverLetterModal{$coverLetter['id']}">
+                                        <i class="bi bi-trash"></i> Slett
+                                    </button>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#deleteCoverLetterModal">
-                                    <i class="bi bi-trash"></i> Slett
-                                </button>
-                            </div>
+                            {/foreach}
                         {/if}
                         <input type="file" class="form-control" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx">
                         <div class="form-text">
-                            Aksepterte formater: PDF, DOC, DOCX. Maks størrelse: 5MB.
-                            {if isset($cover_letter_document)}Last opp en ny fil for å erstatte den eksisterende.{/if}
+                            Aksepterte filformater: PDF, DOC, DOCX. Maks størrelse: 5MB.
                         </div>
                     </div>
 
@@ -148,25 +187,11 @@
                     </div>
                 </form>
 
-                    <hr class="my-4">
-
-                    <h5 class="mb-3">Kontoinformasjon</h5>
-
-                    <!-- Account created date: Disabled (read-only) -->
-                    <div class="mb-3">
-                        <label for="created_at" class="form-label d-flex justify-content-between align-items-center">
-                            <span>Konto opprettet</span>
-                           
-                        </label>
-                        <input type="text" class="form-control" id="created_at" name="created_at" value="{$user->created_at}" disabled>
-                    </div>
-                
-
                 <hr class="my-4">
                 <h5 class="mb-3">Slett konto</h5>
                 <span class="badge rounded-pill bg-warning text-dark">Advarsel</span>
                 <p class="form-text"><strong>
-                Dette vil slette kontoen din permanent og kan ikke angres.
+                Dette vil slette kontoen din og alle tilknyttede dokumenter
                 </strong></p>
                 <div class="d-grid">
                     <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
@@ -195,51 +220,55 @@
         </div>
 
         <!-- Delete CV Modal -->
-        {if isset($cv_document)}
-        <div class="modal fade" id="deleteCvModal" tabindex="-1" aria-labelledby="deleteCvModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteCvModalLabel">Bekreft sletting av CV</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
-                    </div>
-                    <div class="modal-body">
-                        Er du sikker på at du vil slette CV-en <strong>{$cv_document['original_name']}</strong>?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
-                        <form method="post" action="/min-side/documents/delete" style="display:inline;">
-                            <input type="hidden" name="document_id" value="{$cv_document['id']}">
-                            <button type="submit" class="btn btn-danger btn-loader">Slett CV</button>
-                        </form>
+        {if !empty($cv_documents)}
+            {foreach $cv_documents as $cv}
+            <div class="modal fade" id="deleteCvModal{$cv['id']}" tabindex="-1" aria-labelledby="deleteCvModalLabel{$cv['id']}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteCvModalLabel{$cv['id']}">Bekreft sletting av CV</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                        </div>
+                        <div class="modal-body">
+                            Er du sikker på at du vil slette CV-en <strong>{$cv['original_name']}</strong>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                            <form method="post" action="/min-side/documents/delete" style="display:inline;">
+                                <input type="hidden" name="document_id" value="{$cv['id']}">
+                                <button type="submit" class="btn btn-danger btn-loader">Slett CV</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            {/foreach}
         {/if}
 
         <!-- Delete Cover Letter Modal -->
-        {if isset($cover_letter_document)}
-        <div class="modal fade" id="deleteCoverLetterModal" tabindex="-1" aria-labelledby="deleteCoverLetterModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteCoverLetterModalLabel">Bekreft sletting av søknadsbrev</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
-                    </div>
-                    <div class="modal-body">
-                        Er du sikker på at du vil slette søknadsbrevet <strong>{$cover_letter_document['original_name']}</strong>?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
-                        <form method="post" action="/min-side/documents/delete" style="display:inline;">
-                            <input type="hidden" name="document_id" value="{$cover_letter_document['id']}">
-                            <button type="submit" class="btn btn-danger btn-loader">Slett søknadsbrev</button>
-                        </form>
+        {if !empty($cover_letter_documents)}
+            {foreach $cover_letter_documents as $coverLetter}
+            <div class="modal fade" id="deleteCoverLetterModal{$coverLetter['id']}" tabindex="-1" aria-labelledby="deleteCoverLetterModalLabel{$coverLetter['id']}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteCoverLetterModalLabel{$coverLetter['id']}">Bekreft sletting av søknadsbrev</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                        </div>
+                        <div class="modal-body">
+                            Er du sikker på at du vil slette søknadsbrevet <strong>{$coverLetter['original_name']}</strong>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                            <form method="post" action="/min-side/documents/delete" style="display:inline;">
+                                <input type="hidden" name="document_id" value="{$coverLetter['id']}">
+                                <button type="submit" class="btn btn-danger btn-loader">Slett søknadsbrev</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            {/foreach}
         {/if}
     </div>
 </div>
@@ -247,4 +276,19 @@
 
 {block scripts}
     <script src="/js/form-spinner.js" nonce="{$csp_nonce}"></script>
+    <script nonce="{$csp_nonce}">
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get all toast elements
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            
+            // Initialize and show each toast
+            toastElList.forEach(function (toastEl) {
+                var toast = new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 4000
+                });
+                toast.show();
+            });
+        });
+    </script>
 {/block}
