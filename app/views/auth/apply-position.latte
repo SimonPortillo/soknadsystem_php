@@ -1,0 +1,56 @@
+{layout '../layout.latte'}
+
+{block title}Søk på stilling{/block}
+
+{block content}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="card-title text-center mb-4">Søk på stilling</h1>
+                
+                {if $hasApplied}
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle"></i> Du har allerede søkt på denne stillingen.
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <a href="/positions" class="btn btn-secondary">Tilbake til stillinger</a>
+                    </div>
+                {else}
+                    <div class="mb-4">
+                        <h4>{$position['title']}</h4>
+                        <div class="mb-3">
+                            <span class="badge bg-primary">{$position['department']}</span>
+                            <span class="badge bg-secondary">{$position['location']}</span>
+                        </div>
+                        {if $position['description']}
+                            <div class="mb-3">
+                                <p>{$position['description']}</p>
+                            </div>
+                        {/if}
+                        <small class="text-muted">Publisert av {$position['creator_full_name'] ?: $position['creator_username']} • {date('Y-m-d', strtotime($position['created_at']))}</small>
+                    </div>
+                    
+                    <form method="POST" action="/positions/{$position['id']}/apply">
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Legg til merknader til søknaden (valgfritt)</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i> Sørg for at CV og følgebrev er lastet opp på din profilside før du søker.
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="/positions" class="btn btn-secondary me-md-2">Avbryt</a>
+                            <button type="submit" class="btn btn-primary">Send søknad</button>
+                        </div>
+                    </form>
+                {/if}
+            </div>
+        </div>
+    </div>
+</div>
+{/block}

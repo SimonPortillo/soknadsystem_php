@@ -6,45 +6,56 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="card shadow-sm">
-            <div class="card-body text-center py-5">
-                <h1 class="display-4 mb-4">Ledige stillinger</h1>
-                <p class="lead mb-4">Velkommen, {$username ?? 'gjest'}!</p>
-                <div class="table-responsive mt-4">
-                    <table class="table table-bordered table-striped">
-                        <thead class="thead-dark">
-                            <tr>
-                                <th>Stilling</th>
-                                <th>Avdeling</th>
-                                <th>Lokasjon</th>
-                                <th>Publisert</th>
-                                <th>Søk</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Utvikler</td>
-                                <td>IT</td>
-                                <td>Oslo</td>
-                                <td>2024-06-01</td>
-                                <td><a href="#" class="btn btn-primary btn-sm">Søk</a></td>
-                            </tr>
-                            <tr>
-                                <td>Prosjektleder</td>
-                                <td>Prosjekt</td>
-                                <td>Bergen</td>
-                                <td>2024-05-28</td>
-                                <td><a href="#" class="btn btn-primary btn-sm">Søk</a></td>
-                            </tr>
-                            <tr>
-                                <td>Designer</td>
-                                <td>Markedsføring</td>
-                                <td>Trondheim</td>
-                                <td>2024-05-20</td>
-                                <td><a href="#" class="btn btn-primary btn-sm">Søk</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div class="card-body py-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="display-4">Ledige stillinger</h1>
+                    {if isset($role) && ($role === 'admin' || $role === 'employee')}
+                        <a href="/positions/create" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Opprett ny stilling
+                        </a>
+                    {/if}
                 </div>
+                <p class="lead mb-4">Velkommen, {$username ?? 'gjest'}!</p>
+                </div>
+                
+                {if empty($positions)}
+                    <div class="alert alert-info">
+                        Det er for øyeblikket ingen ledige stillinger.
+                    </div>
+                {else}
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Stilling</th>
+                                    <th>Avdeling</th>
+                                    <th>Lokasjon</th>
+                                    <th>Publisert av</th>
+                                    <th>Publisert dato</th>
+                                    {if isset($role) && ($role === 'admin' || $role === 'employee')}
+                                        <th>Søknader</th>
+                                    {/if}
+                                    <th>Søk</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {foreach $positions as $position}
+                                <tr>
+                                    <td>{$position['title']}</td>
+                                    <td>{$position['department']}</td>
+                                    <td>{$position['location']}</td>
+                                    <td>{$position['creator_full_name'] ?: $position['creator_username']}</td>
+                                    <td>{date('Y-m-d', strtotime($position['created_at']))}</td>
+                                    {if isset($role) && ($role === 'admin' || $role === 'employee')}
+                                        <td><span class="badge bg-info">{$position['application_count']}</span></td>
+                                    {/if}
+                                    <td><a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Søk</a></td>
+                                </tr>
+                                {/foreach}
+                            </tbody>
+                        </table>
+                    </div>
+                {/if}
             </div>
         </div>
     </div>

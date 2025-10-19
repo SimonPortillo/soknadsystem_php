@@ -1,0 +1,42 @@
+{layout '../layout.latte'}
+
+{block title}Opprett ny stilling{/block}
+
+{block content}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="card-title text-center mb-4">Opprett ny stilling</h1>
+                
+                <form method="POST" action="/positions/create">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Stillingstittel <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="title" name="title" value="{$title ?? ''}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Avdeling <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="department" name="department" value="{$department ?? ''}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Lokasjon <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="location" name="location" value="{$location ?? ''}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Stillingsbeskrivelse</label>
+                        <textarea class="form-control" id="description" name="description" rows="4">{$description ?? ''}</textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="/positions" class="btn btn-secondary me-md-2">Avbryt</a>
+                        <button type="submit" class="btn btn-primary">Lagre stilling</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}

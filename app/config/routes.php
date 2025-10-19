@@ -21,6 +21,7 @@ use app\controllers\HomeController;
 use app\controllers\AuthController;
 use app\controllers\UserController;
 use app\controllers\DocumentController;
+use app\controllers\PositionController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -66,6 +67,16 @@ $router->group('', function(Router $router) use ($app) {
 	
 	// Display job positions page (authenticated users only)
 	$router->get('/positions', [ AuthController::class, 'showPositions' ]);
+	
+	// Display create position form (admin/employee users only)
+	$router->get('/positions/create', [ PositionController::class, 'showCreate' ]);
+	
+	// Process position creation form
+	$router->post('/positions/create', [ PositionController::class, 'create' ]);
+	
+	// Apply for a position
+	$router->get('/positions/@id:[0-9]+/apply', [ PositionController::class, 'showApply' ]);
+	$router->post('/positions/@id:[0-9]+/apply', [ PositionController::class, 'apply' ]);
 	
 	// Logout user and destroy session (authenticated users only)
 	$router->get('/logout', [ AuthController::class, 'logout' ]);
