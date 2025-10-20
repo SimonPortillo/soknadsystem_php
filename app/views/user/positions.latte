@@ -47,7 +47,7 @@
                                     <td>{$position['department']}</td>
                                     <td>{$position['location']}</td>
                                     <td>{$position['creator_full_name'] ?: $position['creator_username']}</td>
-                                    <td>{date('Y-m-d', strtotime($position['created_at']))}</td>
+                                    <td>{date('d.m.Y', strtotime($position['created_at']))}</td>
                                     {if isset($role) && ($role === 'admin' || $role === 'employee')}
                                         <td><span class="badge bg-secondary">{$position['application_count']}</span></td>
                                     {/if}
