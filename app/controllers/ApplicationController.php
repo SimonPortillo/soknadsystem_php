@@ -72,6 +72,10 @@ class ApplicationController {
         $applicationModel = new Application($this->app->db());
         $hasApplied = $applicationModel->hasApplied($id, $userId);
 
+        // fetch user info
+        $userModel = new User($this->app->db());
+        $user = $userModel->findById($userId);
+       
         // fetch user documents
         $docModel = new Document($this->app->db());
         $cvDocuments = $docModel->findByUser($userId, 'cv');
@@ -94,6 +98,7 @@ class ApplicationController {
             'error_message' => $errorMessage,
             'cv_documents' => $cvDocuments, 
             'cover_letter_documents' => $coverLetterDocuments, 
+            'user' => $user,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
