@@ -7,7 +7,7 @@
     <div class="col-md-8 col-lg-6">
         <div class="card shadow-sm mt-5">
             <div class="card-body">
-                <h2 class="mb-4">Min Side</h2>
+                <h1 class="display-4 mb-4">Min Side</h1>
 
                 <div aria-live="polite" aria-atomic="true"
                      class="position-fixed top-0 start-50 translate-middle-x p-3"
@@ -108,7 +108,7 @@
                         <button type="submit" class="btn btn-outline-primary btn-loader">Oppdater</button>
                     </div>
                 </form>
-
+            {if $user->role === 'student'}
                     <hr class="my-4">
 
                     <h5 class="mb-3">Søknadsdokumenter</h5>
@@ -186,7 +186,7 @@
                         <button type="submit" class="btn btn-outline-primary btn-loader">Last opp</button>
                     </div>
                 </form>
-
+            {/if}
                 <hr class="my-4">
                 <h5 class="mb-3">Slett konto</h5>
                 <span class="badge rounded-pill bg-warning text-dark">Advarsel</span>
@@ -276,19 +276,5 @@
 
 {block scripts}
     <script src="/js/form-spinner.js" nonce="{$csp_nonce}"></script>
-    <script nonce="{$csp_nonce}">
-        document.addEventListener('DOMContentLoaded', function () {
-            // Get all toast elements
-            var toastElList = [].slice.call(document.querySelectorAll('.toast'));
-            
-            // Initialize and show each toast
-            toastElList.forEach(function (toastEl) {
-                var toast = new bootstrap.Toast(toastEl, {
-                    autohide: true,
-                    delay: 4000
-                });
-                toast.show();
-            });
-        });
-    </script>
+    <script src="/js/bootstrap-toast-logic.js" nonce="{$csp_nonce}"></script> 
 {/block}

@@ -72,9 +72,9 @@ class DocumentController
      * @param array $file The uploaded file array from $_FILES
      * @param int $userId The user ID
      * @param string $type The document type ('cv' or 'cover_letter')
-     * @return array Result array with 'success' and 'error' keys
+     * @return array Result array with 'success', 'document_id', and 'error' keys
      */
-    private function processFileUpload(array $file, int $userId, string $type): array
+    public function processFileUpload(array $file, int $userId, string $type): array
     {
         // Check for upload errors
         if ($file['error'] !== UPLOAD_ERR_OK) {
@@ -127,10 +127,9 @@ class DocumentController
             return ['success' => false, 'error' => 'Kunne ikke lagre filen.'];
         }
 
-        // Delete old document of the same type
+        
         $documentModel = new Document($this->app->db());
         
-
         // Save to database
         $success = $documentModel->create(
             $userId,
@@ -145,10 +144,13 @@ class DocumentController
             if (file_exists($targetPath)) {
                 unlink($targetPath);
             }
-            return ['success' => false, 'error' => 'Kunne ikke lagre dokumentinformasjon i databasen.'];
+            return ['success' => false, 'document_id' => null, 'error' => 'Kunne ikke lagre dokumentinformasjon i databasen.'];
         }
 
-        return ['success' => true, 'error' => null];
+        // Get the inserted document ID
+        $documentId = (int) $this->app->db()->lastInsertId();
+
+        return ['success' => true, 'document_id' => $documentId, 'error' => null];
     }
 
     /**

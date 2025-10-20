@@ -102,9 +102,25 @@ class AuthController {
             return;
         }
         
-        $this->app->latte()->render(__DIR__ . '/../views/auth/positions.latte', [
+        // Get all positions
+        $positionModel = new \app\models\Position($this->app->db());
+        $positions = $positionModel->getAll();
+        
+        // Get any success message from session and clear it
+        $successMessage = $this->app->session()->get('position_success');
+        $this->app->session()->delete('position_success');
+        
+        // Get any error message from session and clear it
+        $errorMessage = $this->app->session()->get('position_error');
+        $this->app->session()->delete('position_error');
+        
+        $this->app->latte()->render(__DIR__ . '/../views/user/positions.latte', [
             'isLoggedIn' => true,
             'username' => $this->app->session()->get('username'),
+            'role' => $this->app->session()->get('role'),
+            'positions' => $positions,
+            'message' => $successMessage,
+            'errors' => $errorMessage ? [$errorMessage] : null,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
@@ -374,6 +390,7 @@ class AuthController {
      *   - user_id: The unique ID of the authenticated user
      *   - username: The username of the authenticated user
      *   - is_logged_in: Boolean flag indicating successful authentication
+     *   - role: The user's role (student, employee, admin)
      * 
      * After setting session variables, the user is redirected to the positions page.
      * 
@@ -383,6 +400,7 @@ class AuthController {
     private function createUserSession($user) {
         $this->app->session()->set('user_id', $user->id);
         $this->app->session()->set('username', $user->username);
+        $this->app->session()->set('role', $user->role);
         $this->app->session()->set('is_logged_in', true);
         
         // Redirect to the positions page

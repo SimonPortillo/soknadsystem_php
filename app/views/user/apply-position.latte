@@ -1,0 +1,184 @@
+{layout '../layout.latte'}
+
+{block title}Søk på stilling{/block}
+
+{block content}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="card-title text-center mb-4">Søk på stilling</h1>
+                <div aria-live="polite" aria-atomic="true"
+                     class="position-fixed top-0 start-50 translate-middle-x p-3"
+                     style="z-index: 1080;">
+                    {if isset($success_message)}
+                        <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    {$success_message}
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    {/if}
+                    {if isset($error_message)}
+                        <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    {$error_message}
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    {/if}
+                </div>
+                
+                {if $hasApplied}
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle"></i> Du har allerede søkt på denne stillingen.
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <a href="/positions" class="btn btn-secondary">Tilbake til stillinger</a>
+                    </div>
+                {else}
+                    <div class="mb-4">
+                        <h4>{$position['title']}</h4>
+                        <div class="mb-3">
+                            <span class="badge bg-primary">{$position['department']}</span>
+                            <span class="badge bg-secondary">{$position['location']}</span>
+                        </div>
+                            <div class="mb-3">
+                                <p>
+                                {if $position['description']} 
+                                    {$position['description']}
+                                {else}
+                                    <small class="text-muted"> Stillingen har ingen beskrivelse </small>
+                                {/if}
+                                </p>
+                            </div>
+                        <small class="text-muted">Publisert av {$position['creator_full_name'] ?: $position['creator_username']} • {date('d.m.Y', strtotime($position['created_at']))}</small>
+                    </div>
+                    
+                    <form method="post" action="/positions/{$position['id']}/apply" enctype="multipart/form-data" novalidate>
+                    <h6>Søknadsdokumenter <span class="badge rounded-pill text-bg-warning">Påkrevd</span></h6>
+                    <!-- CV/Resume upload field -->
+                    <div class="mb-3">
+                        <label for="cv_file" class="form-label">
+                            <span class="badge rounded-pill text-bg-primary">
+                                {if !empty($cv_documents) && count($cv_documents) > 1}
+                                    Dine CV-er:
+                                {elseif !empty($cv_documents) && count($cv_documents) == 1}
+                                    Din CV:
+                                {else}
+                                    Last opp CV:
+                                {/if}
+                            </span>
+                        </label>
+                        {if !empty($cv_documents)}
+                            {foreach $cv_documents as $cv}
+                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center cv-document-option" id="cv-option-{$cv['id']}" data-cv-id="{$cv['id']}" data-cv-name="{$cv['original_name']}">
+                                    <div>
+                                        <i class="bi bi-file-earmark-text"></i> 
+                                        <strong>{$cv['original_name']}</strong>
+                                        <br>
+                                        <small class="text-muted">Lastet opp: {$cv['uploaded_at']}</small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary cv-toggle-btn">
+                                        <i class="bi bi-file-earmark-plus"></i> Bruk
+                                    </button>
+                                </div>
+                            {/foreach}
+                            <small class="text-muted">Eller last opp en ny fil:</small>
+                        {/if}
+                        <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
+                        <input type="hidden" id="cv_document_id" name="cv_document_id" value="">
+                        <div class="form-text">
+                            Aksepterte filformater: PDF, DOC, DOCX. Maks filstørrelse: 5MB.
+                        </div>
+                    </div>
+
+                    <!-- Cover letter upload field -->
+                    <div class="mb-3">
+                        <label for="cover_letter_file" class="form-label">
+                        <span class="badge rounded-pill text-bg-primary">
+                                {if !empty($cover_letter_documents) && count($cover_letter_documents) > 1}
+                                    Dine søknadsbrev:
+                                {elseif !empty($cover_letter_documents) && count($cover_letter_documents) == 1}
+                                    Ditt søknadsbrev:
+                                {else}
+                                    Last opp søknadsbrev:
+                                {/if}
+                            </span>
+                        </label>
+                        {if !empty($cover_letter_documents)}
+                            {foreach $cover_letter_documents as $coverLetter}
+                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center cover-letter-document-option" id="cover-letter-option-{$coverLetter['id']}" data-cover-letter-id="{$coverLetter['id']}" data-cover-letter-name="{$coverLetter['original_name']}">
+                                    <div>
+                                        <i class="bi bi-file-earmark-text"></i> 
+                                        <strong>{$coverLetter['original_name']}</strong>
+                                        <br>
+                                        <small class="text-muted">Lastet opp: {$coverLetter['uploaded_at']}</small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary cover-letter-toggle-btn">
+                                        <i class="bi bi-file-earmark-plus"></i> Bruk
+                                    </button>
+                                </div>
+                            {/foreach}
+                            <small class="text-muted">Eller last opp en ny fil:</small>
+                        {/if}
+                        <input type="file" class="form-control" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx">
+                        <input type="hidden" id="cover_letter_document_id" name="cover_letter_document_id" value="">
+                        <div class="form-text">
+                            Aksepterte filformater: PDF, DOC, DOCX. Maks størrelse: 5MB.
+                        </div>
+
+                         <hr class="my-4">
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Legg til merknader til søknaden <span class="badge rounded-pill text-bg-secondary">Valgfritt</span></label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="/positions" class="btn btn-secondary me-md-2">Avbryt</a>
+                            <button type="button" class="btn btn-primary" id="openApplicationModal">Send søknad</button>
+                        </div>
+                    </div>
+                </form>
+                {/if}
+            </div>
+        </div>
+        <!-- Application confirmation modal -->
+        <div class="modal fade" id="application-modal" tabindex="-1" aria-labelledby="application-modal-label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="application-modal-label">Bekreft søknad</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <small class="text-muted">Du søker som: @<strong>{$user->username}</strong></small>
+                        <small class="text-muted">epost: <strong>{$user->email}</strong></small>
+                        <p>Er du sikker på at du vil sende inn søknaden med følgende dokumenter?</p>
+                        <ul class="list-group mb-3" id="chosen-documents-list">
+                            <!-- Dynamically filled by JS -->
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                        <button type="button" class="btn btn-primary btn-loader" id="confirmApplicationSubmit">Send søknad</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block scripts}
+    <script src="/js/form-spinner.js" nonce="{$csp_nonce}"></script>
+    <script src="/js/bootstrap-toast-logic.js" nonce="{$csp_nonce}"></script> 
+    <script src="/js/document-selection-toggle.js" nonce="{$csp_nonce}"></script>
+    <script src="/js/application-modal-summary.js" nonce="{$csp_nonce}"></script>
+{/block}

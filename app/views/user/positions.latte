@@ -1,0 +1,70 @@
+{layout '../layout.latte'}
+
+{block title}Stillinger{/block}
+
+{block content}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow-sm">
+            <div class="card-body py-5">
+                <div class="row align-items-center py-4 px-3">
+                    <div class="col">
+                        <h1 class="display-4">Stillinger</h1>
+                    </div>
+                    <div class="col-auto">
+                        {if isset($role) && ($role === 'admin' || $role === 'employee')}
+                            <a href="/positions/create" class="btn btn-success">
+                                <i class="bi bi-plus-circle"></i> Opprett ny stilling
+                            </a>
+                        {/if}
+                    </div>
+                </div>
+                    
+                
+                {if empty($positions)}
+                    <div class="alert alert-info">
+                        Det er for øyeblikket ingen ledige stillinger.
+                    </div>
+                {else}
+                    <div class="table-responsive mt-4 px-3">
+                        <table class="table table-bordered table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Stilling</th>
+                                    <th>Avdeling</th>
+                                    <th>Lokasjon</th>
+                                    <th>Publisert av</th>
+                                    <th>Publisert dato</th>
+                                    {if isset($role) && ($role === 'admin' || $role === 'employee')}
+                                        <th>Søknader</th>
+                                    {/if}
+                                    {if isset($role) && ($role === 'student')}
+                                    <th>Søk</th>
+                                    {/if}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {foreach $positions as $position}
+                                <tr>
+                                    <td>{$position['title']}</td>
+                                    <td>{$position['department']}</td>
+                                    <td>{$position['location']}</td>
+                                    <td>{$position['creator_full_name'] ?: $position['creator_username']}</td>
+                                    <td>{date('d.m.Y', strtotime($position['created_at']))}</td>
+                                    {if isset($role) && ($role === 'admin' || $role === 'employee')}
+                                        <td><span class="badge text-bg-secondary">{$position['application_count']}</span></td>
+                                    {/if}
+                                    {if isset($role) && ($role === 'student')}
+                                    <td><a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Søk</a></td>
+                                    {/if}
+                                </tr>
+                                {/foreach}
+                            </tbody>
+                        </table>
+                    </div>
+                {/if}
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
