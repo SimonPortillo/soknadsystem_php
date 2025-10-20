@@ -56,27 +56,92 @@
                         <small class="text-muted">Publisert av {$position['creator_full_name'] ?: $position['creator_username']} • {date('Y-m-d', strtotime($position['created_at']))}</small>
                     </div>
                     
-                    <form method="POST" action="/positions/{$position['id']}/apply" novalidate enctype="multipart/form-data">
+                    <form method="post" action="/positions/{$position['id']}/apply" enctype="multipart/form-data" novalidate>
+                    <h5>Søknadsdokumenter <span class="badge rounded-pill text-bg-warning">Påkrevd</span></h5>
+                    <!-- CV/Resume upload field -->
+                    <div class="mb-3">
+                        <label for="cv_file" class="form-label">
+                            <span class="badge rounded-pill text-bg-primary">
+                                {if !empty($cv_documents) && count($cv_documents) > 1}
+                                    Dine CV-er:
+                                {elseif !empty($cv_documents) && count($cv_documents) == 1}
+                                    Din CV:
+                                {else}
+                                    Last opp CV:
+                                {/if}
+                            </span>
+                        </label>
+                        {if !empty($cv_documents)}
+                            {foreach $cv_documents as $cv}
+                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center cv-document-option" id="cv-option-{$cv['id']}" data-cv-id="{$cv['id']}" data-cv-name="{$cv['original_name']}">
+                                    <div>
+                                        <i class="bi bi-file-earmark-text"></i> 
+                                        <strong>{$cv['original_name']}</strong>
+                                        <br>
+                                        <small class="text-muted">Lastet opp: {$cv['uploaded_at']}</small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary cv-toggle-btn">
+                                        <i class="bi bi-file-earmark-plus"></i> Bruk
+                                    </button>
+                                </div>
+                            {/foreach}
+                            <small class="text-muted">Eller last opp en ny fil:</small>
+                        {/if}
+                        <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
+                        <input type="hidden" id="cv_document_id" name="cv_document_id" value="">
+                        <div class="form-text">
+                            Aksepterte filformater: PDF, DOC, DOCX. Maks filstørrelse: 5MB.
+                        </div>
+                    </div>
+
+                    <!-- Cover letter upload field -->
+                    <div class="mb-3">
+                        <label for="cover_letter_file" class="form-label">
+                        <span class="badge rounded-pill text-bg-primary">
+                                {if !empty($cover_letter_documents) && count($cover_letter_documents) > 1}
+                                    Dine søknadsbrev:
+                                {elseif !empty($cover_letter_documents) && count($cover_letter_documents) == 1}
+                                    Ditt søknadsbrev:
+                                {else}
+                                    Last opp søknadsbrev:
+                                {/if}
+                            </span>
+                        </label>
+                        {if !empty($cover_letter_documents)}
+                            {foreach $cover_letter_documents as $coverLetter}
+                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center cover-letter-document-option" id="cover-letter-option-{$coverLetter['id']}" data-cover-letter-id="{$coverLetter['id']}" data-cover-letter-name="{$coverLetter['original_name']}">
+                                    <div>
+                                        <i class="bi bi-file-earmark-text"></i> 
+                                        <strong>{$coverLetter['original_name']}</strong>
+                                        <br>
+                                        <small class="text-muted">Lastet opp: {$coverLetter['uploaded_at']}</small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary cover-letter-toggle-btn">
+                                        <i class="bi bi-file-earmark-plus"></i> Bruk
+                                    </button>
+                                </div>
+                            {/foreach}
+                            <small class="text-muted">Eller last opp en ny fil:</small>
+                        {/if}
+                        <input type="file" class="form-control" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx">
+                        <input type="hidden" id="cover_letter_document_id" name="cover_letter_document_id" value="">
+                        <div class="form-text">
+                            Aksepterte filformater: PDF, DOC, DOCX. Maks størrelse: 5MB.
+                        </div>
+
+                         <hr class="my-4">
+
                         <div class="mb-3">
-                            <label for="notes" class="form-label">Legg til merknader til søknaden (valgfritt)</label>
+                            <label for="notes" class="form-label">Legg til merknader til søknaden <span class="badge rounded-pill text-bg-secondary">Valgfritt</span></label>
                             <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="cv_file" class="form-label">Last opp CV (obligatorisk)</label>
-                            <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cover_letter_file" class="form-label">Last opp søknadsbrev (obligatorisk)</label>
-                            <input type="file" class="form-control" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx" required>
                         </div>
                         
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                             <a href="/positions" class="btn btn-secondary me-md-2">Avbryt</a>
                             <button type="submit" class="btn btn-primary">Send søknad</button>
                         </div>
-                        <input type="hidden" name="redirect_to" value="/positions">
-                    </form>
+                    </div>
+                </form>
                 {/if}
             </div>
         </div>
@@ -97,6 +162,126 @@
                     delay: 4000
                 });
                 toast.show();
+            });
+
+            // Handle CV selection toggle
+            const cvFileInput = document.getElementById('cv_file');
+            const cvDocumentIdInput = document.getElementById('cv_document_id');
+            const cvToggleBtns = document.querySelectorAll('.cv-toggle-btn');
+
+            cvToggleBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const parentDiv = this.closest('.cv-document-option');
+                    const cvId = parentDiv.getAttribute('data-cv-id');
+                    const isSelected = parentDiv.classList.contains('alert-success');
+                    
+                    if (isSelected) {
+                        // Deselect
+                        parentDiv.classList.remove('alert-success', 'border-success', 'border-2');
+                        parentDiv.classList.add('alert-light');
+                        this.innerHTML = '<i class="bi bi-file-earmark-plus"></i> Bruk';
+                        this.classList.remove('btn-outline-secondary');
+                        this.classList.add('btn-outline-primary');
+                        cvDocumentIdInput.value = '';
+                        cvFileInput.disabled = false;
+                    } else {
+                        // Deselect all others first
+                        document.querySelectorAll('.cv-document-option').forEach(function(el) {
+                            el.classList.remove('alert-success', 'border-success', 'border-2');
+                            el.classList.add('alert-light');
+                            const otherBtn = el.querySelector('.cv-toggle-btn');
+                            otherBtn.innerHTML = '<i class="bi bi-file-earmark-plus"></i> Bruk';
+                            otherBtn.classList.remove('btn-outline-secondary');
+                            otherBtn.classList.add('btn-outline-primary');
+                        });
+                        
+                        // Select this one
+                        parentDiv.classList.remove('alert-light');
+                        parentDiv.classList.add('alert-success', 'border-success', 'border-2');
+                        this.innerHTML = '<i class="bi bi-x-circle"></i> Fjern valg';
+                        this.classList.remove('btn-outline-primary');
+                        this.classList.add('btn-outline-secondary');
+                        cvDocumentIdInput.value = cvId;
+                        cvFileInput.disabled = true;
+                        cvFileInput.value = '';
+                    }
+                });
+            });
+
+            // Clear CV selection if user chooses to upload a new file
+            cvFileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    cvDocumentIdInput.value = '';
+                    document.querySelectorAll('.cv-document-option').forEach(function(el) {
+                        el.classList.remove('alert-success', 'border-success', 'border-2');
+                        el.classList.add('alert-light');
+                        const btn = el.querySelector('.cv-toggle-btn');
+                        btn.innerHTML = '<i class="bi bi-file-earmark-plus"></i> Bruk';
+                        btn.classList.remove('btn-outline-danger');
+                        btn.classList.add('btn-outline-primary');
+                    });
+                    cvFileInput.disabled = false;
+                }
+            });
+
+            // Handle Cover Letter selection toggle
+            const coverLetterFileInput = document.getElementById('cover_letter_file');
+            const coverLetterDocumentIdInput = document.getElementById('cover_letter_document_id');
+            const coverLetterToggleBtns = document.querySelectorAll('.cover-letter-toggle-btn');
+
+            coverLetterToggleBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const parentDiv = this.closest('.cover-letter-document-option');
+                    const coverLetterId = parentDiv.getAttribute('data-cover-letter-id');
+                    const isSelected = parentDiv.classList.contains('alert-success');
+                    
+                    if (isSelected) {
+                        // Deselect
+                        parentDiv.classList.remove('alert-success', 'border-success', 'border-2');
+                        parentDiv.classList.add('alert-light');
+                        this.innerHTML = '<i class="bi bi-file-earmark-plus"></i> Bruk';
+                        this.classList.remove('btn-outline-secondary');
+                        this.classList.add('btn-outline-primary');
+                        coverLetterDocumentIdInput.value = '';
+                        coverLetterFileInput.disabled = false;
+                    } else {
+                        // Deselect all others first
+                        document.querySelectorAll('.cover-letter-document-option').forEach(function(el) {
+                            el.classList.remove('alert-success', 'border-success', 'border-2');
+                            el.classList.add('alert-light');
+                            const otherBtn = el.querySelector('.cover-letter-toggle-btn');
+                            otherBtn.innerHTML = '<i class="bi bi-file-earmark-plus"></i> Bruk';
+                            otherBtn.classList.remove('btn-outline-secondary');
+                            otherBtn.classList.add('btn-outline-primary');
+                        });
+                        
+                        // Select this one
+                        parentDiv.classList.remove('alert-light');
+                        parentDiv.classList.add('alert-success', 'border-success', 'border-2');
+                        this.innerHTML = '<i class="bi bi-x-circle"></i> Fjern valg';
+                        this.classList.remove('btn-outline-primary');
+                        this.classList.add('btn-outline-secondary');
+                        coverLetterDocumentIdInput.value = coverLetterId;
+                        coverLetterFileInput.disabled = true;
+                        coverLetterFileInput.value = '';
+                    }
+                });
+            });
+
+            // Clear cover letter selection if user chooses to upload a new file
+            coverLetterFileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    coverLetterDocumentIdInput.value = '';
+                    document.querySelectorAll('.cover-letter-document-option').forEach(function(el) {
+                        el.classList.remove('alert-success', 'border-success', 'border-2');
+                        el.classList.add('alert-light');
+                        const btn = el.querySelector('.cover-letter-toggle-btn');
+                        btn.innerHTML = '<i class="bi bi-file-earmark-plus"></i> Bruk';
+                        btn.classList.remove('btn-outline-danger');
+                        btn.classList.add('btn-outline-primary');
+                    });
+                    coverLetterFileInput.disabled = false;
+                }
             });
         });
     </script>

@@ -35,7 +35,9 @@
                                     {if isset($role) && ($role === 'admin' || $role === 'employee')}
                                         <th>Søknader</th>
                                     {/if}
+                                    {if isset($role) && ($role === 'student')}
                                     <th>Søk</th>
+                                    {/if}
                                 </tr>
                             </thead>
                             <tbody>
@@ -47,9 +49,11 @@
                                     <td>{$position['creator_full_name'] ?: $position['creator_username']}</td>
                                     <td>{date('Y-m-d', strtotime($position['created_at']))}</td>
                                     {if isset($role) && ($role === 'admin' || $role === 'employee')}
-                                        <td><span class="badge bg-info">{$position['application_count']}</span></td>
+                                        <td><span class="badge bg-secondary">{$position['application_count']}</span></td>
                                     {/if}
+                                    {if isset($role) && ($role === 'student')}
                                     <td><a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Søk</a></td>
+                                    {/if}
                                 </tr>
                                 {/foreach}
                             </tbody>

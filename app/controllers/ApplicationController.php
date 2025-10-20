@@ -54,8 +54,13 @@ class ApplicationController {
         }
         
         // Check if user has already applied
-        $applicationModel = new \app\models\Application($this->app->db());
+        $applicationModel = new Application($this->app->db());
         $hasApplied = $applicationModel->hasApplied($id, $userId);
+
+        // fetch user documents
+        $docModel = new Document($this->app->db());
+        $cvDocuments = $docModel->findByUser($userId, 'cv');
+        $coverLetterDocuments = $docModel->findByUser($userId, 'cover_letter'); 
 
         // Get session messages and clear them
         $successMessage = $this->app->session()->get('application_success');
@@ -72,6 +77,8 @@ class ApplicationController {
             'hasApplied' => $hasApplied,
             'success_message' => $successMessage,
             'error_message' => $errorMessage,
+            'cv_documents' => $cvDocuments, 
+            'cover_letter_documents' => $coverLetterDocuments, 
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
@@ -125,46 +132,57 @@ class ApplicationController {
         $data = $this->app->request()->data;
         $notes = $data->notes ?? null;
         
-        // Handle file uploads
-        $cvFile = $_FILES['cv_file'] ?? null;
-        $coverLetterFile = $_FILES['cover_letter_file'] ?? null;
+        // Check if user selected existing documents or uploaded new ones
+        $cvDocumentId = $data->cv_document_id ?? null;
+        $coverLetterDocumentId = $data->cover_letter_document_id ?? null;
         
-        // Validate CV file is present
-        if (!$cvFile || $cvFile['error'] === UPLOAD_ERR_NO_FILE) {
-            $this->app->session()->set('application_error', 'CV er påkrevd for å søke på stillingen.');
-            $this->app->redirect('/positions/' . $id . '/apply');
-            return;
+        // Handle CV - either use existing or upload new
+        if (empty($cvDocumentId)) {
+            // No existing document selected, check for file upload
+            $cvFile = $_FILES['cv_file'] ?? null;
+            
+            if (!$cvFile || $cvFile['error'] === UPLOAD_ERR_NO_FILE) {
+                $this->app->session()->set('application_error', 'Du må enten velge en eksisterende CV eller laste opp en ny.');
+                $this->app->redirect('/positions/' . $id . '/apply');
+                return;
+            }
+            
+            // Upload new CV
+            $documentController = new DocumentController($this->app);
+            $cvResult = $documentController->processFileUpload($cvFile, $userId, 'cv');
+            
+            if (!$cvResult['success']) {
+                $this->app->session()->set('application_error', 'Feil ved opplasting av CV: ' . $cvResult['error']);
+                $this->app->redirect('/positions/' . $id . '/apply');
+                return;
+            }
+            
+            $cvDocumentId = $cvResult['document_id'];
         }
         
-        // Validate cover letter file is present
-        if (!$coverLetterFile || $coverLetterFile['error'] === UPLOAD_ERR_NO_FILE) {
-            $this->app->session()->set('application_error', 'Søknadsbrev er påkrevd for å søke på stillingen.');
-            $this->app->redirect('/positions/' . $id . '/apply');
-            return;
+        // Handle Cover Letter - either use existing or upload new
+        if (empty($coverLetterDocumentId)) {
+            // No existing document selected, check for file upload
+            $coverLetterFile = $_FILES['cover_letter_file'] ?? null;
+            
+            if (!$coverLetterFile || $coverLetterFile['error'] === UPLOAD_ERR_NO_FILE) {
+                $this->app->session()->set('application_error', 'Du må enten velge et eksisterende søknadsbrev eller laste opp et nytt.');
+                $this->app->redirect('/positions/' . $id . '/apply');
+                return;
+            }
+            
+            // Upload new cover letter
+            $documentController = new DocumentController($this->app);
+            $coverLetterResult = $documentController->processFileUpload($coverLetterFile, $userId, 'cover_letter');
+            
+            if (!$coverLetterResult['success']) {
+                $this->app->session()->set('application_error', 'Feil ved opplasting av søknadsbrev: ' . $coverLetterResult['error']);
+                $this->app->redirect('/positions/' . $id . '/apply');
+                return;
+            }
+            
+            $coverLetterDocumentId = $coverLetterResult['document_id'];
         }
-        
-        // Upload CV using DocumentController
-        $documentController = new DocumentController($this->app);
-        $cvResult = $documentController->processFileUpload($cvFile, $userId, 'cv');
-        
-        if (!$cvResult['success']) {
-            $this->app->session()->set('application_error', 'Feil ved opplasting av CV: ' . $cvResult['error']);
-            $this->app->redirect('/positions/' . $id . '/apply');
-            return;
-        }
-        
-        $cvDocumentId = $cvResult['document_id'];
-        
-        // Upload cover letter (required)
-        $coverLetterResult = $documentController->processFileUpload($coverLetterFile, $userId, 'cover_letter');
-        
-        if (!$coverLetterResult['success']) {
-            $this->app->session()->set('application_error', 'Feil ved opplasting av søknadsbrev: ' . $coverLetterResult['error']);
-            $this->app->redirect('/positions/' . $id . '/apply');
-            return;
-        }
-        
-        $coverLetterDocumentId = $coverLetterResult['document_id'];
 
         // Create the application with document IDs
         $result = $applicationModel->create($id, $userId, $cvDocumentId, $coverLetterDocumentId, $notes);

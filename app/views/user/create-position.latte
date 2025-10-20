@@ -9,26 +9,43 @@
             <div class="card-body p-4">
                 <h1 class="card-title text-center mb-4">Opprett ny stilling</h1>
                 
-                <form method="POST" action="/positions/create">
+                <form method="POST" action="/positions/create" novalidate>
                     <div class="mb-3">
-                        <label for="title" class="form-label">Stillingstittel <span class="text-danger">*</span></label>
+                        <label for="title" class="form-label">Stillingstittel <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span></label>
                         <input type="text" class="form-control" id="title" name="title" value="{$title ?? ''}" required>
                     </div>
                     
                     <div class="mb-3">
-                        <label for="department" class="form-label">Avdeling <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="department" name="department" value="{$department ?? ''}" required>
+                        <label for="department" class="form-label">Fakultet <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span></label>
+                        <select class="form-select" id="department" aria-label="Velg fakultet" name="department" required>
+                            <option disabled selected>Velg fakultet</option>
+                            <option value="Handelshøyskolen ved UiA">Handelshøyskolen ved UiA</option>
+                            <option value="Humaniora og pedagogikk">Humaniora og pedagogikk</option>
+                            <option value="Lærerutdanningene">Lærerutdanningene</option>
+                            <option value="Teknologi og realfag">Teknologi og realfag</option>
+                            <option value="Helse- og idrettsvitenskap">Helse- og idrettsvitenskap</option>
+                            <option value="Kunstfag">Kunstfag</option>
+                            <option value="Samfunnsvitenskap">Samfunnsvitenskap</option>
+
+                            
+                        </select>
                     </div>
                     
                     <div class="mb-3">
-                        <label for="location" class="form-label">Lokasjon <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="location" name="location" value="{$location ?? ''}" required>
+                        <label for="location" class="form-label">Lokasjon <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span></label>
+                        <select class="form-select" id="location" aria-label="Velg campus" name="location" required>
+                            <option disabled selected>Velg campus</option>
+                            <option value="Kristiansand">Kristiansand</option>
+                            <option value="Grimstad">Grimstad</option>
+                        </select>
                     </div>
+                    
                     
                     <div class="mb-3">
                         <label for="description" class="form-label">Stillingsbeskrivelse</label>
                         <textarea class="form-control" id="description" name="description" rows="4">{$description ?? ''}</textarea>
                     </div>
+                    
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                         <a href="/positions" class="btn btn-secondary me-md-2">Avbryt</a>
