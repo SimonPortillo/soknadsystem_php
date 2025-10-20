@@ -95,6 +95,8 @@ class Application
                 $this->position_id = $positionId;
                 $this->user_id = $userId;
                 $this->notes = $notes;
+                $this->cv_document_id = $cvDocumentId;
+                $this->cover_letter_document_id = $coverLetterId;
                 $this->status = 'pending';
             }
             

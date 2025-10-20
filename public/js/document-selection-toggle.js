@@ -51,7 +51,7 @@ cvFileInput.addEventListener('change', function() {
             el.classList.add('alert-light');
             const btn = el.querySelector('.cv-toggle-btn');
             btn.innerHTML = '<i class="bi bi-file-earmark-plus"></i> Bruk';
-            btn.classList.remove('btn-outline-danger');
+            btn.classList.remove('btn-outline-secondary');
             btn.classList.add('btn-outline-primary');
         });
         cvFileInput.disabled = false;
@@ -111,7 +111,7 @@ coverLetterFileInput.addEventListener('change', function() {
             el.classList.add('alert-light');
             const btn = el.querySelector('.cover-letter-toggle-btn');
             btn.innerHTML = '<i class="bi bi-file-earmark-plus"></i> Bruk';
-            btn.classList.remove('btn-outline-danger');
+            btn.classList.remove('btn-outline-secondary');
             btn.classList.add('btn-outline-primary');
         });
         coverLetterFileInput.disabled = false;

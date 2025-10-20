@@ -11,6 +11,21 @@ use app\models\Document;
 
 class ApplicationController {
 
+    /**
+     * Controller for handling position applications.
+     *
+     * Responsibilities:
+     * - Display and process position application forms.
+     * - Handle document uploads and selection (CVs, cover letters).
+     * - Enforce role-based access control for application actions.
+     * - Manage session messages related to applications.
+     *
+     * This controller ensures only authenticated users can apply for positions,
+     * select/upload required documents, and receive feedback on their application status.
+     *
+     * @package app\controllers
+     */
+
     protected Engine $app;
 
     public function __construct(Engine $app) {
