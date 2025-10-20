@@ -8,7 +8,6 @@
         <div class="card shadow-sm">
             <div class="card-body p-4">
                 <h1 class="card-title text-center mb-4">Søk på stilling</h1>
-                
                 <div aria-live="polite" aria-atomic="true"
                      class="position-fixed top-0 start-50 translate-middle-x p-3"
                      style="z-index: 1080;">
@@ -48,11 +47,15 @@
                             <span class="badge bg-primary">{$position['department']}</span>
                             <span class="badge bg-secondary">{$position['location']}</span>
                         </div>
-                        {if $position['description']}
                             <div class="mb-3">
-                                <p>{$position['description']}</p>
+                                <p>
+                                {if $position['description']} 
+                                    {$position['description']}
+                                {else}
+                                    <small class="text-muted"> Stillingen har ingen beskrivelse </small>
+                                {/if}
+                                </p>
                             </div>
-                        {/if}
                         <small class="text-muted">Publisert av {$position['creator_full_name'] ?: $position['creator_username']} • {date('d.m.Y', strtotime($position['created_at']))}</small>
                     </div>
                     
@@ -164,7 +167,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
-                        <button type="button" class="btn btn-primary" id="confirmApplicationSubmit">Send inn</button>
+                        <button type="button" class="btn btn-primary btn-loader" id="confirmApplicationSubmit">Send søknad</button>
                     </div>
                 </div>
             </div>
@@ -174,6 +177,7 @@
 {/block}
 
 {block scripts}
+    <script src="/js/form-spinner.js" nonce="{$csp_nonce}"></script>
     <script src="/js/bootstrap-toast-logic.js" nonce="{$csp_nonce}"></script> 
     <script src="/js/document-selection-toggle.js" nonce="{$csp_nonce}"></script>
     <script src="/js/application-modal-summary.js" nonce="{$csp_nonce}"></script>

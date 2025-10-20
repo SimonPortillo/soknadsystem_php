@@ -49,11 +49,15 @@
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                         <a href="/positions" class="btn btn-secondary me-md-2">Avbryt</a>
-                        <button type="submit" class="btn btn-primary">Lagre stilling</button>
+                        <button type="submit" class="btn btn-primary btn-loader">Lagre stilling</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+{/block}
+
+{block scripts}
+    <script src="/js/form-spinner.js" nonce="{$csp_nonce}"></script>
 {/block}
