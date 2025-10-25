@@ -55,10 +55,14 @@ class AuthController {
             return;
         }
 
+        $successMessage = $this->app->session()->get('logout_message');
+        $this->app->session()->delete('logout_message');
+
         $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
             'isLoggedIn' => false,
             'username' => null,
-            'csp_nonce' => $this->app->get('csp_nonce')
+            'csp_nonce' => $this->app->get('csp_nonce'),
+            'message' => $successMessage
         ]);
     }
 
@@ -431,6 +435,8 @@ class AuthController {
     public function logout() {
         // Clear all session data
         $this->app->session()->clear();
+
+        $this->app->session()->set('logout_message', 'Du har blitt logget ut.');
         
         // Redirect to login page
         $this->app->redirect('/login');
