@@ -5,6 +5,7 @@ namespace app\controllers;
 use flight\Engine;
 use app\models\User;
 use app\models\Position;
+use app\models\Application;
 
 /**
  * AuthController
@@ -111,6 +112,21 @@ class AuthController {
         $positionModel = new Position($this->app->db());
         $positions = $positionModel->getAll();
         
+        // For students, get the positions they have applied to
+        $appliedPositionIds = [];
+        $userId = $this->app->session()->get('user_id');
+        $role = $this->app->session()->get('role');
+        
+        if ($role === 'student') {
+            $applicationModel = new Application($this->app->db());
+            $userApplications = $applicationModel->getByUser($userId);
+            
+            // Extract position IDs from user's applications
+            foreach ($userApplications as $application) {
+                $appliedPositionIds[] = $application['position_id'];
+            }
+        }
+        
         // Get any success message from session and clear it
         $successMessage = $this->app->session()->get('login_success') 
             ?? $this->app->session()->get('position_success')
@@ -133,8 +149,9 @@ class AuthController {
         $this->app->latte()->render(__DIR__ . '/../views/user/positions.latte', [
             'isLoggedIn' => true,
             'username' => $this->app->session()->get('username'),
-            'role' => $this->app->session()->get('role'),
+            'role' => $role,
             'positions' => $positions,
+            'appliedPositionIds' => $appliedPositionIds,
             'message' => $successMessage,
             'errors' => $errorMessage ? [$errorMessage] : null,
             'csp_nonce' => $this->app->get('csp_nonce')

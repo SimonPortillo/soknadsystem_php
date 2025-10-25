@@ -5,6 +5,7 @@ namespace app\controllers;
 use flight\Engine;
 use app\models\User;
 use app\models\Document;
+use app\models\Application;
 
 /**
  * UserController
@@ -92,6 +93,9 @@ class UserController {
         $cvDocuments = $docModel->findByUser($userId, 'cv');
         $coverLetterDocuments = $docModel->findByUser($userId, 'cover_letter'); 
         
+        // Fetch user's applications
+        $applicationModel = new Application($this->app->db());
+        $applications = $applicationModel->getByUser($userId);
 
         // Render the profile page with user data
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [
@@ -102,7 +106,8 @@ class UserController {
             'message' => $successMessage,
             'errors' => $errorMessage,
             'cv_documents' => $cvDocuments, 
-            'cover_letter_documents' => $coverLetterDocuments, 
+            'cover_letter_documents' => $coverLetterDocuments,
+            'applications' => $applications,
         ]);
     }
 

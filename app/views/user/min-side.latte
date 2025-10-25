@@ -85,6 +85,55 @@
                 </form>
             {if $user->getRole() === 'student'}
                     <hr class="my-4">
+                    
+                    <h5 class="mb-3">Mine søknader</h5>
+                    {if !empty($applications)}
+                        <div class="list-group mb-4">
+                            {foreach $applications as $application}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">{$application['title']}</h6>
+                                            <p class="mb-1 text-muted">
+                                                <small>
+                                                    <i class="bi bi-building"></i> {$application['department']}
+                                                    {if $application['location']}
+                                                        • <i class="bi bi-geo-alt"></i> {$application['location']}
+                                                    {/if}
+                                                </small>
+                                            </p>
+                                            <p class="mb-1">
+                                                <small class="text-muted">
+                                                    Søkt: {$application['application_date']|date:'d.m.Y H:i'}
+                                                </small>
+                                            </p>
+                                        </div>
+                                        <div class="text-end">
+                                            {if $application['status'] === 'pending'}
+                                                <span class="badge bg-warning text-dark">Venter</span>
+                                            {elseif $application['status'] === 'reviewed'}
+                                                <span class="badge bg-info">Under vurdering</span>
+                                            {elseif $application['status'] === 'accepted'}
+                                                <span class="badge bg-success">Akseptert</span>
+                                            {elseif $application['status'] === 'rejected'}
+                                                <span class="badge bg-danger">Avslått</span>
+                                            {/if}
+                                        </div>
+                                    </div>
+                                    {if $application['notes']}
+                                        <hr class="my-2">
+                                        <p class="mb-0"><small><strong>Notater:</strong> {$application['notes']}</small></p>
+                                    {/if}
+                                </div>
+                            {/foreach}
+                        </div>
+                    {else}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Du har ingen søknader ennå. Gå til <a href="/positions" class="alert-link">stillinger</a> for å søke på en stilling.
+                        </div>
+                    {/if}
+
+                    <hr class="my-4">
 
                     <h5 class="mb-3">Søknadsdokumenter</h5>
                     <p class="form-text"> Her kan du laste opp dokumenter du ønsker å bruke i jobbsøknader, du kan laste opp flere</p>
