@@ -5,6 +5,7 @@ namespace app\controllers;
 use flight\Engine;
 use app\models\User;
 use app\models\Document;
+use app\models\Application;
 
 /**
  * UserController
@@ -93,7 +94,7 @@ class UserController {
         $coverLetterDocuments = $docModel->findByUser($userId, 'cover_letter'); 
         
         // Fetch user's applications
-        $applicationModel = new \app\models\Application($this->app->db());
+        $applicationModel = new Application($this->app->db());
         $applications = $applicationModel->getByUser($userId);
 
         // Render the profile page with user data

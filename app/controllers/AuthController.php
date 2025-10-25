@@ -5,6 +5,7 @@ namespace app\controllers;
 use flight\Engine;
 use app\models\User;
 use app\models\Position;
+use app\models\Application;
 
 /**
  * AuthController
@@ -117,7 +118,7 @@ class AuthController {
         $role = $this->app->session()->get('role');
         
         if ($role === 'student') {
-            $applicationModel = new \app\models\Application($this->app->db());
+            $applicationModel = new Application($this->app->db());
             $userApplications = $applicationModel->getByUser($userId);
             
             // Extract position IDs from user's applications
