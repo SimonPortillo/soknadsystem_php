@@ -55,7 +55,15 @@
                                         <td><span class="badge text-bg-secondary">{$position['application_count']}</span></td>
                                     {/if}
                                     {if isset($role) && ($role === 'student')}
-                                    <td><a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Søk</a></td>
+                                    <td>
+                                        {if in_array($position['id'], $appliedPositionIds)}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Søkt
+                                            </span>
+                                        {else}
+                                            <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Søk</a>
+                                        {/if}
+                                    </td>
                                     {/if}
                                 </tr>
                                 {/foreach}
