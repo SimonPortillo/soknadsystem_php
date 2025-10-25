@@ -9,52 +9,62 @@ class User
     /**
      * @var int
      */
-    public $id;
+    private $id;
 
     /**
      * @var string
      */
-    public $username;
+    private $username;
 
     /**
      * @var string
      */
-    public $password;
+    private $password;
 
     /**
      * @var string
      */
-    public $email;
+    private $email;
 
     /**
      * @var string|null
      */
-    public $full_name;
+    private $full_name;
 
     /**
      * @var string|null
      */
-    public $phone;
+    private $phone;
 
     /**
      * @var string
      */
-    public $role;
+    private $role;
 
     /**
      * @var bool
      */
-    public $is_active;
+    private $is_active;
 
     /**
      * @var string
      */
-    public $created_at;
+    private $created_at;
 
     /**
      * @var string
      */
-    public $updated_at;
+    private $updated_at;
+
+    /**
+     * @var int
+     */
+    private $failed_attempts;
+
+    /**
+     * @var string|null
+     */
+    private $lockout_until;
 
     /**
      * @var PdoWrapper
@@ -68,6 +78,41 @@ class User
     {
         $this->db = $db;
     }
+
+    // Getters
+
+    public function getUsername(): string {
+        return $this->username;
+    }
+    public function getEmail(): string {
+        return $this->email;
+    }
+    public function getId(): int {
+        return $this->id;
+    }
+    public function getRole(): string {
+        return $this->role;
+    }
+    public function getFullName(): ?string {
+        return $this->full_name;
+    }
+    public function getCreatedAt(): string {
+        return $this->created_at;
+    }
+    public function getPhone(): ?string {
+        return $this->phone;
+    }
+    public function getFailedAttempts(): int {
+        return $this->failed_attempts;
+    }
+    public function getLockoutUntil(): ?string {
+        return $this->lockout_until;
+    }
+
+    // Setters
+
+
+    // Other methods
 
     /**
      * Create a new user
@@ -88,6 +133,9 @@ class User
         string $role = 'student'
     ): bool {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        $username = strtolower($username);
+        $email = strtolower($email);
         
         $stmt = $this->db->prepare(
             'INSERT INTO users (username, password, email, full_name, phone, role, is_active) 
@@ -140,6 +188,8 @@ class User
         $user->is_active = (bool) $data['is_active'];
         $user->created_at = $data['created_at'];
         $user->updated_at = $data['updated_at'];
+        $user->failed_attempts = (int) $data['failed_attempts'];
+        $user->lockout_until = $data['lockout_until'];
         
         return $user;
     }
@@ -176,6 +226,8 @@ class User
         $user->is_active = (bool) $data['is_active'];
         $user->created_at = $data['created_at'];
         $user->updated_at = $data['updated_at'];
+        $user->failed_attempts = (int) $data['failed_attempts'];
+        $user->lockout_until = $data['lockout_until'];  
         
         return $user;
     }
@@ -204,6 +256,8 @@ class User
         $user->is_active = (bool) $data['is_active'];
         $user->created_at = $data['created_at'];
         $user->updated_at = $data['updated_at'];
+        $user->failed_attempts = (int) $data['failed_attempts'];
+        $user->lockout_until = $data['lockout_until'];
         
         return $user;
     }
@@ -238,7 +292,47 @@ class User
         
         return $stmt->execute($params);
     }
+    /**
+     * Increment the failed login attempts counter for a user.
+     *
+     * @param int $userId The ID of the user whose failed attempts should be incremented
+     * @return void
+    */
+    public function incrementFailedAttempts(int $userId): void {
+        $stmt = $this->db->prepare('UPDATE users SET failed_attempts = failed_attempts + 1 WHERE id = :id');
+        $stmt->execute([':id' => $userId]);
+    }
 
+    /**
+     * reset the failed login attempts counter for a user.
+     *
+     * @param int $userId The ID of the user whose failed attempts should be reset
+     * @return void
+    */
+    public function resetFailedAttempts(int $userId): void {
+        $stmt = $this->db->prepare('UPDATE users SET failed_attempts = 0, lockout_until = NULL WHERE id = :id');
+        $stmt->execute([':id' => $userId]);
+    }
+
+    /**
+     * lock the user account for a specified number of minutes.
+     *
+     * @param int $userId The ID of the user whose account should be locked
+     * @param int $minutes The number of minutes to lock the account for
+     * @return void
+    */
+    public function lockAccount(int $userId, int $minutes): void {
+        $lockoutUntil = date('Y-m-d H:i:s', strtotime("+{$minutes} minutes"));
+        $stmt = $this->db->prepare('UPDATE users SET lockout_until = :lockout_until, failed_attempts = 0 WHERE id = :id');
+        $stmt->execute([':lockout_until' => $lockoutUntil, ':id' => $userId]);
+    }
+
+    /**
+     * Delete a user by ID
+     *
+     * @param int $userId The ID of the user to delete
+     * @return bool True on success, false on failure
+     */
     public function delete(int $userId): bool
     {
         $stmt = $this->db->prepare('DELETE FROM users WHERE id = :id');

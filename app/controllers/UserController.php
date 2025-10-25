@@ -96,11 +96,11 @@ class UserController {
         // Render the profile page with user data
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [
             'isLoggedIn' => true,
-            'username' => $user->username,
+            'username' => $user->getUsername(),
             'user' => $user,
             'csp_nonce' => $nonce,
-            'success_message' => $successMessage,
-            'error_message' => $errorMessage,
+            'message' => $successMessage,
+            'errors' => $errorMessage,
             'cv_documents' => $cvDocuments, 
             'cover_letter_documents' => $coverLetterDocuments, 
         ]);
@@ -141,8 +141,8 @@ class UserController {
         }
 
         // Check if data is unchanged
-        $isFullNameSame = ($fullName === null || $fullName === $user->full_name);
-        $isPhoneSame = ($phone === null || $phone === $user->phone);
+        $isFullNameSame = ($fullName === null || $fullName === $user->getFullName());
+        $isPhoneSame = ($phone === null || $phone === $user->getPhone());
 
         if ($isFullNameSame && $isPhoneSame) {
             $this->app->session()->set('error_message', 'Ingen endringer gjort.');
@@ -186,9 +186,11 @@ class UserController {
 
         $userModel = new User($this->app->db());
         $userModel->delete($userId); // ← deletes the user
-        
+
         // clear session and redirect to home
         $this->app->session()->clear();
+
+        $this->app->session()->set('deletion_message', 'Brukeren har blitt slettet.');
 
         $this->app->redirect('/');
     }

@@ -8,31 +8,6 @@
         <div class="card shadow-sm">
             <div class="card-body p-4">
                 <h1 class="card-title text-center mb-4">Søk på stilling</h1>
-                <div aria-live="polite" aria-atomic="true"
-                     class="position-fixed top-0 start-50 translate-middle-x p-3"
-                     style="z-index: 1080;">
-                    {if isset($success_message)}
-                        <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    {$success_message}
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    {/if}
-                    {if isset($error_message)}
-                        <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    {$error_message}
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    {/if}
-                </div>
-                
                 {if $hasApplied}
                     <div class="alert alert-info mb-4">
                         <i class="bi bi-info-circle"></i> Du har allerede søkt på denne stillingen.
@@ -158,8 +133,8 @@
                     </div>
                     
                     <div class="modal-body">
-                        <small class="text-muted">Du søker som: @<strong>{$user->username}</strong></small>
-                        <small class="text-muted">epost: <strong>{$user->email}</strong></small>
+                        <small class="text-muted">Du søker som: @<strong>{$user->getUsername()}</strong></small>
+                        <small class="text-muted">epost: <strong>{$user->getEmail()}</strong></small>
                         <p>Er du sikker på at du vil sende inn søknaden med følgende dokumenter?</p>
                         <ul class="list-group mb-3" id="chosen-documents-list">
                             <!-- Dynamically filled by JS -->

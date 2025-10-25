@@ -51,7 +51,7 @@ class ApplicationController {
 
         // Get the current user
         $userId = $this->app->session()->get('user_id');
-        $userModel = new \app\models\User($this->app->db());
+        $userModel = new User($this->app->db());
         $user = $userModel->findById($userId);
         
         if (!$user) {
@@ -90,12 +90,12 @@ class ApplicationController {
         // Render the application form
         $this->app->latte()->render(__DIR__ . '/../views/user/apply-position.latte', [
             'isLoggedIn' => true,
-            'username' => $user->username,
-            'role' => $user->role,
+            'username' => $user->getUsername(),
+            'role' => $user->getRole(),
             'position' => $position,
             'hasApplied' => $hasApplied,
-            'success_message' => $successMessage,
-            'error_message' => $errorMessage,
+            'message' => $successMessage,
+            'errors' => $errorMessage,
             'cv_documents' => $cvDocuments, 
             'cover_letter_documents' => $coverLetterDocuments, 
             'user' => $user,

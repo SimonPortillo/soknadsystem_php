@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use flight\Engine;
 use app\models\User;
+use app\models\Position;
 
 /**
  * AuthController
@@ -54,10 +55,14 @@ class AuthController {
             return;
         }
 
+        $successMessage = $this->app->session()->get('logout_message');
+        $this->app->session()->delete('logout_message');
+
         $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
             'isLoggedIn' => false,
             'username' => null,
-            'csp_nonce' => $this->app->get('csp_nonce')
+            'csp_nonce' => $this->app->get('csp_nonce'),
+            'message' => $successMessage
         ]);
     }
 
@@ -103,17 +108,28 @@ class AuthController {
         }
         
         // Get all positions
-        $positionModel = new \app\models\Position($this->app->db());
+        $positionModel = new Position($this->app->db());
         $positions = $positionModel->getAll();
         
         // Get any success message from session and clear it
-        $successMessage = $this->app->session()->get('position_success');
+        $successMessage = $this->app->session()->get('login_success') 
+            ?? $this->app->session()->get('position_success')
+            ?? $this->app->session()->get('registration_success')
+            ?? $this->app->session()->get('application_success');
+        
+        $this->app->session()->delete('login_success');
         $this->app->session()->delete('position_success');
+        $this->app->session()->delete('registration_success');
+        $this->app->session()->delete('application_success');
         
         // Get any error message from session and clear it
-        $errorMessage = $this->app->session()->get('position_error');
-        $this->app->session()->delete('position_error');
+        $errorMessage = $this->app->session()->get('position_error')
+            ?? $this->app->session()->get('application_error');
         
+        $this->app->session()->delete('position_error');
+        $this->app->session()->delete('application_error');
+
+
         $this->app->latte()->render(__DIR__ . '/../views/user/positions.latte', [
             'isLoggedIn' => true,
             'username' => $this->app->session()->get('username'),
@@ -143,8 +159,11 @@ class AuthController {
     private function validateRegistration($username, $password, $email, $phone): array {
         $errors = [];
 
-        if (empty($username)) {
+        if (empty($username) || strlen(trim($username)) === 0) { // Check for empty or whitespace-only username
             $errors[] = 'Brukernavn er påkrevd.';
+        }
+        if (!empty($username) && !preg_match('/^[A-Za-z0-9ÆØÅæøå_-]+$/u', $username)) { // Limit allowed characters for usernames
+            $errors[] = 'Brukernavn kan kun inneholde bokstaver, tall, understrek (_) og bindestrek (-).';
         }
         if (empty($email) || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             $errors[] = 'Gyldig e-postadresse er påkrevd.';
@@ -262,8 +281,12 @@ class AuthController {
                 throw new \Exception('Kunne ikke opprette bruker');
             }
             
-            // Set up user session and redirect to positions page (handled inside createUserSession)
+            $this->app->session()->set('registration_success', 'Registreringen var vellykket. Velkommen, ' . $username . '!');
+
+            // Set up user session
             $this->createUserSession($user);
+            // Redirect to positions page
+            $this->app->redirect('/positions');
             
         } catch (\Exception $e) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
@@ -292,7 +315,6 @@ class AuthController {
      */
     private function validateLogin($usernameOrEmail, $password) {
         $errors = [];
-
         if (empty($usernameOrEmail) || empty($password)) {
             $errors[] = 'Feil brukernavn/e-post eller passord.';
         }
@@ -337,24 +359,63 @@ class AuthController {
         
         // Find user by username or email
         $userModel = new User($this->app->db());
-        
-        // Check if input looks like an email
-        if (filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL)) {
-            $user = $userModel->findByEmail($usernameOrEmail);
-        } else {
-            $user = $userModel->findByUsername($usernameOrEmail);
-        }
-        
-        if (!$user || !$user->verifyPassword($password)) {
+
+        // check if login is username or email and call correct function
+        $user = filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL) 
+            ? $userModel->findByEmail($usernameOrEmail)
+            : $userModel->findByUsername($usernameOrEmail);
+
+        if (!$user) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
                 'errors' => ['Feil brukernavn/e-post eller passord.'],
                 'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
-        
-        // Login successful - create session and redirect to positions page using createUserSession()
+
+        // Check if the account is locked
+        if ($user->getLockoutUntil() && strtotime($user->getLockoutUntil()) > time()) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
+                'errors' => ['Kontoen din er midlertidig låst. Prøv igjen senere.'],
+                'csp_nonce' => $this->app->get('csp_nonce')
+            ]);
+            return;
+        }
+
+        // Verify password
+        if (!$user->verifyPassword($password)) {
+            // Increment failed attempts
+            $userModel->incrementFailedAttempts($user->getId());
+
+            // Check if the account should be locked
+            if ($user->getFailedAttempts() + 1 >= 3) { // Lock after 3 failed attempts
+                $userModel->lockAccount($user->getId(), 60); // Lock for 60 minutes
+                $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
+                    'errors' => ['For mange mislykkede forsøk. Kontoen din er låst i 60 minutter.'],
+                    'csp_nonce' => $this->app->get('csp_nonce')
+                ]);
+                return;
+            }
+
+            $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
+                'errors' => ['Feil brukernavn/e-post eller passord.'],
+                'csp_nonce' => $this->app->get('csp_nonce')
+            ]);
+            return;
+        }
+
+        // Reset failed attempts on successful login
+        $userModel->resetFailedAttempts($user->getId());
+
+       
+
+        // Login successful - create session 
         $this->createUserSession($user);
+
+        $this->app->session()->set('login_success', 'Velkommen tilbake, ' . $user->getUsername() . '!');
+
+        // Redirect to positions page
+        $this->app->redirect('/positions');
     }
 
     /**
@@ -374,6 +435,8 @@ class AuthController {
     public function logout() {
         // Clear all session data
         $this->app->session()->clear();
+
+        $this->app->session()->set('logout_message', 'Du har blitt logget ut.');
         
         // Redirect to login page
         $this->app->redirect('/login');
@@ -398,12 +461,9 @@ class AuthController {
      * @return void Redirects to positions page after setting session
      */
     private function createUserSession($user) {
-        $this->app->session()->set('user_id', $user->id);
-        $this->app->session()->set('username', $user->username);
-        $this->app->session()->set('role', $user->role);
+        $this->app->session()->set('user_id', $user->getId());
+        $this->app->session()->set('username', $user->getUsername());
+        $this->app->session()->set('role', $user->getRole());
         $this->app->session()->set('is_logged_in', true);
-        
-        // Redirect to the positions page
-        $this->app->redirect('/positions');
     }
 }
