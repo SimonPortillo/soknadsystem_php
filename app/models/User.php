@@ -60,6 +60,7 @@ class User
      * @var int
      */
     private $failed_attempts;
+
     /**
      * @var string|null
      */
@@ -132,7 +133,7 @@ class User
         string $role = 'student'
     ): bool {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        
+
         $username = strtolower($username);
         $email = strtolower($email);
         
@@ -291,23 +292,47 @@ class User
         
         return $stmt->execute($params);
     }
-
+    /**
+     * Increment the failed login attempts counter for a user.
+     *
+     * @param int $userId The ID of the user whose failed attempts should be incremented
+     * @return void
+    */
     public function incrementFailedAttempts(int $userId): void {
-    $stmt = $this->db->prepare('UPDATE users SET failed_attempts = failed_attempts + 1 WHERE id = :id');
-    $stmt->execute([':id' => $userId]);
+        $stmt = $this->db->prepare('UPDATE users SET failed_attempts = failed_attempts + 1 WHERE id = :id');
+        $stmt->execute([':id' => $userId]);
     }
 
+    /**
+     * reset the failed login attempts counter for a user.
+     *
+     * @param int $userId The ID of the user whose failed attempts should be reset
+     * @return void
+    */
     public function resetFailedAttempts(int $userId): void {
         $stmt = $this->db->prepare('UPDATE users SET failed_attempts = 0, lockout_until = NULL WHERE id = :id');
         $stmt->execute([':id' => $userId]);
     }
 
+    /**
+     * lock the user account for a specified number of minutes.
+     *
+     * @param int $userId The ID of the user whose account should be locked
+     * @param int $minutes The number of minutes to lock the account for
+     * @return void
+    */
     public function lockAccount(int $userId, int $minutes): void {
         $lockoutUntil = date('Y-m-d H:i:s', strtotime("+{$minutes} minutes"));
         $stmt = $this->db->prepare('UPDATE users SET lockout_until = :lockout_until, failed_attempts = 0 WHERE id = :id');
         $stmt->execute([':lockout_until' => $lockoutUntil, ':id' => $userId]);
     }
 
+    /**
+     * Delete a user by ID
+     *
+     * @param int $userId The ID of the user to delete
+     * @return bool True on success, false on failure
+     */
     public function delete(int $userId): bool
     {
         $stmt = $this->db->prepare('DELETE FROM users WHERE id = :id');
