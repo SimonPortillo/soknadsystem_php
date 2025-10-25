@@ -143,8 +143,11 @@ class AuthController {
     private function validateRegistration($username, $password, $email, $phone): array {
         $errors = [];
 
-        if (empty($username)) {
+        if (empty($username) || strlen(trim($username)) === 0) { // Check for empty or whitespace-only username
             $errors[] = 'Brukernavn er påkrevd.';
+        }
+        if (!preg_match('/^[A-Za-z0-9ÆØÅæøå_-]+$/u', $username)) { // Limit allowed characters for usernames
+            $errors[] = 'Brukernavn kan kun inneholde bokstaver, tall, understrek (_) og bindestrek (-).';
         }
         if (empty($email) || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             $errors[] = 'Gyldig e-postadresse er påkrevd.';
@@ -337,23 +340,55 @@ class AuthController {
         
         // Find user by username or email
         $userModel = new User($this->app->db());
-        
-        // Check if input looks like an email
-        if (filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL)) {
-            $user = $userModel->findByEmail($usernameOrEmail);
-        } else {
-            $user = $userModel->findByUsername($usernameOrEmail);
-        }
-        
-        if (!$user || !$user->verifyPassword($password)) {
+
+        // check if login is username or email and call correct function
+        $user = filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL) 
+            ? $userModel->findByEmail($usernameOrEmail)
+            : $userModel->findByUsername($usernameOrEmail);
+
+        if (!$user) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
                 'errors' => ['Feil brukernavn/e-post eller passord.'],
                 'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
-        
-        // Login successful - create session and redirect to positions page using createUserSession()
+
+        // Check if the account is locked
+        if ($user->lockout_until && strtotime($user->lockout_until) > time()) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
+                'errors' => ['Kontoen din er midlertidig låst. Prøv igjen senere.'],
+                'csp_nonce' => $this->app->get('csp_nonce')
+            ]);
+            return;
+        }
+
+        // Verify password
+        if (!$user->verifyPassword($password)) {
+            // Increment failed attempts
+            $userModel->incrementFailedAttempts($user->id); 
+
+            // Check if the account should be locked
+            if ($user->failed_attempts + 1 >= 3) { // Lock after 3 failed attempts
+                $userModel->lockAccount($user->id, 60); // Lock for 60 minutes
+                $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
+                    'errors' => ['For mange mislykkede forsøk. Kontoen din er låst i 60 minutter.'],
+                    'csp_nonce' => $this->app->get('csp_nonce')
+                ]);
+                return;
+            }
+
+            $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
+                'errors' => ['Feil brukernavn/e-post eller passord.'],
+                'csp_nonce' => $this->app->get('csp_nonce')
+            ]);
+            return;
+        }
+
+        // Reset failed attempts on successful login
+        $userModel->resetFailedAttempts($user->id);
+
+        // Login successful - create session and redirect to positions page
         $this->createUserSession($user);
     }
 

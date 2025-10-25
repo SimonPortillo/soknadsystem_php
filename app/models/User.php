@@ -57,6 +57,15 @@ class User
     public $updated_at;
 
     /**
+     * @var int
+     */
+    public $failed_attempts;
+    /**
+     * @var string|null
+     */
+    public $lockout_until;
+
+    /**
      * @var PdoWrapper
      */
     private $db;
@@ -140,6 +149,8 @@ class User
         $user->is_active = (bool) $data['is_active'];
         $user->created_at = $data['created_at'];
         $user->updated_at = $data['updated_at'];
+        $user->failed_attempts = (int) $data['failed_attempts'];
+        $user->lockout_until = $data['lockout_until'];
         
         return $user;
     }
@@ -176,6 +187,8 @@ class User
         $user->is_active = (bool) $data['is_active'];
         $user->created_at = $data['created_at'];
         $user->updated_at = $data['updated_at'];
+        $user->failed_attempts = (int) $data['failed_attempts'];
+        $user->lockout_until = $data['lockout_until'];  
         
         return $user;
     }
@@ -204,6 +217,8 @@ class User
         $user->is_active = (bool) $data['is_active'];
         $user->created_at = $data['created_at'];
         $user->updated_at = $data['updated_at'];
+        $user->failed_attempts = (int) $data['failed_attempts'];
+        $user->lockout_until = $data['lockout_until'];
         
         return $user;
     }
@@ -237,6 +252,22 @@ class User
         $stmt = $this->db->prepare($sql);
         
         return $stmt->execute($params);
+    }
+
+    public function incrementFailedAttempts(int $userId): void {
+    $stmt = $this->db->prepare('UPDATE users SET failed_attempts = failed_attempts + 1 WHERE id = :id');
+    $stmt->execute([':id' => $userId]);
+    }
+
+    public function resetFailedAttempts(int $userId): void {
+        $stmt = $this->db->prepare('UPDATE users SET failed_attempts = 0, lockout_until = NULL WHERE id = :id');
+        $stmt->execute([':id' => $userId]);
+    }
+
+    public function lockAccount(int $userId, int $minutes): void {
+        $lockoutUntil = date('Y-m-d H:i:s', strtotime("+{$minutes} minutes"));
+        $stmt = $this->db->prepare('UPDATE users SET lockout_until = :lockout_until, failed_attempts = 0 WHERE id = :id');
+        $stmt->execute([':lockout_until' => $lockoutUntil, ':id' => $userId]);
     }
 
     public function delete(int $userId): bool
