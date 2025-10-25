@@ -16,7 +16,6 @@
  * @var Engine $app    FlightPHP Engine instance
  */
 
-use app\controllers\ApiExampleController;
 use app\controllers\HomeController;
 use app\controllers\AuthController;
 use app\controllers\UserController;
@@ -31,6 +30,14 @@ use flight\net\Router;
  * @var Router $router 
  * @var Engine $app
  */
+
+Flight::map('notFound', function () {
+    // Render a custom 404 page
+    Flight::latte()->render(__DIR__ . '/../views/errors/404.latte', [
+        'title' => 'Page Not Found',
+		'csp_nonce' => Flight::get('csp_nonce'),
+    ]);
+});
 
 /**
  * Main Route Group
