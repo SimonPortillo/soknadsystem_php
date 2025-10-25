@@ -40,9 +40,15 @@ class HomeController {
 	 * @return void
 	 */
 	public function index() {
+
+		// Retrieve and clear deletion message from session
+		$deletionMessage = $this->app->session()->get('deletion_message');
+		$this->app->session()->delete('deletion_message');
+
 		$this->app->latte()->render(__DIR__ . '/../views/home/home.latte', [
 			'isLoggedIn' => $this->app->session()->get('is_logged_in'),
 			'username' => $this->app->session()->get('username'),
+			'message' => $deletionMessage,
 			'csp_nonce' => $this->app->get('csp_nonce')
 		]);
 	}

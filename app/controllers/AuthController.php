@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use flight\Engine;
 use app\models\User;
+use app\models\Position;
 
 /**
  * AuthController
@@ -103,17 +104,28 @@ class AuthController {
         }
         
         // Get all positions
-        $positionModel = new \app\models\Position($this->app->db());
+        $positionModel = new Position($this->app->db());
         $positions = $positionModel->getAll();
         
         // Get any success message from session and clear it
-        $successMessage = $this->app->session()->get('position_success');
+        $successMessage = $this->app->session()->get('login_success') 
+            ?? $this->app->session()->get('position_success')
+            ?? $this->app->session()->get('registration_success')
+            ?? $this->app->session()->get('application_success');
+        
+        $this->app->session()->delete('login_success');
         $this->app->session()->delete('position_success');
+        $this->app->session()->delete('registration_success');
+        $this->app->session()->delete('application_success');
         
         // Get any error message from session and clear it
-        $errorMessage = $this->app->session()->get('position_error');
-        $this->app->session()->delete('position_error');
+        $errorMessage = $this->app->session()->get('position_error')
+            ?? $this->app->session()->get('application_error');
         
+        $this->app->session()->delete('position_error');
+        $this->app->session()->delete('application_error');
+
+
         $this->app->latte()->render(__DIR__ . '/../views/user/positions.latte', [
             'isLoggedIn' => true,
             'username' => $this->app->session()->get('username'),
@@ -146,7 +158,7 @@ class AuthController {
         if (empty($username) || strlen(trim($username)) === 0) { // Check for empty or whitespace-only username
             $errors[] = 'Brukernavn er påkrevd.';
         }
-        if (!preg_match('/^[A-Za-z0-9ÆØÅæøå_-]+$/u', $username)) { // Limit allowed characters for usernames
+        if (!empty($username) && !preg_match('/^[A-Za-z0-9ÆØÅæøå_-]+$/u', $username)) { // Limit allowed characters for usernames
             $errors[] = 'Brukernavn kan kun inneholde bokstaver, tall, understrek (_) og bindestrek (-).';
         }
         if (empty($email) || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
@@ -265,8 +277,12 @@ class AuthController {
                 throw new \Exception('Kunne ikke opprette bruker');
             }
             
-            // Set up user session and redirect to positions page (handled inside createUserSession)
+            $this->app->session()->set('registration_success', 'Registreringen var vellykket. Velkommen, ' . $username . '!');
+
+            // Set up user session
             $this->createUserSession($user);
+            // Redirect to positions page
+            $this->app->redirect('/positions');
             
         } catch (\Exception $e) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
@@ -295,7 +311,6 @@ class AuthController {
      */
     private function validateLogin($usernameOrEmail, $password) {
         $errors = [];
-
         if (empty($usernameOrEmail) || empty($password)) {
             $errors[] = 'Feil brukernavn/e-post eller passord.';
         }
@@ -388,8 +403,15 @@ class AuthController {
         // Reset failed attempts on successful login
         $userModel->resetFailedAttempts($user->getId());
 
-        // Login successful - create session and redirect to positions page
+       
+
+        // Login successful - create session 
         $this->createUserSession($user);
+
+        $this->app->session()->set('login_success', 'Velkommen tilbake, ' . $user->getUsername() . '!');
+
+        // Redirect to positions page
+        $this->app->redirect('/positions');
     }
 
     /**
@@ -437,8 +459,5 @@ class AuthController {
         $this->app->session()->set('username', $user->getUsername());
         $this->app->session()->set('role', $user->getRole());
         $this->app->session()->set('is_logged_in', true);
-        
-        // Redirect to the positions page
-        $this->app->redirect('/positions');
     }
 }

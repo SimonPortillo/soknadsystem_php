@@ -8,32 +8,7 @@
         <div class="card shadow-sm mt-5">
             <div class="card-body">
                 <h1 class="display-4 mb-4">Min Side</h1>
-
-                <div aria-live="polite" aria-atomic="true"
-                     class="position-fixed top-0 start-50 translate-middle-x p-3"
-                     style="z-index: 1080;">
-                    {if isset($success_message)}
-                        <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    {$success_message}
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    {/if}
-                    {if isset($error_message)}
-                        <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    {$error_message}
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    {/if}
-                </div>
-
+                
                 <form method="post" action="/min-side/update" enctype="multipart/form-data" novalidate>
                     <h5 class="mb-3">Kontoinformasjon</h5>
                     
@@ -191,7 +166,7 @@
                 <h5 class="mb-3">Slett konto</h5>
                 <span class="badge rounded-pill bg-warning text-dark">Advarsel</span>
                 <p class="form-text"><strong>
-                Dette vil slette kontoen din og alle tilknyttede dokumenter
+                Dette vil slette kontoen din, alle søknader og opplastede dokumenter permanent. Denne handlingen kan ikke angres.
                 </strong></p>
                 <div class="d-grid">
                     <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">

@@ -99,8 +99,8 @@ class UserController {
             'username' => $user->getUsername(),
             'user' => $user,
             'csp_nonce' => $nonce,
-            'success_message' => $successMessage,
-            'error_message' => $errorMessage,
+            'message' => $successMessage,
+            'errors' => $errorMessage,
             'cv_documents' => $cvDocuments, 
             'cover_letter_documents' => $coverLetterDocuments, 
         ]);
@@ -186,9 +186,11 @@ class UserController {
 
         $userModel = new User($this->app->db());
         $userModel->delete($userId); // ← deletes the user
-        
+
         // clear session and redirect to home
         $this->app->session()->clear();
+
+        $this->app->session()->set('deletion_message', 'Brukeren har blitt slettet.');
 
         $this->app->redirect('/');
     }
