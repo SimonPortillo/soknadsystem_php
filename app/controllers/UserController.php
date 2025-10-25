@@ -96,7 +96,7 @@ class UserController {
         // Render the profile page with user data
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [
             'isLoggedIn' => true,
-            'username' => $user->username,
+            'username' => $user->getUsername(),
             'user' => $user,
             'csp_nonce' => $nonce,
             'success_message' => $successMessage,
@@ -141,8 +141,8 @@ class UserController {
         }
 
         // Check if data is unchanged
-        $isFullNameSame = ($fullName === null || $fullName === $user->full_name);
-        $isPhoneSame = ($phone === null || $phone === $user->phone);
+        $isFullNameSame = ($fullName === null || $fullName === $user->getFullName());
+        $isPhoneSame = ($phone === null || $phone === $user->getPhone());
 
         if ($isFullNameSame && $isPhoneSame) {
             $this->app->session()->set('error_message', 'Ingen endringer gjort.');

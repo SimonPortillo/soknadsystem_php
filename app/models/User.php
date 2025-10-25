@@ -9,61 +9,61 @@ class User
     /**
      * @var int
      */
-    public $id;
+    private $id;
 
     /**
      * @var string
      */
-    public $username;
+    private $username;
 
     /**
      * @var string
      */
-    public $password;
+    private $password;
 
     /**
      * @var string
      */
-    public $email;
+    private $email;
 
     /**
      * @var string|null
      */
-    public $full_name;
+    private $full_name;
 
     /**
      * @var string|null
      */
-    public $phone;
+    private $phone;
 
     /**
      * @var string
      */
-    public $role;
+    private $role;
 
     /**
      * @var bool
      */
-    public $is_active;
+    private $is_active;
 
     /**
      * @var string
      */
-    public $created_at;
+    private $created_at;
 
     /**
      * @var string
      */
-    public $updated_at;
+    private $updated_at;
 
     /**
      * @var int
      */
-    public $failed_attempts;
+    private $failed_attempts;
     /**
      * @var string|null
      */
-    public $lockout_until;
+    private $lockout_until;
 
     /**
      * @var PdoWrapper
@@ -77,6 +77,41 @@ class User
     {
         $this->db = $db;
     }
+
+    // Getters
+
+    public function getUsername(): string {
+        return $this->username;
+    }
+    public function getEmail(): string {
+        return $this->email;
+    }
+    public function getId(): int {
+        return $this->id;
+    }
+    public function getRole(): string {
+        return $this->role;
+    }
+    public function getFullName(): ?string {
+        return $this->full_name;
+    }
+    public function getCreatedAt(): string {
+        return $this->created_at;
+    }
+    public function getPhone(): ?string {
+        return $this->phone;
+    }
+    public function getFailedAttempts(): int {
+        return $this->failed_attempts;
+    }
+    public function getLockoutUntil(): ?string {
+        return $this->lockout_until;
+    }
+
+    // Setters
+
+
+    // Other methods
 
     /**
      * Create a new user
@@ -97,6 +132,9 @@ class User
         string $role = 'student'
     ): bool {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        
+        $username = strtolower($username);
+        $email = strtolower($email);
         
         $stmt = $this->db->prepare(
             'INSERT INTO users (username, password, email, full_name, phone, role, is_active) 

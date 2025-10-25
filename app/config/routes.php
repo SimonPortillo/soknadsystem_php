@@ -108,21 +108,4 @@ $router->group('', function(Router $router) use ($app) {
 	// Delete user document by ID
 	$router->post('/min-side/documents/delete', [ DocumentController::class, 'delete' ]);
 	
-	/**
-	 * API Route Group
-	 * 
-	 * RESTful API endpoints for user management.
-	 * These routes may require additional authentication/authorization in production.
-	 */
-	$router->group('/api', function() use ($router) {
-		// Get all users
-		$router->get('/users', [ ApiExampleController::class, 'getUsers' ]);
-		
-		// Get specific user by ID
-		$router->get('/users/@id:[0-9]', [ ApiExampleController::class, 'getUser' ]);
-		
-		// Update specific user by ID
-		$router->post('/users/@id:[0-9]', [ ApiExampleController::class, 'updateUser' ]);
-	});
-	
 }, [ SecurityHeadersMiddleware::class ]);

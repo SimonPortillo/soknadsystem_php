@@ -90,8 +90,8 @@ class ApplicationController {
         // Render the application form
         $this->app->latte()->render(__DIR__ . '/../views/user/apply-position.latte', [
             'isLoggedIn' => true,
-            'username' => $user->username,
-            'role' => $user->role,
+            'username' => $user->getUsername(),
+            'role' => $user->getRole(),
             'position' => $position,
             'hasApplied' => $hasApplied,
             'success_message' => $successMessage,

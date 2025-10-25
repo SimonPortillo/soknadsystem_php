@@ -59,7 +59,7 @@ class PositionController {
         $user = $userModel->findById($userId);
         
         // Only allow admin and employee roles
-        if (!$user || !in_array($user->role, ['admin', 'employee'])) {
+        if (!$user || !in_array($user->getRole(), ['admin', 'employee'])) {
             $this->app->redirect('/positions');
             return;
         }
@@ -67,8 +67,8 @@ class PositionController {
         // Render the create position form
         $this->app->latte()->render(__DIR__ . '/../views/user/create-position.latte', [
             'isLoggedIn' => true,
-            'username' => $user->username,
-            'role' => $user->role,
+            'username' => $user->getUsername(),
+            'role' => $user->getRole(),
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
@@ -96,7 +96,7 @@ class PositionController {
         $user = $userModel->findById($userId);
         
         // Only allow admin and employee roles
-        if (!$user || !in_array($user->role, ['admin', 'employee'])) {
+        if (!$user || !in_array($user->getRole(), ['admin', 'employee'])) {
             $this->app->redirect('/positions');
             return;
         }
@@ -124,8 +124,8 @@ class PositionController {
         if (!empty($errors)) {
             $this->app->latte()->render(__DIR__ . '/../views/user/create-position.latte', [
                 'isLoggedIn' => true,
-                'username' => $user->username,
-                'role' => $user->role,
+                'username' => $user->getUsername(),
+                'role' => $user->getRole(),
                 'errors' => $errors,
                 'title' => $title,
                 'department' => $department,
@@ -148,8 +148,8 @@ class PositionController {
             // Re-render form with error
             $this->app->latte()->render(__DIR__ . '/../views/user/create-position.latte', [
                 'isLoggedIn' => true,
-                'username' => $user->username,
-                'role' => $user->role,
+                'username' => $user->getUsername(),
+                'role' => $user->getRole(),
                 'errors' => ['Kunne ikke opprette stilling. Prøv igjen.'],
                 'title' => $title,
                 'department' => $department,

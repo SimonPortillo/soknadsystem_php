@@ -355,7 +355,7 @@ class AuthController {
         }
 
         // Check if the account is locked
-        if ($user->lockout_until && strtotime($user->lockout_until) > time()) {
+        if ($user->getLockoutUntil() && strtotime($user->getLockoutUntil()) > time()) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
                 'errors' => ['Kontoen din er midlertidig låst. Prøv igjen senere.'],
                 'csp_nonce' => $this->app->get('csp_nonce')
@@ -366,11 +366,11 @@ class AuthController {
         // Verify password
         if (!$user->verifyPassword($password)) {
             // Increment failed attempts
-            $userModel->incrementFailedAttempts($user->id); 
+            $userModel->incrementFailedAttempts($user->getId());
 
             // Check if the account should be locked
-            if ($user->failed_attempts + 1 >= 3) { // Lock after 3 failed attempts
-                $userModel->lockAccount($user->id, 60); // Lock for 60 minutes
+            if ($user->getFailedAttempts() + 1 >= 3) { // Lock after 3 failed attempts
+                $userModel->lockAccount($user->getId(), 60); // Lock for 60 minutes
                 $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
                     'errors' => ['For mange mislykkede forsøk. Kontoen din er låst i 60 minutter.'],
                     'csp_nonce' => $this->app->get('csp_nonce')
@@ -386,7 +386,7 @@ class AuthController {
         }
 
         // Reset failed attempts on successful login
-        $userModel->resetFailedAttempts($user->id);
+        $userModel->resetFailedAttempts($user->getId());
 
         // Login successful - create session and redirect to positions page
         $this->createUserSession($user);
@@ -433,9 +433,9 @@ class AuthController {
      * @return void Redirects to positions page after setting session
      */
     private function createUserSession($user) {
-        $this->app->session()->set('user_id', $user->id);
-        $this->app->session()->set('username', $user->username);
-        $this->app->session()->set('role', $user->role);
+        $this->app->session()->set('user_id', $user->getId());
+        $this->app->session()->set('username', $user->getUsername());
+        $this->app->session()->set('role', $user->getRole());
         $this->app->session()->set('is_logged_in', true);
         
         // Redirect to the positions page
