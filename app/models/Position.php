@@ -7,41 +7,6 @@ use flight\database\PdoWrapper;
 class Position
 {
     /**
-     * @var int
-     */
-    public $id;
-    
-    /**
-     * @var int
-     */
-    public $creator_id;
-
-    /**
-     * @var string
-     */
-    public $title;
-
-    /**
-     * @var string
-     */
-    public $department;
-
-    /**
-     * @var string
-     */
-    public $location;
-
-    /**
-     * @var string|null
-     */
-    public $description;
-
-    /**
-     * @var string
-     */
-    public $created_at;
-
-    /**
      * @var PdoWrapper
      */
     private $db;
@@ -78,16 +43,7 @@ class Position
             ':location' => $location,
             ':description' => $description
         ]);
-        
-        if ($result) {
-            $this->id = (int) $this->db->lastInsertId();
-            $this->creator_id = $creatorId;
-            $this->title = $title;
-            $this->department = $department;
-            $this->location = $location;
-            $this->description = $description;
-        }
-        
+
         return $result;
     }
 

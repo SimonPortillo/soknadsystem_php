@@ -7,51 +7,6 @@ use flight\database\PdoWrapper;
 class Application
 {
     /**
-     * @var int
-     */
-    public $id;
-
-    /**
-     * @var int
-     */
-    public $position_id;
-
-    /**
-     * @var int
-     */
-    public $user_id;
-
-    /**
-     * @var int
-     */
-    public $cv_document_id;
-
-    /**
-     * @var int
-     */
-    public $cover_letter_document_id;
-
-    /**
-     * @var string
-     */
-    public $status;
-
-    /**
-     * @var string|null
-     */
-    public $notes;
-
-    /**
-     * @var string
-     */
-    public $application_date;
-
-    /**
-     * @var string
-     */
-    public $updated_at;
-
-    /**
      * @var PdoWrapper
      */
     private $db;
@@ -63,7 +18,6 @@ class Application
     {
         $this->db = $db;
     }
-
     /**
      * Create a new application
      * 
@@ -89,16 +43,6 @@ class Application
                 ':cover_letter_document_id' => $coverLetterId,
                 ':notes' => $notes
             ]);
-            
-            if ($result) {
-                $this->id = (int) $this->db->lastInsertId();
-                $this->position_id = $positionId;
-                $this->user_id = $userId;
-                $this->notes = $notes;
-                $this->cv_document_id = $cvDocumentId;
-                $this->cover_letter_document_id = $coverLetterId;
-                $this->status = 'pending';
-            }
             
             return $result;
         } catch (\PDOException $e) {

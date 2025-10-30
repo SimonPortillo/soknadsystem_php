@@ -124,14 +124,8 @@ class User
      * @param string|null $phone The phone number (optional)
      * @param string $role The user role (defaults to 'student')
      */
-    public function create(
-        string $username, 
-        string $password, 
-        string $email, 
-        ?string $full_name = null, 
-        ?string $phone = null, 
-        string $role = 'student'
-    ): bool {
+    public function create(string $username, string $password, string $email, ?string $full_name = null, ?string $phone = null, string $role = 'student'): bool {
+
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         $username = strtolower($username);
