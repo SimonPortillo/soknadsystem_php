@@ -211,6 +211,46 @@
                     </div>
                 </form>
             {/if}
+             
+                {if $user->getRole() === 'employee' || $user->getRole() === 'admin'} 
+                <hr class="my-4">
+                    <h5 class="mb-3">Mine søknader</h5>
+                    {if !empty($positions)}
+                    <div class="list-group mb-4">
+                            {foreach $positions as $position}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">{$position['title']}</h6>
+                                            <p class="mb-1 text-muted">
+                                                <small>
+                                                    <i class="bi bi-building"></i> {$position['department']}
+                                                    {if $position['location']}
+                                                        • <i class="bi bi-geo-alt"></i> {$position['location']}
+                                                    {/if}
+                                                </small>
+                                            </p>
+                                            <p class="mb-1">
+                                                <small class="text-muted">
+                                                    Opprettet: {$position['created_at']|date:'d.m.Y H:i'}
+                                                </small>
+                                            </p>
+                                        </div>
+                                        
+                                    </div>
+                                    {if $position['description']}
+                                        <hr class="my-2">
+                                        <p class="mb-0"><small><strong>Notater:</strong> {$position['description']}</small></p>
+                                    {/if}
+                                </div>
+                            {/foreach}
+                        </div>
+                    {else}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Du har ingen stillinger ennå. Gå til <a href="/positions" class="alert-link">stillinger</a> for å opprette en stilling.
+                        </div>
+                    {/if}
+                {/if}
                 <hr class="my-4">
                 <h5 class="mb-3">Slett konto</h5>
                 <span class="badge rounded-pill bg-warning text-dark">Advarsel</span>
