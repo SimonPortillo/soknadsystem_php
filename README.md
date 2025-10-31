@@ -1,5 +1,13 @@
 # IS-115 Søknadsystem for vitenskapelige assistenter
-dependency manager https://getcomposer.org/ 
+<img width="1903" height="909" alt="image" src="https://github.com/user-attachments/assets/5654b7ff-abfe-4765-8e7c-64534a73d89e" />
+
+## Kjør prosjektet lokalt
+Forutsetninger:
+ - du xampp installert https://www.apachefriends.org/
+ - du har composer dependency manager https://getcomposer.org/
+ - du er klar for å få bakoversveis 😎
+   
+## kommandoer 
 ```bash
 git clone https://github.com/SimonPortillo/soknadsystem_php.git
 
@@ -11,13 +19,16 @@ composer install
 ```bash
 composer start
 ```
-After that, open `http://localhost:8000` in your browser.
 
-__Note: If you run into an error similar to this `Failed to listen on localhost:8000 (reason: Address already in use)` then you'll need to change the port that the application is running on. You can do this by editing the `composer.json` file and changing the port in the `scripts.start` key.__
+### Mysql database snapshot:
+last/referer til endelig database
 
-## Project Structure
+> [!NOTE]
+> du må endre din config fil til å bruke dine mysql credentials og db navn: soknadsystemdb
 
-This skeleton is organized for clarity and maintainability, and is also structured to be easily navigable by AI coding assistants. The following layout is recommended:
+
+
+## Prosjekt struktur
 
 ```
 project-root/
@@ -43,7 +54,3 @@ project-root/
 └── README.md           # Project overview
 ```
 
-> _Predefined instructions for AI tools are included in this skeleton, making it easier for AI assistants to understand and help you with this structure._
-
-## Do it!
-That's it! Go build something flipping sweet!
