@@ -100,7 +100,7 @@ class UserController {
 
         // Fetch user's positions (only for employers)
         $positionModel = new Position($this->app->db());
-        $positions = $positionModel->findByCreatorId($userId);
+        $positions = $positionModel->findByCreatorId($userId, false, true);
 
         // Render the profile page with user data
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [

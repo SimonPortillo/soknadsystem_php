@@ -9,258 +9,290 @@
             <div class="card-body">
                 <h1 class="display-4 mb-4">Min Side</h1>
                 
-                <form method="post" action="/min-side/update" enctype="multipart/form-data" novalidate>
-                    <h5 class="mb-3">Kontoinformasjon</h5>
-                    
-                    <!-- Username field: Disabled (cannot be changed) -->
-                    <div class="mb-3">
-                        <label for="username" class="form-label d-flex justify-content-between align-items-center">
-                            <span>Brukernavn</span>
-                        </label>
-                        <input type="text" class="form-control" id="username" name="username" value="{$user->getUsername()}" disabled>
-                    </div>
-
-                    <!-- Email field: Disabled (cannot be changed) -->
-                    <div class="mb-3">
-                        <label for="email" class="form-label d-flex justify-content-between align-items-center">
-                            <span>E-post</span>
-                        </label>
-                        <input type="email" class="form-control" id="email" name="email" value="{$user->getEmail()}" disabled>
-                    </div>
-
-                    <!-- Role field: Disabled (cannot be changed) -->
-                    <div class="mb-3">
-                        <label for="role" class="form-label d-flex justify-content-between align-items-center">
-                            <span>Rolle</span>
-                        </label>
-                        <div class="mb-3">
-                            {if $user->getRole() === 'student'}
-                                <h3><span class="badge rounded-pill bg-primary ">Student</span></h3>
-                            {elseif $user->getRole() === 'employee'}
-                                <h3><span class="badge rounded-pill bg-success">Ansatt</span></h3>
-                            {elseif $user->getRole() === 'admin'}
-                                <h3><span class="badge rounded-pill bg-danger">Admin</span></h3>
-                            {/if}
+                <div class="accordion mb-4" id="userInfoAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="userInfoHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#userInfoCollapse" aria-expanded="false" aria-controls="userInfoCollapse">
+                                Brukerinformasjon
+                            </button>
+                        </h2>
+                        <div id="userInfoCollapse" class="accordion-collapse collapse" aria-labelledby="userInfoHeading" data-bs-parent="#userInfoAccordion">
+                            <div class="accordion-body">
+                                <form method="post" action="/min-side/update" enctype="multipart/form-data" novalidate>
+                                    <h5 class="mb-3">Kontoinformasjon</h5>
+                                    <ul class="list-group mb-4">
+                                        {if $user->getFullName()}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="bi bi-person-lines-fill"></i> Fullt navn</span>
+                                                <span>{$user->getFullName()}</span>
+                                            </li>
+                                        {/if}
+                                        {if $user->getPhone()}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="bi bi-telephone"></i> Telefon</span>
+                                                <span>{$user->getPhone()}</span>
+                                            </li>
+                                        {/if}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-person"></i> Brukernavn</span>
+                                            <span>{$user->getUsername()}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-envelope"></i> E-post</span>
+                                            <span>{$user->getEmail()}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-person-badge"></i> Rolle</span>
+                                            <span>
+                                                {if $user->getRole() === 'student'}
+                                                    <span class="badge rounded-pill bg-primary">Student</span>
+                                                {elseif $user->getRole() === 'employee'}
+                                                    <span class="badge rounded-pill bg-success">Ansatt</span>
+                                                {elseif $user->getRole() === 'admin'}
+                                                    <span class="badge rounded-pill bg-danger">Admin</span>
+                                                {/if}
+                                            </span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-calendar"></i> Konto opprettet</span>
+                                            <span>{$user->getCreatedAt()}</span>
+                                        </li>
+                                    </ul>
+                                    <hr class="my-4">
+                                    <h5 class="mb-3">Endre personlig informasjon</h5>
+                                    <!-- Full Name field: Editable -->
+                                    <div class="mb-3">
+                                        <label for="full_name" class="form-label">
+                                            <span>Fullt navn</span>
+                                            <span class="badge rounded-pill text-bg-secondary">valgfritt</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="full_name" name="full_name" value="{$user->getFullName() ?? ''}" autocomplete="name">
+                                    </div>
+                                    <!-- Phone field: Editable -->
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label">
+                                            <span>Telefon</span>
+                                            <span class="badge rounded-pill text-bg-secondary">valgfritt</span>
+                                        </label>
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text" id="basic-addon1">+47</span>
+                                            <input type="tel" class="form-control" id="phone" name="phone" value="{$user->getPhone() ?? ''}" autocomplete="tel">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="submit" class="btn btn-outline-primary btn-loader">Oppdater</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
-
-
-                    <!-- Account created date: Disabled (read-only) -->
-                    <div class="mb-3">
-                        <label for="created_at" class="form-label d-flex justify-content-between align-items-center">
-                            <span>Konto opprettet</span>
-                           
-                        </label>
-                        <input type="text" class="form-control" id="created_at" name="created_at" value="{$user->getCreatedAt()}" disabled>
-                    </div>
-                
-
-
-                    <hr class="my-4">
-
-                    <h5 class="mb-3">Personlig informasjon</h5>
-
-                    <!-- Full Name field: Editable -->
-                    <div class="mb-3">
-                        <label for="full_name" class="form-label">
-                            <span>Fullt navn</span>
-                            <span class="badge rounded-pill text-bg-secondary">valgfritt</span>
-                        </label>
-                        <input type="text" class="form-control" id="full_name" name="full_name" value="{$user->getFullName() ?? ''}" autocomplete="name">
-                    </div>  
-
-                    <!-- Phone field: Editable -->
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">
-                            <span>Telefon</span>
-                            <span class="badge rounded-pill text-bg-secondary">valgfritt</span>
-                        </label>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text" id="basic-addon1">+47</span>
-                        <input type="tel" class="form-control" id="phone" name="phone" value="{$user->getPhone() ?? ''}" autocomplete="tel">
-                    </div>
-                     <div class="d-flex justify-content-end gap-2">
-                        <button type="submit" class="btn btn-outline-primary btn-loader">Oppdater</button>
-                    </div>
-                </form>
+                </div>
             {if $user->getRole() === 'student'}
-                    <hr class="my-4">
-                    
-                    <h5 class="mb-3">Mine søknader</h5>
-                    {if !empty($applications)}
-                        <div class="list-group mb-4">
-                            {foreach $applications as $application}
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="mb-1">{$application['title']}</h6>
-                                            <p class="mb-1 text-muted">
-                                                <small>
-                                                    <i class="bi bi-building"></i> {$application['department']}
-                                                    {if $application['location']}
-                                                        • <i class="bi bi-geo-alt"></i> {$application['location']}
-                                                    {/if}
-                                                </small>
-                                            </p>
-                                            <p class="mb-1">
-                                                <small class="text-muted">
-                                                    Søkt: {$application['application_date']|date:'d.m.Y H:i'}
-                                                </small>
-                                            </p>
-                                        </div>
-                                        <div class="text-end">
-                                            {if $application['status'] === 'pending'}
-                                                <span class="badge bg-warning text-dark">Venter</span>
-                                            {elseif $application['status'] === 'reviewed'}
-                                                <span class="badge bg-info">Under vurdering</span>
-                                            {elseif $application['status'] === 'accepted'}
-                                                <span class="badge bg-success">Akseptert</span>
-                                            {elseif $application['status'] === 'rejected'}
-                                                <span class="badge bg-danger">Avslått</span>
-                                            {/if}
-                                        </div>
+                <div class="accordion mb-4" id="studentAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="applicationsHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#applicationsCollapse" aria-expanded="false" aria-controls="applicationsCollapse">
+                                Mine søknader
+                            </button>
+                        </h2>
+                        <div id="applicationsCollapse" class="accordion-collapse collapse" aria-labelledby="applicationsHeading" data-bs-parent="#studentAccordion">
+                            <div class="accordion-body">
+                                {if !empty($applications)}
+                                    <div class="list-group mb-4">
+                                        {foreach $applications as $application}
+                                            <div class="list-group-item">
+                                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-1">{$application['title']}</h6>
+                                                        <p class="mb-1 text-muted">
+                                                            <small>
+                                                                <i class="bi bi-building"></i> {$application['department']}
+                                                                {if $application['location']}
+                                                                    • <i class="bi bi-geo-alt"></i> {$application['location']}
+                                                                {/if}
+                                                            </small>
+                                                        </p>
+                                                        <p class="mb-1">
+                                                            <small class="text-muted">
+                                                                Søkt: {$application['application_date']|date:'d.m.Y H:i'}
+                                                            </small>
+                                                        </p>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        {if $application['status'] === 'pending'}
+                                                            <span class="badge bg-warning text-dark">Venter</span>
+                                                        {elseif $application['status'] === 'reviewed'}
+                                                            <span class="badge bg-info">Under vurdering</span>
+                                                        {elseif $application['status'] === 'accepted'}
+                                                            <span class="badge bg-success">Akseptert</span>
+                                                        {elseif $application['status'] === 'rejected'}
+                                                            <span class="badge bg-danger">Avslått</span>
+                                                        {/if}
+                                                    </div>
+                                                </div>
+                                                {if $application['notes']}
+                                                    <hr class="my-2">
+                                                    <p class="mb-0"><small><strong>Notater:</strong> {$application['notes']}</small></p>
+                                                {/if}
+                                            </div>
+                                        {/foreach}
                                     </div>
-                                    {if $application['notes']}
-                                        <hr class="my-2">
-                                        <p class="mb-0"><small><strong>Notater:</strong> {$application['notes']}</small></p>
-                                    {/if}
-                                </div>
-                            {/foreach}
-                        </div>
-                    {else}
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Du har ingen søknader ennå. Gå til <a href="/positions" class="alert-link">stillinger</a> for å søke på en stilling.
-                        </div>
-                    {/if}
-
-                    <hr class="my-4">
-
-                    <h5 class="mb-3">Søknadsdokumenter</h5>
-                    <p class="form-text"> Her kan du laste opp dokumenter du ønsker å bruke i jobbsøknader, du kan laste opp flere</p>
-                <form method="post" action="/min-side/upload" enctype="multipart/form-data" novalidate>
-                    <!-- CV/Resume upload field -->
-                    <div class="mb-3">
-                        <label for="cv_file" class="form-label">
-                            <span class="badge rounded-pill text-bg-primary">
-                                {if !empty($cv_documents) && count($cv_documents) > 1}
-                                    Dine CV-er:
-                                {elseif !empty($cv_documents) && count($cv_documents) == 1}
-                                    Din CV:
                                 {else}
-                                    Last opp CV:
-                                {/if}
-                            </span>
-                        </label>
-                        {if !empty($cv_documents)}
-                            {foreach $cv_documents as $cv}
-                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="bi bi-file-earmark-text"></i> 
-                                        <strong>{$cv['original_name']}</strong>
-                                        <br>
-                                        <small class="text-muted">Lastet opp: {$cv['uploaded_at']}</small>
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> Du har ingen søknader ennå. Gå til <a href="/positions" class="alert-link">stillinger</a> for å søke på en stilling.
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCvModal{$cv['id']}">
-                                        <i class="bi bi-trash"></i> Slett
-                                    </button>
-                                </div>
-                            {/foreach}
-                        {/if}
-                        <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
-                        <div class="form-text">
-                            Aksepterte filformater: PDF, DOC, DOCX. Maks filstørrelse: 5MB.
+                                {/if}
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Cover letter upload field -->
-                    <div class="mb-3">
-                        <label for="cover_letter_file" class="form-label">
-                        <span class="badge rounded-pill text-bg-primary">
-                                {if !empty($cover_letter_documents) && count($cover_letter_documents) > 1}
-                                    Dine søknadsbrev:
-                                {elseif !empty($cover_letter_documents) && count($cover_letter_documents) == 1}
-                                    Ditt søknadsbrev:
-                                {else}
-                                    Last opp søknadsbrev:
-                                {/if}
-                            </span>
-                        </label>
-                        {if !empty($cover_letter_documents)}
-                            {foreach $cover_letter_documents as $coverLetter}
-                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="bi bi-file-earmark-text"></i> 
-                                        <strong>{$coverLetter['original_name']}</strong>
-                                        <br>
-                                        <small class="text-muted">Lastet opp: {$coverLetter['uploaded_at']}</small>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="documentsHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#documentsCollapse" aria-expanded="false" aria-controls="documentsCollapse">
+                                Søknadsdokumenter
+                            </button>
+                        </h2>
+                        <div id="documentsCollapse" class="accordion-collapse collapse" aria-labelledby="documentsHeading" data-bs-parent="#studentAccordion">
+                            <div class="accordion-body">
+                                <p class="form-text"> Her kan du laste opp dokumenter du ønsker å bruke i jobbsøknader, du kan laste opp flere</p>
+                                <form method="post" action="/min-side/upload" enctype="multipart/form-data" novalidate>
+                                    <!-- CV/Resume upload field -->
+                                    <div class="mb-3">
+                                        <label for="cv_file" class="form-label">
+                                            <span class="badge rounded-pill text-bg-primary">
+                                                {if !empty($cv_documents) && count($cv_documents) > 1}
+                                                    Dine CV-er:
+                                                {elseif !empty($cv_documents) && count($cv_documents) == 1}
+                                                    Din CV:
+                                                {else}
+                                                    Last opp CV:
+                                                {/if}
+                                            </span>
+                                        </label>
+                                        {if !empty($cv_documents)}
+                                            {foreach $cv_documents as $cv}
+                                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <i class="bi bi-file-earmark-text"></i> 
+                                                        <strong>{$cv['original_name']}</strong>
+                                                        <br>
+                                                        <small class="text-muted">Lastet opp: {$cv['uploaded_at']}</small>
+                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCvModal{$cv['id']}">
+                                                        <i class="bi bi-trash"></i> Slett
+                                                    </button>
+                                                </div>
+                                            {/foreach}
+                                        {/if}
+                                        <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
+                                        <div class="form-text">
+                                            Aksepterte filformater: PDF, DOC, DOCX. Maks filstørrelse: 5MB.
+                                        </div>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCoverLetterModal{$coverLetter['id']}">
-                                        <i class="bi bi-trash"></i> Slett
-                                    </button>
-                                </div>
-                            {/foreach}
-                        {/if}
-                        <input type="file" class="form-control" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx">
-                        <div class="form-text">
-                            Aksepterte filformater: PDF, DOC, DOCX. Maks størrelse: 5MB.
+                                    <!-- Cover letter upload field -->
+                                    <div class="mb-3">
+                                        <label for="cover_letter_file" class="form-label">
+                                            <span class="badge rounded-pill text-bg-primary">
+                                                {if !empty($cover_letter_documents) && count($cover_letter_documents) > 1}
+                                                    Dine søknadsbrev:
+                                                {elseif !empty($cover_letter_documents) && count($cover_letter_documents) == 1}
+                                                    Ditt søknadsbrev:
+                                                {else}
+                                                    Last opp søknadsbrev:
+                                                {/if}
+                                            </span>
+                                        </label>
+                                        {if !empty($cover_letter_documents)}
+                                            {foreach $cover_letter_documents as $coverLetter}
+                                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <i class="bi bi-file-earmark-text"></i> 
+                                                        <strong>{$coverLetter['original_name']}</strong>
+                                                        <br>
+                                                        <small class="text-muted">Lastet opp: {$coverLetter['uploaded_at']}</small>
+                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCoverLetterModal{$coverLetter['id']}">
+                                                        <i class="bi bi-trash"></i> Slett
+                                                    </button>
+                                                </div>
+                                            {/foreach}
+                                        {/if}
+                                        <input type="file" class="form-control" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx">
+                                        <div class="form-text">
+                                            Aksepterte filformater: PDF, DOC, DOCX. Maks størrelse: 5MB.
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="submit" class="btn btn-outline-primary btn-loader">Last opp</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="d-flex justify-content-end gap-2">
-                        <button type="submit" class="btn btn-outline-primary btn-loader">Last opp</button>
-                    </div>
-                </form>
+                </div>
             {/if}
              
-                {if $user->getRole() === 'employee' || $user->getRole() === 'admin'} 
-                <hr class="my-4">
-                    <h5 class="mb-3">Mine søknader</h5>
-                    {if !empty($positions)}
-                    <div class="list-group mb-4">
-                            {foreach $positions as $position}
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="mb-1">{$position['title']}</h6>
-                                            <p class="mb-1 text-muted">
-                                                <small>
-                                                    <i class="bi bi-building"></i> {$position['department']}
-                                                    {if $position['location']}
-                                                        • <i class="bi bi-geo-alt"></i> {$position['location']}
-                                                    {/if}
-                                                </small>
-                                            </p>
-                                            <p class="mb-1">
-                                                <small class="text-muted">
-                                                    Opprettet: {$position['created_at']|date:'d.m.Y H:i'}
-                                                </small>
-                                            </p>
+                {if $user->getRole() === 'employee' || $user->getRole() === 'admin'}
+                    <div class="accordion mb-4" id="positionsAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="positionsHeading">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#positionsCollapse" aria-expanded="true" aria-controls="positionsCollapse">
+                                    Mine stillinger
+                                </button>
+                            </h2>
+                            <div id="positionsCollapse" class="accordion-collapse collapse" aria-labelledby="positionsHeading" data-bs-parent="#positionsAccordion">
+                                <div class="accordion-body">
+                                    {if !empty($positions)}
+                                        <div class="row g-3 mb-0">
+                                            {foreach $positions as $position}
+                                                <div class="col-12">
+                                                    <div class="card shadow-sm h-100">
+                                                        <div class="card-body">
+                                                            <h6 class="card-title mb-2">{$position['title']}</h6>
+                                                            <div class="mb-1 text-muted small">
+                                                                <span><i class="bi bi-building"></i> {$position['department']}</span> |
+                                                                <span><i class="bi bi-geo-alt"></i> {$position['location']}</span>
+                                                            </div>
+                                                            <p class="card-text mb-2">{$position['description']|truncate:120}</p>
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <span class="badge bg-secondary">Søknader: {$position['application_count']}</span>
+                                                                <a href="/positions/{$position['id']}" class="btn btn-outline-primary btn-sm">Rediger</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {/foreach}
                                         </div>
-                                        
-                                    </div>
-                                    {if $position['description']}
-                                        <hr class="my-2">
-                                        <p class="mb-0"><small><strong>Notater:</strong> {$position['description']}</small></p>
+                                    {else}
+                                        <div class="alert alert-info mb-0">
+                                            <i class="bi bi-info-circle"></i> Du har ingen stillinger ennå. Gå til <a href="/positions" class="alert-link">stillinger</a> for å opprette en stilling.
+                                        </div>
                                     {/if}
                                 </div>
-                            {/foreach}
+                            </div>
                         </div>
-                    {else}
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Du har ingen stillinger ennå. Gå til <a href="/positions" class="alert-link">stillinger</a> for å opprette en stilling.
-                        </div>
-                    {/if}
+                    </div>
                 {/if}
-                <hr class="my-4">
-                <h5 class="mb-3">Slett konto</h5>
-                <span class="badge rounded-pill bg-warning text-dark">Advarsel</span>
-                <p class="form-text"><strong>
-                Dette vil slette kontoen din, alle søknader og opplastede dokumenter permanent. Denne handlingen kan ikke angres.
-                </strong></p>
-                <div class="d-grid">
-                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
-                        Slett konto
-                    </button>
+                <div class="accordion mb-4" id="accountAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="deleteAccountHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#deleteAccountCollapse" aria-expanded="false" aria-controls="deleteAccountCollapse">
+                                Slett konto
+                            </button>
+                        </h2>
+                        <div id="deleteAccountCollapse" class="accordion-collapse collapse" aria-labelledby="deleteAccountHeading" data-bs-parent="#accountAccordion">
+                            <div class="accordion-body">
+                                <span class="badge rounded-pill bg-warning text-dark">Advarsel</span>
+                                <p class="form-text"><strong>
+                                Dette vil slette kontoen din, alle søknader og opplastede dokumenter permanent. Denne handlingen kan ikke angres.
+                                </strong></p>
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                        Slett konto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
