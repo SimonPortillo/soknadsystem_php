@@ -3,76 +3,103 @@
 {block title}Stillinger{/block}
 
 {block content}
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card shadow-sm">
-            <div class="card-body py-5">
-                <div class="row align-items-center py-4 px-3">
-                    <div class="col">
-                        <h1 class="display-4">Stillinger</h1>
-                    </div>
-                    <div class="col-auto">
-                        {if isset($role) && ($role === 'admin' || $role === 'employee')}
-                            <a href="/positions/create" class="btn btn-success">
-                                <i class="bi bi-plus-circle"></i> Opprett ny stilling
-                            </a>
-                        {/if}
-                    </div>
-                </div>
-                    
-                
-                {if empty($positions)}
-                    <div class="alert alert-info">
-                        Det er for øyeblikket ingen ledige stillinger.
-                    </div>
-                {else}
-                    <div class="table-responsive mt-4 px-3">
-                        <table class="table table-bordered table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>Stilling</th>
-                                    <th>Avdeling</th>
-                                    <th>Lokasjon</th>
-                                    <th>Publisert av</th>
-                                    <th>Publisert dato</th>
-                                    {if isset($role) && ($role === 'admin' || $role === 'employee')}
-                                        <th>Søknader</th>
-                                    {/if}
-                                    {if isset($role) && ($role === 'student')}
-                                    <th>Søk</th>
-                                    {/if}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {foreach $positions as $position}
-                                <tr>
-                                    <td>{$position['title']}</td>
-                                    <td>{$position['department']}</td>
-                                    <td>{$position['location']}</td>
-                                    <td>{$position['creator_full_name'] ?: $position['creator_username']}</td>
-                                    <td>{date('d.m.Y', strtotime($position['created_at']))}</td>
-                                    {if isset($role) && ($role === 'admin' || $role === 'employee')}
-                                        <td><span class="badge text-bg-secondary">{$position['application_count']}</span></td>
-                                    {/if}
-                                    {if isset($role) && ($role === 'student')}
-                                    <td>
-                                        {if in_array($position['id'], $appliedPositionIds)}
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i> Søkt
-                                            </span>
-                                        {else}
-                                            <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Søk</a>
-                                        {/if}
-                                    </td>
-                                    {/if}
-                                </tr>
-                                {/foreach}
-                            </tbody>
-                        </table>
-                    </div>
-                {/if}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-4">Stillinger</h1>
+        <div class="d-flex align-items-center gap-2">
+            <div class="btn-group me-2" role="group" aria-label="View toggle">
+                <button type="button" class="btn btn-outline-primary active" id="gridViewBtn"><i class="bi bi-grid-3x3-gap"></i> Grid</button>
+                <button type="button" class="btn btn-outline-primary" id="tableViewBtn"><i class="bi bi-table"></i> Tabell</button>
             </div>
+            {if isset($role) && ($role === 'admin' || $role === 'employee')}
+                <a href="/positions/create" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Opprett ny stilling
+                </a>
+            {/if}
         </div>
     </div>
+    {if empty($positions)}
+        <div class="alert alert-info">
+            Det er for øyeblikket ingen ledige stillinger.
+        </div>
+    {else}
+        <!-- Grid View -->
+        <div id="positionsGridView" class="row g-4">
+            {foreach $positions as $position}
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card bg-light h-100 shadow-lg border-0">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-2">{$position['title']}</h5>
+                            <div class="mb-2 text-muted small">
+                                <span class="me-2"><i class="bi bi-building"></i> {$position['department']}</span>
+                                <span class="me-2"><i class="bi bi-geo-alt"></i> {$position['location']}</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="badge bg-light text-dark border"><i class="bi bi-person"></i> {$position['creator_full_name'] ?: $position['creator_username']}</span>
+                                <span class="badge bg-light text-dark border"><i class="bi bi-calendar"></i> {date('d.m.Y', strtotime($position['created_at']))}</span>
+                            </div>
+                            <p class="card-text mb-3">{$position['description']|truncate:100}</p>
+                            <div class="mt-auto d-flex justify-content-between align-items-end">
+                                <span class="badge bg-secondary">Søknader: {$position['application_count']}</span>
+                                {if isset($role) && ($role === 'student')}
+                                    {if in_array($position['id'], $appliedPositionIds)}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Søkt
+                                        </span>
+                                    {else}
+                                        <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
+                                    {/if}
+                                {/if}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {/foreach}
+        </div>
+        <!-- Table View -->
+        <div id="positionsTableView" class="table-responsive mt-4 d-none">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Stilling</th>
+                        <th>Avdeling</th>
+                        <th>Lokasjon</th>
+                        <th>Publisert av</th>
+                        <th>Publisert dato</th>
+                        <th>Søknader</th>
+                        {if isset($role) && ($role === 'student')}
+                        <th>Søk</th>
+                        {/if}
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $positions as $position}
+                    <tr>
+                        <td>{$position['title']}</td>
+                        <td>{$position['department']}</td>
+                        <td>{$position['location']}</td>
+                        <td>{$position['creator_full_name'] ?: $position['creator_username']}</td>
+                        <td>{date('d.m.Y', strtotime($position['created_at']))}</td>
+                        <td>{$position['application_count']}</td>
+                        {if isset($role) && ($role === 'student')}
+                        <td>
+                            {if in_array($position['id'], $appliedPositionIds)}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i> Søkt
+                                </span>
+                            {else}
+                                <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
+                            {/if}
+                        </td>
+                        {/if}
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+        </div>
+    {/if}
 </div>
+    {block scripts}
+    <script src="/js/positions-view-toggle.js" nonce="{$csp_nonce}"></script>
+    {/block}
 {/block}
