@@ -235,7 +235,7 @@
                     <div class="accordion mb-4" id="positionsAccordion">
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="positionsHeading">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#positionsCollapse" aria-expanded="true" aria-controls="positionsCollapse">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#positionsCollapse" aria-expanded="true" aria-controls="positionsCollapse">
                                     Mine stillinger
                                 </button>
                             </h2>
@@ -250,7 +250,8 @@
                                                             <h6 class="card-title mb-2">{$position['title']}</h6>
                                                             <div class="mb-1 text-muted small">
                                                                 <span><i class="bi bi-building"></i> {$position['department']}</span> |
-                                                                <span><i class="bi bi-geo-alt"></i> {$position['location']}</span>
+                                                                <span><i class="bi bi-geo-alt"></i> {$position['location']}</span> |
+                                                                <span><i class="bi bi-clock"></i> {($position['created_at']|date:'d.m.Y H:i')}</span>
                                                             </div>
                                                             <p class="card-text mb-2">{$position['description']|truncate:120}</p>
                                                             <div class="d-flex justify-content-between align-items-center">
