@@ -217,7 +217,7 @@
 {block scripts}
 <script nonce="{$csp_nonce}">
     // Handle status modal button clicks to set the status value
-    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(button => {
+    document.querySelectorAll('[data-bs-toggle="modal"][data-status]').forEach(button => {
         button.addEventListener('click', function() {
             const status = this.getAttribute('data-status');
             const targetModal = this.getAttribute('data-bs-target');
