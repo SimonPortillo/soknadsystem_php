@@ -188,5 +188,105 @@ class DocumentController
 
         $this->app->redirect('/min-side');
     }
+
+    /**
+     * Serve/download a document file
+     * 
+     * Serves a document file for download. Includes authorization checks to ensure
+     * only authorized users can download files.
+     * 
+     * Route: GET /documents/{documentId}/download
+     * 
+     * @param int $documentId The document ID
+     * @return void Serves the file or redirects with error
+     */
+    public function download($documentId) {
+        // Check authentication
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->halt(403, 'Ikke autorisert');
+            return;
+        }
+
+        $userId = $this->app->session()->get('user_id');
+        $documentModel = new Document($this->app->db());
+        $document = $documentModel->findById((int)$documentId);
+
+        if (!$document) {
+            $this->app->halt(404, 'Dokumentet ble ikke funnet');
+            return;
+        }
+
+        // Check authorization: user must own the document OR be viewing as employer/admin
+        $userRole = $this->app->session()->get('role') ?? null;
+        $canAccess = false;
+
+        if ($document['user_id'] === $userId) {
+            // User owns the document
+            $canAccess = true;
+        } elseif (in_array($userRole, ['admin', 'employee'])) {
+            // Admin/employee can access if they have access to an application using this document
+            // Check if this document is part of an application they can view
+            $stmt = $this->app->db()->prepare(
+                'SELECT COUNT(*) FROM applications a
+                 JOIN positions p ON a.position_id = p.id
+                 WHERE (a.cv_document_id = :doc_id OR a.cover_letter_document_id = :doc_id)
+                 AND (p.creator_id = :user_id OR :is_admin = 1)'
+            );
+            $stmt->execute([
+                ':doc_id' => $documentId,
+                ':user_id' => $userId,
+                ':is_admin' => $userRole === 'admin' ? 1 : 0
+            ]);
+            $count = (int) $stmt->fetchColumn();
+            $canAccess = $count > 0;
+        }
+
+        if (!$canAccess) {
+            $this->app->halt(403, 'Du har ikke tilgang til dette dokumentet');
+            return;
+        }
+
+        // Build the full file path securely
+        $uploadsDir = realpath(__DIR__ . '/../../uploads');
+        $requestedPath = $uploadsDir . DIRECTORY_SEPARATOR . $document['file_path'];
+        $filePath = realpath($requestedPath);
+
+        // Validate that the resolved file path is within the uploads directory
+        if ($filePath === false || strpos($filePath, $uploadsDir) !== 0) {
+            $this->app->halt(404, 'Filen ble ikke funnet på serveren');
+            return;
+        }
+        if (!file_exists($filePath)) {
+            $this->app->halt(404, 'Filen ble ikke funnet på serveren');
+            return;
+        }
+
+        // Serve the file
+        // Validate MIME type against allowlist
+        $allowedMimeTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'text/plain'
+        ];
+        $mimeType = in_array($document['mime_type'], $allowedMimeTypes, true)
+            ? $document['mime_type']
+            : 'application/octet-stream';
+        header('Content-Type: ' . $mimeType);
+        // Sanitize filename for ASCII 'filename' parameter
+        $asciiFilename = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $document['original_name']);
+        // Encode filename for RFC 5987 'filename*' parameter
+        $utf8Filename = rawurlencode($document['original_name']);
+        header('Content-Disposition: attachment; filename="' . $asciiFilename . '"; filename*=UTF-8\'\'' . $utf8Filename);
+        header('Content-Length: ' . filesize($filePath));
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Pragma: no-cache');
+        
+        readfile($filePath);
+        exit;
+    }
         
 }

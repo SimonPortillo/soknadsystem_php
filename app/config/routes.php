@@ -93,6 +93,12 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/positions/@id:[0-9]+/apply', [ ApplicationController::class, 'index' ]);
 	$router->post('/positions/@id:[0-9]+/apply', [ ApplicationController::class, 'apply' ]);
 
+	// View applicants for a position (admin/employee only)
+	$router->get('/positions/@id:[0-9]+/applicants', [ ApplicationController::class, 'viewApplicants' ]);
+
+	// Update application status (admin/employee only)
+	$router->post('/positions/@id:[0-9]+/applicants/@applicationId:[0-9]+/status', [ ApplicationController::class, 'updateStatus' ]);
+
 	
 	// Logout user and destroy session (authenticated users only)
 	$router->get('/logout', [ AuthController::class, 'logout' ]);
@@ -122,5 +128,8 @@ $router->group('', function(Router $router) use ($app) {
 
 	// Delete user document by ID
 	$router->post('/min-side/documents/delete', [ DocumentController::class, 'delete' ]);
+
+	// Download document file
+	$router->get('/documents/@documentId:[0-9]+/download', [ DocumentController::class, 'download' ]);
 	
 }, [ SecurityHeadersMiddleware::class ]);

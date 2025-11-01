@@ -215,4 +215,172 @@ class ApplicationController {
         
         $this->app->redirect('/positions');
     }
+
+    /**
+     * View applicants for a position
+     * 
+     * Shows all applicants who have applied to a specific position.
+     * Only accessible to admin and employee roles, and only for positions they created.
+     * 
+     * Route: GET /positions/{id}/applicants
+     * 
+     * @param int $id The position ID
+     * @return void
+     */
+    public function viewApplicants($id) {
+        // Redirect to login if not authenticated
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        // Get the current user
+        $userId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $user = $userModel->findById($userId);
+        
+        if (!$user) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        // Only allow admin and employee roles
+        if (!in_array($user->getRole(), ['admin', 'employee'])) {
+            $this->app->session()->set('error_message', 'Du har ikke tilgang til denne siden.');
+            $this->app->redirect('/positions');
+            return;
+        }
+        
+        // Get position details
+        $positionModel = new Position($this->app->db());
+        $position = $positionModel->findById($id);
+        
+        if (!$position) {
+            $this->app->session()->set('error_message', 'Stillingen ble ikke funnet.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Check if user is the creator of the position (add admin exception if admins should see all applicants)
+        if ($position['creator_id'] !== $userId) {
+            $this->app->session()->set('error_message', 'Du har ikke tilgang til å se søkere for denne stillingen.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+        
+        // Get all applicants for this position
+        $applicationModel = new Application($this->app->db());
+        $applicants = $applicationModel->getByPositionWithDetails($id);
+
+        // Get session messages and clear them
+        $successMessage = $this->app->session()->get('success_message');
+        $errorMessage = $this->app->session()->get('error_message');
+        $this->app->session()->delete('success_message');
+        $this->app->session()->delete('error_message');
+        
+        // Render the applicants view
+        $this->app->latte()->render(__DIR__ . '/../views/user/view-applicants.latte', [
+            'isLoggedIn' => true,
+            'username' => $user->getUsername(),
+            'role' => $user->getRole(),
+            'position' => $position,
+            'applicants' => $applicants,
+            'message' => $successMessage,
+            'errors' => $errorMessage,
+            'csp_nonce' => $this->app->get('csp_nonce')
+        ]);
+    }
+
+    /**
+     * Update application status
+     * 
+     * Updates the status of an application (pending, reviewed, accepted, rejected).
+     * Only accessible to employee role, and only for positions they created.
+     * 
+     * Route: POST /positions/{id}/applicants/{applicationId}/status
+     * 
+     * @param int $id The position ID
+     * @param int $applicationId The application ID
+     * @return void
+     */
+    public function updateStatus($id, $applicationId) {
+        // Redirect to login if not authenticated
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        // Get the current user
+        $userId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $user = $userModel->findById($userId);
+        
+        if (!$user) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        // Only allow admin and employee roles
+        if (!in_array($user->getRole(), ['admin', 'employee'])) {
+            $this->app->session()->set('error_message', 'Du har ikke tilgang til denne handlingen.');
+            $this->app->redirect('/positions');
+            return;
+        }
+        
+        // Get position details
+        $positionModel = new Position($this->app->db());
+        $position = $positionModel->findById($id);
+        
+        if (!$position) {
+            $this->app->session()->set('error_message', 'Stillingen ble ikke funnet.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Check if user is the creator of the position (add admin exception if admins should update all applications)
+        if ($position['creator_id'] !== $userId) {
+            $this->app->session()->set('error_message', 'Du har ikke tilgang til å oppdatere søknader for denne stillingen.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Get form data
+        $data = $this->app->request()->data;
+        $status = $data->status ?? '';
+        $notes = $data->notes ?? null;
+        // Sanitize and validate notes input
+        if ($notes !== null) {
+            // Remove HTML tags
+            $notes = strip_tags($notes);
+            // Limit length to 1000 characters
+            if (mb_strlen($notes) > 1000) {
+                $notes = mb_substr($notes, 0, 1000);
+            }
+        }
+
+        // Validate status
+        if (!in_array($status, ['pending', 'reviewed', 'accepted', 'rejected'])) {
+            $this->app->session()->set('error_message', 'Ugyldig status valgt.');
+            $this->app->redirect('/positions/' . $id . '/applicants');
+            return;
+        }
+
+        // Update the application status
+        $applicationModel = new Application($this->app->db());
+        $result = $applicationModel->updateStatus($applicationId, $status, $notes);
+
+        if ($result) {
+            $statusText = [
+                'pending' => 'venter',
+                'reviewed' => 'under vurdering',
+                'accepted' => 'akseptert',
+                'rejected' => 'avslått'
+            ];
+            $this->app->session()->set('success_message', 'Søknadsstatus oppdatert til: ' . $statusText[$status] . '.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke oppdatere søknadsstatus. Prøv igjen.');
+        }
+
+        $this->app->redirect('/positions/' . $id . '/applicants');
+    }
 }

@@ -75,6 +75,45 @@ class Application
     }
 
     /**
+     * Get applications with full details by position ID
+     * Includes applicant information and document details
+     * 
+     * @param int $positionId The position ID
+     * @return array Array of applications with applicant and document details
+     */
+    public function getByPositionWithDetails(int $positionId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT 
+                a.id, 
+                a.position_id, 
+                a.user_id, 
+                a.cv_document_id, 
+                a.cover_letter_document_id, 
+                a.notes, 
+                a.status, 
+                a.application_date,
+                u.username, 
+                u.full_name, 
+                u.email, 
+                u.phone,
+                cv.original_name as cv_name,
+                cv.file_path as cv_path,
+                cl.original_name as cover_letter_name,
+                cl.file_path as cover_letter_path
+             FROM applications a
+             JOIN users u ON a.user_id = u.id
+             LEFT JOIN documents cv ON a.cv_document_id = cv.id
+             LEFT JOIN documents cl ON a.cover_letter_document_id = cl.id
+             WHERE a.position_id = :position_id
+             ORDER BY a.application_date DESC'
+        );
+        $stmt->execute([':position_id' => $positionId]);
+        
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Get applications by user ID
      * 
      * @param int $userId The user ID
