@@ -90,7 +90,11 @@
                                                         <li class="mb-2">
                                                             <i class="bi bi-telephone text-muted"></i>
                                                             <strong>Telefon:</strong> 
-                                                            <a href="tel:+47{$applicant['phone']}">+47 {$applicant['phone']}</a>
+                                                            {if substr($applicant['phone'], 0, 1) === '+'}
+                                                                <a href="tel:{$applicant['phone']}">{$applicant['phone']}</a>
+                                                            {else}
+                                                                <a href="tel:+47{$applicant['phone']}">+47 {$applicant['phone']}</a>
+                                                            {/if}
                                                         </li>
                                                     {/if}
                                                 </ul>
