@@ -377,27 +377,29 @@
         {/if}
 
         <!-- Delete Position Modal -->
-        {foreach $positions as $position}
-        <div class="modal fade" id="deletePositionModal{$position['id']}" tabindex="-1" aria-labelledby="deletePositionModalLabel{$position['id']}" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deletePositionModalLabel{$position['id']}">Bekreft sletting av stilling</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
-                    </div>
-                    <div class="modal-body">
-                        Er du sikker på at du vil slette stillingen <strong>{$position['title']}</strong>?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
-                        <form method="post" action="/positions/{$position['id']}/delete" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-loader">Slett stilling</button>
-                        </form>
+        {if !empty($positions)}
+            {foreach $positions as $position}
+            <div class="modal fade" id="deletePositionModal{$position['id']}" tabindex="-1" aria-labelledby="deletePositionModalLabel{$position['id']}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deletePositionModalLabel{$position['id']}">Bekreft sletting av stilling</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                        </div>
+                        <div class="modal-body">
+                            Er du sikker på at du vil slette stillingen <strong>{$position['title']}</strong>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                            <form method="post" action="/positions/{$position['id']}/delete" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-loader">Slett stilling</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    {/foreach}
+            {/foreach}
+        {/if}
     </div>
 </div>
 {/block}
