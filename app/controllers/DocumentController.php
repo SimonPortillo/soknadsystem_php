@@ -188,5 +188,81 @@ class DocumentController
 
         $this->app->redirect('/min-side');
     }
+
+    /**
+     * Serve/download a document file
+     * 
+     * Serves a document file for download. Includes authorization checks to ensure
+     * only authorized users can download files.
+     * 
+     * Route: GET /documents/{documentId}/download
+     * 
+     * @param int $documentId The document ID
+     * @return void Serves the file or redirects with error
+     */
+    public function download($documentId) {
+        // Check authentication
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->halt(403, 'Ikke autorisert');
+            return;
+        }
+
+        $userId = $this->app->session()->get('user_id');
+        $documentModel = new Document($this->app->db());
+        $document = $documentModel->findById((int)$documentId);
+
+        if (!$document) {
+            $this->app->halt(404, 'Dokumentet ble ikke funnet');
+            return;
+        }
+
+        // Check authorization: user must own the document OR be viewing as employer/admin
+        $userRole = $this->app->session()->get('role') ?? null;
+        $canAccess = false;
+
+        if ($document['user_id'] === $userId) {
+            // User owns the document
+            $canAccess = true;
+        } elseif (in_array($userRole, ['admin', 'employee'])) {
+            // Admin/employee can access if they have access to an application using this document
+            // Check if this document is part of an application they can view
+            $stmt = $this->app->db()->prepare(
+                'SELECT COUNT(*) FROM applications a
+                 JOIN positions p ON a.position_id = p.id
+                 WHERE (a.cv_document_id = :doc_id OR a.cover_letter_document_id = :doc_id)
+                 AND (p.creator_id = :user_id OR :is_admin = 1)'
+            );
+            $stmt->execute([
+                ':doc_id' => $documentId,
+                ':user_id' => $userId,
+                ':is_admin' => $userRole === 'admin' ? 1 : 0
+            ]);
+            $count = (int) $stmt->fetchColumn();
+            $canAccess = $count > 0;
+        }
+
+        if (!$canAccess) {
+            $this->app->halt(403, 'Du har ikke tilgang til dette dokumentet');
+            return;
+        }
+
+        // Build the full file path
+        $filePath = __DIR__ . '/../../uploads/' . $document['file_path'];
+
+        if (!file_exists($filePath)) {
+            $this->app->halt(404, 'Filen ble ikke funnet på serveren');
+            return;
+        }
+
+        // Serve the file
+        header('Content-Type: ' . $document['mime_type']);
+        header('Content-Disposition: attachment; filename="' . $document['original_name'] . '"');
+        header('Content-Length: ' . filesize($filePath));
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Pragma: no-cache');
+        
+        readfile($filePath);
+        exit;
+    }
         
 }

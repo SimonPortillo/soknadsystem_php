@@ -128,5 +128,8 @@ $router->group('', function(Router $router) use ($app) {
 
 	// Delete user document by ID
 	$router->post('/min-side/documents/delete', [ DocumentController::class, 'delete' ]);
+
+	// Download document file
+	$router->get('/documents/@documentId:[0-9]+/download', [ DocumentController::class, 'download' ]);
 	
 }, [ SecurityHeadersMiddleware::class ]);
