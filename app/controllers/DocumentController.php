@@ -256,7 +256,11 @@ class DocumentController
 
         // Serve the file
         header('Content-Type: ' . $document['mime_type']);
-        header('Content-Disposition: attachment; filename="' . $document['original_name'] . '"');
+        // Sanitize filename for ASCII 'filename' parameter
+        $asciiFilename = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $document['original_name']);
+        // Encode filename for RFC 5987 'filename*' parameter
+        $utf8Filename = rawurlencode($document['original_name']);
+        header('Content-Disposition: attachment; filename="' . $asciiFilename . '"; filename*=UTF-8\'\'' . $utf8Filename);
         header('Content-Length: ' . filesize($filePath));
         header('Cache-Control: no-cache, must-revalidate');
         header('Pragma: no-cache');
