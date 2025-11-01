@@ -81,10 +81,18 @@ $router->group('', function(Router $router) use ($app) {
 	
 	// Process position creation form
 	$router->post('/positions/create', [ PositionController::class, 'create' ]);
+
+	// Edit a position
+	$router->get('/positions/@id:[0-9]+/edit', [ PositionController::class, 'showEdit' ]);
+	$router->post('/positions/@id:[0-9]+/edit', [ PositionController::class, 'update' ]);
+
+	// Delete a position
+	$router->post('/positions/@id:[0-9]+/delete', [ PositionController::class, 'delete' ]);
 	
 	// Apply for a position
 	$router->get('/positions/@id:[0-9]+/apply', [ ApplicationController::class, 'index' ]);
 	$router->post('/positions/@id:[0-9]+/apply', [ ApplicationController::class, 'apply' ]);
+
 	
 	// Logout user and destroy session (authenticated users only)
 	$router->get('/logout', [ AuthController::class, 'logout' ]);

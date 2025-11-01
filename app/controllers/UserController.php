@@ -6,6 +6,7 @@ use flight\Engine;
 use app\models\User;
 use app\models\Document;
 use app\models\Application;
+use app\models\Position;
 
 /**
  * UserController
@@ -88,14 +89,18 @@ class UserController {
         $this->app->session()->delete('success_message');
         $this->app->session()->delete('error_message');
 
-        // Fetch user's documents 
+        // Fetch user's documents (only for students)
         $docModel = new Document($this->app->db());
         $cvDocuments = $docModel->findByUser($userId, 'cv');
         $coverLetterDocuments = $docModel->findByUser($userId, 'cover_letter'); 
         
-        // Fetch user's applications
+        // Fetch user's applications (only for students)
         $applicationModel = new Application($this->app->db());
         $applications = $applicationModel->getByUser($userId);
+
+        // Fetch user's positions (only for employers)
+        $positionModel = new Position($this->app->db());
+        $positions = $positionModel->findByCreatorId($userId, false, true);
 
         // Render the profile page with user data
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [
@@ -108,6 +113,7 @@ class UserController {
             'cv_documents' => $cvDocuments, 
             'cover_letter_documents' => $coverLetterDocuments,
             'applications' => $applications,
+            'positions' => $positions
         ]);
     }
 

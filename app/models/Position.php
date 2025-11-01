@@ -114,6 +114,38 @@ class Position
     }
 
     /**
+     * Get all positions created by a specific user
+     *
+     * @param int $userId The user ID (creator_id)
+     * @param bool $includeCreator Whether to include creator information
+     * @param bool $includeApplicationCount Whether to include application count
+     * @return array Array of positions
+     */
+        public function findByCreatorId(int $userId, bool $includeCreator = true, bool $includeApplicationCount = true): array {
+        $sql = 'SELECT p.*';
+            
+        if ($includeCreator) {
+            $sql .= ', u.username as creator_username, u.full_name as creator_full_name';
+        }
+
+        if ($includeApplicationCount) {
+            $sql .= ', (SELECT COUNT(*) FROM applications a WHERE a.position_id = p.id) as application_count';
+        }
+
+        $sql .= ' FROM positions p';
+
+        if ($includeCreator) {
+            $sql .= ' LEFT JOIN users u ON p.creator_id = u.id';
+        }
+
+        $sql .= ' WHERE p.creator_id = :user_id ORDER BY p.created_at DESC';
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':user_id' => $userId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Update position
      * 
      * @param int $id The position ID
