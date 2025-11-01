@@ -262,7 +262,20 @@ class DocumentController
         }
 
         // Serve the file
-        header('Content-Type: ' . $document['mime_type']);
+        // Validate MIME type against allowlist
+        $allowedMimeTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'text/plain'
+        ];
+        $mimeType = in_array($document['mime_type'], $allowedMimeTypes, true)
+            ? $document['mime_type']
+            : 'application/octet-stream';
+        header('Content-Type: ' . $mimeType);
         // Sanitize filename for ASCII 'filename' parameter
         $asciiFilename = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $document['original_name']);
         // Encode filename for RFC 5987 'filename*' parameter
