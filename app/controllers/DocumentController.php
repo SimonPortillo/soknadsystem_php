@@ -246,9 +246,16 @@ class DocumentController
             return;
         }
 
-        // Build the full file path
-        $filePath = __DIR__ . '/../../uploads/' . $document['file_path'];
+        // Build the full file path securely
+        $uploadsDir = realpath(__DIR__ . '/../../uploads');
+        $requestedPath = $uploadsDir . DIRECTORY_SEPARATOR . $document['file_path'];
+        $filePath = realpath($requestedPath);
 
+        // Validate that the resolved file path is within the uploads directory
+        if ($filePath === false || strpos($filePath, $uploadsDir) !== 0) {
+            $this->app->halt(404, 'Filen ble ikke funnet på serveren');
+            return;
+        }
         if (!file_exists($filePath)) {
             $this->app->halt(404, 'Filen ble ikke funnet på serveren');
             return;
