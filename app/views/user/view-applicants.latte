@@ -1,0 +1,230 @@
+{layout '../layout.latte'}
+
+{block title}Søkere - {$position['title']}{/block}
+
+{block content}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-10">
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h1 class="display-5 mb-2">Søkere til stilling</h1>
+                        <h4 class="text-muted mb-3">{$position['title']}</h4>
+                        <p class="mb-1">
+                            <i class="bi bi-building"></i> <strong>Avdeling:</strong> {$position['department']}
+                        </p>
+                        <p class="mb-1">
+                            <i class="bi bi-geo-alt"></i> <strong>Lokasjon:</strong> {$position['location']}
+                        </p>
+                        <p class="mb-0">
+                            <i class="bi bi-people"></i> <strong>Antall søkere:</strong> {count($applicants)}
+                        </p>
+                    </div>
+                    <a href="/min-side" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Tilbake til Min Side
+                    </a>
+                </div>
+
+                <hr class="my-4">
+
+                {if empty($applicants)}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> Ingen har søkt på denne stillingen ennå.
+                    </div>
+                {else}
+                    <div class="accordion" id="applicantsAccordion">
+                        {foreach $applicants as $index => $applicant}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{$applicant['id']}">
+                                    <button class="accordion-button {if $index > 0}collapsed{/if}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{$applicant['id']}" aria-expanded="{if $index === 0}true{else}false{/if}" aria-controls="collapse{$applicant['id']}">
+                                        <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                            <div>
+                                                <strong>
+                                                    {if $applicant['full_name']}
+                                                        {$applicant['full_name']}
+                                                    {else}
+                                                        {$applicant['username']}
+                                                    {/if}
+                                                </strong>
+                                                <small class="text-muted ms-2">
+                                                    Søkt: {$applicant['application_date']|date:'d.m.Y H:i'}
+                                                </small>
+                                            </div>
+                                            <div>
+                                                {if $applicant['status'] === 'pending'}
+                                                    <span class="badge bg-warning text-dark">Venter</span>
+                                                {elseif $applicant['status'] === 'reviewed'}
+                                                    <span class="badge bg-info">Under vurdering</span>
+                                                {elseif $applicant['status'] === 'accepted'}
+                                                    <span class="badge bg-success">Akseptert</span>
+                                                {elseif $applicant['status'] === 'rejected'}
+                                                    <span class="badge bg-danger">Avslått</span>
+                                                {/if}
+                                            </div>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapse{$applicant['id']}" class="accordion-collapse collapse {if $index === 0}show{/if}" aria-labelledby="heading{$applicant['id']}" data-bs-parent="#applicantsAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6 class="text-primary mb-3">Kontaktinformasjon</h6>
+                                                <ul class="list-unstyled">
+                                                    {if $applicant['full_name']}
+                                                        <li class="mb-2">
+                                                            <i class="bi bi-person-lines-fill text-muted"></i>
+                                                            <strong>Fullt navn:</strong> {$applicant['full_name']}
+                                                        </li>
+                                                    {/if}
+                                                    <li class="mb-2">
+                                                        <i class="bi bi-person text-muted"></i>
+                                                        <strong>Brukernavn:</strong> {$applicant['username']}
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="bi bi-envelope text-muted"></i>
+                                                        <strong>E-post:</strong> 
+                                                        <a href="mailto:{$applicant['email']}">{$applicant['email']}</a>
+                                                    </li>
+                                                    {if $applicant['phone']}
+                                                        <li class="mb-2">
+                                                            <i class="bi bi-telephone text-muted"></i>
+                                                            <strong>Telefon:</strong> 
+                                                            <a href="tel:+47{$applicant['phone']}">+47 {$applicant['phone']}</a>
+                                                        </li>
+                                                    {/if}
+                                                </ul>
+
+                                                {if $applicant['notes']}
+                                                    <h6 class="text-primary mb-2 mt-4">Søkerens notater</h6>
+                                                    <div class="alert alert-light">
+                                                        <p class="mb-0">{$applicant['notes']}</p>
+                                                    </div>
+                                                {/if}
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <h6 class="text-primary mb-3">Dokumenter</h6>
+                                                
+                                                {if $applicant['cv_name']}
+                                                    <div class="card mb-3">
+                                                        <div class="card-body">
+                                                            <h6 class="card-subtitle mb-2 text-muted">
+                                                                <i class="bi bi-file-earmark-text"></i> CV
+                                                            </h6>
+                                                            <p class="card-text mb-2">
+                                                                <strong>{$applicant['cv_name']}</strong>
+                                                            </p>
+                                                            <a href="/{$applicant['cv_path']}" target="_blank" class="btn btn-sm btn-outline-primary" download>
+                                                                <i class="bi bi-download"></i> Last ned CV
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                {else}
+                                                    <div class="alert alert-warning">
+                                                        <i class="bi bi-exclamation-triangle"></i> Ingen CV lastet opp
+                                                    </div>
+                                                {/if}
+
+                                                {if $applicant['cover_letter_name']}
+                                                    <div class="card mb-3">
+                                                        <div class="card-body">
+                                                            <h6 class="card-subtitle mb-2 text-muted">
+                                                                <i class="bi bi-file-earmark-text"></i> Søknadsbrev
+                                                            </h6>
+                                                            <p class="card-text mb-2">
+                                                                <strong>{$applicant['cover_letter_name']}</strong>
+                                                            </p>
+                                                            <a href="/{$applicant['cover_letter_path']}" target="_blank" class="btn btn-sm btn-outline-primary" download>
+                                                                <i class="bi bi-download"></i> Last ned søknadsbrev
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                {else}
+                                                    <div class="alert alert-warning">
+                                                        <i class="bi bi-exclamation-triangle"></i> Ingen søknadsbrev lastet opp
+                                                    </div>
+                                                {/if}
+                                            </div>
+                                        </div>
+
+                                        <hr class="my-3">
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-calendar-event"></i> Søknadsdato: {$applicant['application_date']|date:'d. F Y \k\l. H:i'}
+                                                </small>
+                                            </div>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#statusModal{$applicant['id']}" data-status="accepted">
+                                                    <i class="bi bi-check-circle"></i> Aksepter
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#statusModal{$applicant['id']}" data-status="rejected">
+                                                    <i class="bi bi-x-circle"></i> Avslå
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#statusModal{$applicant['id']}" data-status="reviewed">
+                                                    <i class="bi bi-eye"></i> Marker som aktuell kandidat
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {/foreach}
+                    </div>
+                {/if}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Update Modals -->
+{if !empty($applicants)}
+    {foreach $applicants as $applicant}
+    <div class="modal fade" id="statusModal{$applicant['id']}" tabindex="-1" aria-labelledby="statusModalLabel{$applicant['id']}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="statusModalLabel{$applicant['id']}">Oppdater søknadsstatus</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Endre status for søknaden til <strong>{$applicant['full_name'] ?? $applicant['username']}</strong>?</p>
+                    <form method="post" action="/positions/{$position['id']}/applicants/{$applicant['id']}/status" id="statusForm{$applicant['id']}">
+                        <input type="hidden" name="status" id="statusInput{$applicant['id']}" value="">
+                        <div class="mb-3">
+                            <label for="statusNotes{$applicant['id']}" class="form-label">Notater (valgfritt)</label>
+                            <textarea class="form-control" id="statusNotes{$applicant['id']}" name="notes" rows="3" placeholder="Legg til notater om statusendringen..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Avbryt</button>
+                    <button type="submit" form="statusForm{$applicant['id']}" class="btn btn-primary">Oppdater status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {/foreach}
+{/if}
+{/block}
+
+{block scripts}
+<script nonce="{$csp_nonce}">
+    // Handle status modal button clicks to set the status value
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const status = this.getAttribute('data-status');
+            const targetModal = this.getAttribute('data-bs-target');
+            const modalElement = document.querySelector(targetModal);
+            if (modalElement) {
+                const statusInput = modalElement.querySelector('input[name="status"]');
+                if (statusInput) {
+                    statusInput.value = status;
+                }
+            }
+        });
+    });
+</script>
+{/block}
