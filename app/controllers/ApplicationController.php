@@ -348,6 +348,15 @@ class ApplicationController {
         $data = $this->app->request()->data;
         $status = $data->status ?? '';
         $notes = $data->notes ?? null;
+        // Sanitize and validate notes input
+        if ($notes !== null) {
+            // Remove HTML tags
+            $notes = strip_tags($notes);
+            // Limit length to 1000 characters
+            if (mb_strlen($notes) > 1000) {
+                $notes = mb_substr($notes, 0, 1000);
+            }
+        }
 
         // Validate status
         if (!in_array($status, ['pending', 'reviewed', 'accepted', 'rejected'])) {
