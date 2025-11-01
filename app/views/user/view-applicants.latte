@@ -102,6 +102,7 @@
                                                 {if $applicant['notes']}
                                                     <h6 class="text-primary mb-2 mt-4">Søkerens notater</h6>
                                                     <div class="alert alert-light">
+                                                        {* User-provided notes are auto-escaped by Latte to prevent XSS attacks *}
                                                         <p class="mb-0">{$applicant['notes']}</p>
                                                     </div>
                                                 {/if}

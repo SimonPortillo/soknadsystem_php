@@ -132,6 +132,7 @@
                                                 </div>
                                                 {if $application['notes']}
                                                     <hr class="my-2">
+                                                    {* User-provided notes are auto-escaped by Latte to prevent XSS attacks *}
                                                     <p class="mb-0"><small><strong>Notater:</strong> {$application['notes']}</small></p>
                                                 {/if}
                                             </div>
