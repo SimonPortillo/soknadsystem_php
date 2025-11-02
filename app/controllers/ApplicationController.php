@@ -150,7 +150,8 @@ class ApplicationController {
         
         // Get form data
         $data = $this->app->request()->data;
-        $notes = $data->notes ?? null;
+        // restrict notes to employees only for communication
+        $notes = null;
         
         // Check if user selected existing documents or uploaded new ones
         $cvDocumentId = $data->cv_document_id ?? null;

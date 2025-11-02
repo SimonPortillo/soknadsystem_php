@@ -132,7 +132,7 @@
                                                 </div>
                                                 {if $application['notes']}
                                                     <hr class="my-2">
-                                                    <p class="mb-0"><small><strong>Notater:</strong> {$application['notes']}</small></p>
+                                                    <p class="mb-0"><small><strong>Svar fra arbeidsgiver: <br></strong> {$application['notes']}</small></p>
                                                 {/if}
                                             </div>
                                         {/foreach}
@@ -257,13 +257,12 @@
                                                             <div class="d-flex justify-content-between align-items-end">
                                                                 <span class="badge bg-secondary">Søknader: {$position['application_count']}</span>
                                                                 <div class="d-flex align-items-center gap-2">
-                                                                    <a href="/positions/{$position['id']}/applicants" class="btn btn-outline-info btn-sm">
+                                                                    <a href="/positions/{$position['id']}/applicants" class="btn btn-outline-primary btn-sm">
                                                                         <i class="bi bi-people"></i> Se søkere
                                                                     </a>
-                                                                    <a href="/positions/{$position['id']}/edit" class="btn btn-outline-primary btn-sm">Rediger</a>
+                                                                    <a href="/positions/{$position['id']}/edit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i> Rediger</a>
                                                                     <form action="/positions/{$position['id']}/delete" method="post" class="m-0">
-                                                                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePositionModal{$position['id']}"> Slett stilling
-                                                                        </button>
+                                                                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePositionModal{$position['id']}"> <i class="bi bi-trash"></i> Slett</button>
                                                                     </form>
                                                                 </div>
                                                             </div>
