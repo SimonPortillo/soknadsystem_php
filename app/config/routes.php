@@ -98,6 +98,8 @@ $router->group('', function(Router $router) use ($app) {
 
 	// Update application status (admin/employee only)
 	$router->post('/positions/@id:[0-9]+/applicants/@applicationId:[0-9]+/status', [ ApplicationController::class, 'updateStatus' ]);
+	// Withdraw an application (authenticated users only)
+	$router->post('/applications/@applicationId:[0-9]+/withdraw', [ ApplicationController::class, 'withdraw' ]);
 
 	
 	// Logout user and destroy session (authenticated users only)
