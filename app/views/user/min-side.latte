@@ -184,9 +184,14 @@
                                                         <br>
                                                         <small class="text-muted">Lastet opp: {$cv['uploaded_at']}</small>
                                                     </div>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCvModal{$cv['id']}">
-                                                        <i class="bi bi-trash"></i> Slett
-                                                    </button>
+                                                    <div class="d-flex gap-2">
+                                                        <a href="/documents/{$cv['id']}/download" class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-download"></i> Last ned
+                                                        </a>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCvModal{$cv['id']}">
+                                                            <i class="bi bi-trash"></i> Slett
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             {/foreach}
                                         {/if}
@@ -217,9 +222,14 @@
                                                         <br>
                                                         <small class="text-muted">Lastet opp: {$coverLetter['uploaded_at']}</small>
                                                     </div>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCoverLetterModal{$coverLetter['id']}">
-                                                        <i class="bi bi-trash"></i> Slett
-                                                    </button>
+                                                    <div class="d-flex gap-2">
+                                                        <a href="/documents/{$coverLetter['id']}/download" class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-download"></i> Last ned
+                                                        </a>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCoverLetterModal{$coverLetter['id']}">
+                                                            <i class="bi bi-trash"></i> Slett
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             {/foreach}
                                         {/if}

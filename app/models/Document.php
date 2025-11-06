@@ -162,5 +162,55 @@ class Document
         $stmt = $this->db->prepare('DELETE FROM documents WHERE id = :id AND user_id = :user_id');
         return $stmt->execute([':id' => $documentId, ':user_id' => $userId]);
     }
+
+    /**
+     * Check if a user can access a document
+     * 
+     * Determines if a user has permission to access a document based on:
+     * - Document ownership
+     * - Admin role (can access all documents)
+     * - Employee role (can access documents from applications for their positions)
+     * 
+     * @param int $documentId The document ID
+     * @param int $userId The user ID
+     * @param string $userRole The user's role ('student', 'employee', 'admin')
+     * @return bool True if user can access, false otherwise
+     */
+    public function canUserAccessDocument(int $documentId, int $userId, string $userRole): bool
+    {
+        // First check if document exists
+        $document = $this->findById($documentId);
+        if (!$document) {
+            return false;
+        }
+
+        // User owns the document
+        if ($document['user_id'] === $userId) {
+            return true;
+        }
+
+        // Admin can access all documents
+        if ($userRole === 'admin') {
+            return true;
+        }
+
+        // Employee can access if document is part of an application for their position
+        if ($userRole === 'employee') {
+            $stmt = $this->db->prepare(
+                'SELECT COUNT(*) FROM applications a
+                 JOIN positions p ON a.position_id = p.id
+                 WHERE (a.cv_document_id = :doc_id OR a.cover_letter_document_id = :doc_id)
+                 AND p.creator_id = :user_id'
+            );
+            $stmt->execute([
+                ':doc_id' => $documentId,
+                ':user_id' => $userId
+            ]);
+            $count = (int) $stmt->fetchColumn();
+            return $count > 0;
+        }
+
+        return false;
+    }
     
 }

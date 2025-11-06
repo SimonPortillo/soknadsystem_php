@@ -208,40 +208,18 @@ class DocumentController
         }
 
         $userId = $this->app->session()->get('user_id');
+        $userRole = $this->app->session()->get('role') ?? 'student';
         $documentModel = new Document($this->app->db());
+        
+        // Check if document exists
         $document = $documentModel->findById((int)$documentId);
-
         if (!$document) {
             $this->app->halt(404, 'Dokumentet ble ikke funnet');
             return;
         }
 
-        // Check authorization: user must own the document OR be viewing as employer/admin
-        $userRole = $this->app->session()->get('role') ?? null;
-        $canAccess = false;
-
-        if ($document['user_id'] === $userId) {
-            // User owns the document
-            $canAccess = true;
-        } elseif (in_array($userRole, ['admin', 'employee'])) {
-            // Admin/employee can access if they have access to an application using this document
-            // Check if this document is part of an application they can view
-            $stmt = $this->app->db()->prepare(
-                'SELECT COUNT(*) FROM applications a
-                 JOIN positions p ON a.position_id = p.id
-                 WHERE (a.cv_document_id = :doc_id OR a.cover_letter_document_id = :doc_id)
-                 AND (p.creator_id = :user_id OR :is_admin = 1)'
-            );
-            $stmt->execute([
-                ':doc_id' => $documentId,
-                ':user_id' => $userId,
-                ':is_admin' => $userRole === 'admin' ? 1 : 0
-            ]);
-            $count = (int) $stmt->fetchColumn();
-            $canAccess = $count > 0;
-        }
-
-        if (!$canAccess) {
+        // Check if user can access this document
+        if (!$documentModel->canUserAccessDocument((int)$documentId, $userId, $userRole)) {
             $this->app->halt(403, 'Du har ikke tilgang til dette dokumentet');
             return;
         }
