@@ -384,4 +384,53 @@ class ApplicationController {
 
         $this->app->redirect('/positions/' . $id . '/applicants');
     }
+
+    /**
+    * Withdraw an application
+    * 
+    * Allows a user to withdraw their application for a position.
+    * 
+    * Route: POST /applications/{applicationId}/withdraw
+    * 
+    * @param int $applicationId The application ID
+    * @return void
+    */
+    public function withdraw($applicationId) {
+        // Redirect to login if not authenticated
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        // Get the current user
+        $userId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $user = $userModel->findById($userId);
+        
+        if (!$user) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        // Get application details
+        $applicationModel = new Application($this->app->db());
+        $application = $applicationModel->findById($applicationId);
+        
+        if (!$application || $application['user_id'] !== $userId) {
+            $this->app->session()->set('error_message', 'Søknaden ble ikke funnet eller du har ikke tilgang til å trekke den tilbake.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Delete the application
+        $result = $applicationModel->delete($applicationId, $userId);
+
+        if ($result) {
+            $this->app->session()->set('success_message', 'Søknaden din er trukket tilbake.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke trekke tilbake søknaden. Prøv igjen senere.');
+        }
+
+        $this->app->redirect('/min-side');
+    }
 }

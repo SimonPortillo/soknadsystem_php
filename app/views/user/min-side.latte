@@ -118,7 +118,7 @@
                                                             </small>
                                                         </p>
                                                     </div>
-                                                    <div class="text-end">
+                                                    <div class="text-end flex-shrink-0 d-flex flex-column align-items-end gap-4">
                                                         {if $application['status'] === 'pending'}
                                                             <span class="badge bg-warning text-dark">Venter</span>
                                                         {elseif $application['status'] === 'reviewed'}
@@ -128,8 +128,15 @@
                                                         {elseif $application['status'] === 'rejected'}
                                                             <span class="badge bg-danger">Avslått</span>
                                                         {/if}
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#withdrawApplicationModal{$application['id']}">
+                                                            <i class="bi bi-trash"></i> slett
+                                                        </button>
                                                     </div>
                                                 </div>
+                                                <div class="mt-2 d-flex justify-content-end">
+                                                   
+                                                </div>
+                                                
                                                 {if $application['notes']}
                                                     <hr class="my-2">
                                                     <p class="mb-0"><small><strong>Svar fra arbeidsgiver: <br></strong> {$application['notes']}</small></p>
@@ -173,7 +180,7 @@
                                                 <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center">
                                                     <div>
                                                         <i class="bi bi-file-earmark-text"></i> 
-                                                        <strong>{$cv['original_name']}</strong>
+                                                       <strong >{$cv['original_name']|truncate:50}</strong>
                                                         <br>
                                                         <small class="text-muted">Lastet opp: {$cv['uploaded_at']}</small>
                                                     </div>
@@ -206,7 +213,7 @@
                                                 <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center">
                                                     <div>
                                                         <i class="bi bi-file-earmark-text"></i> 
-                                                        <strong>{$coverLetter['original_name']}</strong>
+                                                        <strong>{$coverLetter['original_name']|truncate:50}</strong>
                                                         <br>
                                                         <small class="text-muted">Lastet opp: {$coverLetter['uploaded_at']}</small>
                                                     </div>
@@ -306,102 +313,9 @@
                     </div>
                 </div>
             </div>
-        <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteAccountModalLabel">Bekreft sletting</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
-                    </div>
-                <div class="modal-body">
-                    Er du sikker på at du vil slette kontoen din? Dette kan ikke angres.
-                </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
-                        <form method="post" action="/min-side/delete" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-loader">Slett konto</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Delete CV Modal -->
-        {if !empty($cv_documents)}
-            {foreach $cv_documents as $cv}
-            <div class="modal fade" id="deleteCvModal{$cv['id']}" tabindex="-1" aria-labelledby="deleteCvModalLabel{$cv['id']}" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deleteCvModalLabel{$cv['id']}">Bekreft sletting av CV</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
-                        </div>
-                        <div class="modal-body">
-                            Er du sikker på at du vil slette CV-en <strong>{$cv['original_name']}</strong>?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
-                            <form method="post" action="/min-side/documents/delete" style="display:inline;">
-                                <input type="hidden" name="document_id" value="{$cv['id']}">
-                                <button type="submit" class="btn btn-danger btn-loader">Slett CV</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/foreach}
-        {/if}
-
-        <!-- Delete Cover Letter Modal -->
-        {if !empty($cover_letter_documents)}
-            {foreach $cover_letter_documents as $coverLetter}
-            <div class="modal fade" id="deleteCoverLetterModal{$coverLetter['id']}" tabindex="-1" aria-labelledby="deleteCoverLetterModalLabel{$coverLetter['id']}" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deleteCoverLetterModalLabel{$coverLetter['id']}">Bekreft sletting av søknadsbrev</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
-                        </div>
-                        <div class="modal-body">
-                            Er du sikker på at du vil slette søknadsbrevet <strong>{$coverLetter['original_name']}</strong>?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
-                            <form method="post" action="/min-side/documents/delete" style="display:inline;">
-                                <input type="hidden" name="document_id" value="{$coverLetter['id']}">
-                                <button type="submit" class="btn btn-danger btn-loader">Slett søknadsbrev</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/foreach}
-        {/if}
-
-        <!-- Delete Position Modal -->
-        {if !empty($positions)}
-            {foreach $positions as $position}
-            <div class="modal fade" id="deletePositionModal{$position['id']}" tabindex="-1" aria-labelledby="deletePositionModalLabel{$position['id']}" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deletePositionModalLabel{$position['id']}">Bekreft sletting av stilling</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
-                        </div>
-                        <div class="modal-body">
-                            Er du sikker på at du vil slette stillingen <strong>{$position['title']}</strong>?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
-                            <form method="post" action="/positions/{$position['id']}/delete" style="display:inline;">
-                                <button type="submit" class="btn btn-danger btn-loader">Slett stilling</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/foreach}
-        {/if}
+        
+        {* All modals for this page *}
+        {include '../partials/min-side-modals.latte'}
     </div>
 </div>
 {/block}

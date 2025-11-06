@@ -55,6 +55,23 @@ class Application
     }
 
     /**
+     * Find application by ID
+     * 
+     * @param int $applicationId The application ID
+     * @return array|null Application data or null if not found
+     */
+    public function findById(int $applicationId): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT * FROM applications WHERE id = :id'
+        );
+        $stmt->execute([':id' => $applicationId]);
+        
+        $application = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $application ?: null;
+    }
+
+    /**
      * Get applications by position ID
      * 
      * @param int $positionId The position ID
