@@ -7,23 +7,39 @@
     <div class="col-12 col-lg-10">
         <div class="card shadow-sm mt-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-4">
-                    <div>
-                        <h1 class="display-5 mb-2">Søkere til stilling</h1>
-                        <h4 class="text-muted mb-3">{$position['title']}</h4>
-                        <p class="mb-1">
-                            <i class="bi bi-building"></i> <strong>Avdeling:</strong> {$position['department']}
-                        </p>
-                        <p class="mb-1">
-                            <i class="bi bi-geo-alt"></i> <strong>Lokasjon:</strong> {$position['location']}
-                        </p>
-                        <p class="mb-0">
-                            <i class="bi bi-people"></i> <strong>Antall søkere:</strong> {count($applicants)}
-                        </p>
-                    </div>
+                <div class="d-flex justify-content-end mb-3">
                     <a href="/min-side" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left"></i> Tilbake til Min Side
                     </a>
+                </div>
+
+                <div class="mb-4">
+                    <h1 class="display-5 mb-2">Søkere til stilling</h1>
+                    <h4 class="text-muted mb-3">{$position['title']}</h4>
+                    <p class="mb-1">
+                        <i class="bi bi-building"></i> <strong>Avdeling:</strong> {$position['department']}
+                    </p>
+                    <p class="mb-1">
+                        <i class="bi bi-geo-alt"></i> <strong>Lokasjon:</strong> {$position['location']}
+                    </p>
+                    <p class="mb-3">
+                        <i class="bi bi-people"></i> <strong>Antall søkere:</strong> {count($applicants)}
+                    </p>
+                    
+                    <div class="accordion" id="descriptionAccordion">
+                        <div class="accordion-item border-0">
+                            <h2 class="accordion-header" id="descriptionHeading">
+                                <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#descriptionCollapse" aria-expanded="false" aria-controls="descriptionCollapse">
+                                    <i class="bi bi-file-text me-2"></i> Stillingsbeskrivelse
+                                </button>
+                            </h2>
+                            <div id="descriptionCollapse" class="accordion-collapse collapse" aria-labelledby="descriptionHeading" data-bs-parent="#descriptionAccordion">
+                                <div class="accordion-body bg-light">
+                                    {$position['description']}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <hr class="my-4">
@@ -93,7 +109,7 @@
                                                             {if substr($applicant['phone'], 0, 1) === '+'}
                                                                 <a href="tel:{$applicant['phone']}">{$applicant['phone']}</a>
                                                             {else}
-                                                                <a href="tel:{$countryCode}{$applicant['phone']}">{$countryCode} {$applicant['phone']}</a>
+                                                                <a href="tel:{$applicant['phone']}">{$applicant['phone']}</a>
                                                             {/if}
                                                         </li>
                                                     {/if}

@@ -133,6 +133,18 @@ $router->group('', function(Router $router) use ($app) {
 	// Delete user account and associated documents
 	$router->post('/min-side/delete', [ UserController::class, 'delete' ]);
 
+	// Admin: Update user role
+	$router->post('/admin/users/update-role', [ UserController::class, 'updateUserRole' ]);
+
+	// Admin: Delete user
+	$router->post('/admin/users/delete', [ UserController::class, 'deleteUser' ]);
+
+	// Admin: Update application status
+	$router->post('/admin/applications/update-status', [ UserController::class, 'updateApplicationStatus' ]);
+
+	// Admin: Delete application
+	$router->post('/admin/applications/delete', [ UserController::class, 'deleteApplication' ]);
+
 	/**
 	 * Document Management Routes (under min-side)
 	 */

@@ -41,15 +41,21 @@
                             <p class="card-text mb-3">{$position['description']|truncate:100}</p>
                             <div class="mt-auto d-flex justify-content-between align-items-end">
                                 <span class="badge bg-secondary">Søknader: {$position['application_count']}</span>
-                                {if isset($role) && ($role === 'student')}
-                                    {if in_array($position['id'], $appliedPositionIds)}
-                                        <span class="badge bg-success">
-                                            <i class="bi bi-check-circle"></i> Søkt
-                                        </span>
-                                    {else}
-                                        <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
+                                <div class="d-flex gap-2">
+                                    {if isset($role) && ($role === 'student')}
+                                        {if in_array($position['id'], $appliedPositionIds)}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Søkt
+                                            </span>
+                                        {else}
+                                            <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
+                                        {/if}
+                                    {elseif isset($role) && ($role === 'admin' || (isset($userId) && $position['creator_id'] == $userId))}
+                                        <a href="/positions/{$position['id']}/edit" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-pencil"></i> Rediger
+                                        </a>
                                     {/if}
-                                {/if}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -67,8 +73,8 @@
                         <th>Publisert av</th>
                         <th>Publisert dato</th>
                         <th>Søknader</th>
-                        {if isset($role) && ($role === 'student')}
-                        <th>Søk</th>
+                        {if isset($role)}
+                        <th>Handling</th>
                         {/if}
                     </tr>
                 </thead>
@@ -81,14 +87,22 @@
                         <td>{$position['creator_full_name'] ?: $position['creator_username']}</td>
                         <td>{date('d.m.Y', strtotime($position['created_at']))}</td>
                         <td>{$position['application_count']}</td>
-                        {if isset($role) && ($role === 'student')}
+                        {if isset($role)}
                         <td>
-                            {if in_array($position['id'], $appliedPositionIds)}
-                                <span class="badge bg-success">
-                                    <i class="bi bi-check-circle"></i> Søkt
-                                </span>
-                            {else}
-                                <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
+                            {if $role === 'student'}
+                                {if in_array($position['id'], $appliedPositionIds)}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Søkt
+                                    </span>
+                                {else}
+                                    <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
+                                {/if}
+                            {elseif $role === 'employee' || $role === 'admin'}
+                                {if $role === 'admin' || (isset($userId) && $position['creator_id'] == $userId)}
+                                    <a href="/positions/{$position['id']}/edit" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-pencil"></i> Rediger
+                                    </a>
+                                {/if}
                             {/if}
                         </td>
                         {/if}

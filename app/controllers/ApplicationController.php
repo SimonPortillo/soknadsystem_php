@@ -263,7 +263,7 @@ class ApplicationController {
         }
 
         // Check if user is the creator of the position (add admin exception if admins should see all applicants)
-        if ($position['creator_id'] !== $userId) {
+        if ($position['creator_id'] !== $userId && $user->getRole() !== 'admin') {
             $this->app->session()->set('error_message', 'Du har ikke tilgang til å se søkere for denne stillingen.');
             $this->app->redirect('/min-side');
             return;
@@ -339,7 +339,7 @@ class ApplicationController {
         }
 
         // Check if user is the creator of the position (add admin exception if admins should update all applications)
-        if ($position['creator_id'] !== $userId) {
+        if ($position['creator_id'] !== $userId && $user->getRole() !== 'admin') {
             $this->app->session()->set('error_message', 'Du har ikke tilgang til å oppdatere søknader for denne stillingen.');
             $this->app->redirect('/min-side');
             return;

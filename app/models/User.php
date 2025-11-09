@@ -429,4 +429,31 @@ class User
         $stmt = $this->db->prepare('DELETE FROM users WHERE id = :id');
         return $stmt->execute([':id' => $userId]);
     }
+
+
+
+    /**
+     * Update user role
+     * 
+     * @param int $userId The ID of the user to update
+     * @param string $role The new role (student, employee, admin)
+     * @return bool True on success, false on failure
+     */
+    public function updateRole(int $userId, string $role): bool
+    {
+        $stmt = $this->db->prepare('UPDATE users SET role = :role, updated_at = NOW() WHERE id = :id');
+        return $stmt->execute([':role' => $role, ':id' => $userId]);
+    }
+
+    /**
+     * Get all users (for admin)
+     *
+     * @return array Array of user data
+     */
+    public function getAll(): array
+    {
+        $stmt = $this->db->prepare('SELECT id, username, email, full_name, phone, role, is_active, created_at, updated_at FROM users ORDER BY created_at DESC');
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }

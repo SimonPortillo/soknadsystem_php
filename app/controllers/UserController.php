@@ -39,26 +39,12 @@ class UserController {
     }
 
     /**
-     * Display the user profile page (Min Side)
+     * Display the user profile page ("Min Side")
      * 
-     * Shows the authenticated user's profile information with fields for viewing
-     * and editing. Some fields are disabled (cannot be changed), while others
-     * can be edited.
+     * Dynamically displays user information based on role (student, employee, admin)
+     * and fetches related data such as documents, applications, and positions.
      * 
-     * Route: GET /min-side
-     * 
-     * Disabled fields (cannot be changed):
-     *   - Username
-     *   - Email
-     *   - Role
-     *   - Account creation date
-     * 
-     * Editable fields (can be changed):
-     *   - Full name
-     *   - Phone number
-     *   - Password (via separate action)
-     * 
-     * @return void Redirects to login if not authenticated, renders profile page otherwise
+     * @return void
      */
     public function index() {
         // Redirect to login if not authenticated
@@ -102,6 +88,42 @@ class UserController {
         $positionModel = new Position($this->app->db());
         $positions = $positionModel->findByCreatorId($userId, false, true);
 
+        // arrays to hold all users, applications, positions (for admin view)
+        $allUsers = [];
+        $allApplications = [];
+        $allPositions = [];
+        $positionsByCreator = [];
+        $applicationsByUser = [];
+        
+        if ($user->getRole() === 'admin') {
+            // Fetch all users 
+            $allUsers = $userModel->getAll();
+            
+            // Fetch all applications
+            $allApplications = $applicationModel->getAll();
+            
+            // Fetch all positions
+            $allPositions = $positionModel->getAll(true, true);
+            
+            // Group positions by creator_id 
+            foreach ($allPositions as $position) {
+                $creatorId = $position['creator_id'];
+                if (!isset($positionsByCreator[$creatorId])) {
+                    $positionsByCreator[$creatorId] = [];
+                }
+                $positionsByCreator[$creatorId][] = $position;
+            }
+            
+            // Group applications by user_id 
+            foreach ($allApplications as $application) {
+                $applicantId = $application['user_id'];
+                if (!isset($applicationsByUser[$applicantId])) {
+                    $applicationsByUser[$applicantId] = [];
+                }
+                $applicationsByUser[$applicantId][] = $application;
+            }
+        }
+
         // Render the profile page with user data
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [
             'isLoggedIn' => true,
@@ -113,7 +135,12 @@ class UserController {
             'cv_documents' => $cvDocuments, 
             'cover_letter_documents' => $coverLetterDocuments,
             'applications' => $applications,
-            'positions' => $positions
+            'positions' => $positions,
+            'all_users' => $allUsers,
+            'all_applications' => $allApplications,
+            'all_positions' => $allPositions,
+            'positions_by_creator' => $positionsByCreator,
+            'applications_by_user' => $applicationsByUser
         ]);
     }
 
@@ -190,13 +217,14 @@ class UserController {
         }
 
         $userId = $this->app->session()->get('user_id');
+        
+        // Delete user's documents (files and database records)
         $docModel = new Document($this->app->db());
-        if (!empty($docModel->findByUser($userId))) {
-            $docModel->deleteByUser($userId); // ← Deletes files & DB records if user has documents
-        }
+        $docModel->deleteByUser($userId);
 
+        // Delete the user
         $userModel = new User($this->app->db());
-        $userModel->delete($userId); // ← deletes the user
+        $userModel->delete($userId);
 
         // clear session and redirect to home
         $this->app->session()->clear();
@@ -204,5 +232,234 @@ class UserController {
         $this->app->session()->set('deletion_message', 'Brukeren har blitt slettet.');
 
         $this->app->redirect('/');
+    }
+
+    /**
+     * Update a user's role (admin only)
+     * 
+     * @return void
+     */
+    public function updateUserRole() {
+        // Redirect if not authenticated or not admin
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        $currentUserId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $currentUser = $userModel->findById($currentUserId);
+
+        if (!$currentUser || $currentUser->getRole() !== 'admin') {
+            $this->app->session()->set('error_message', 'Ingen tilgang.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        $targetUserId = (int) $this->app->request()->data->user_id;
+        $newRole = $this->app->request()->data->role;
+
+        // Prevent admin from changing their own role
+        if ($targetUserId === $currentUserId) {
+            $this->app->session()->set('error_message', 'Du kan ikke endre din egen rolle.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Validate role
+        $allowedRoles = ['student', 'employee', 'admin'];
+        if (!in_array($newRole, $allowedRoles, true)) {
+            $this->app->session()->set('error_message', 'Ugyldig rolle.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Get target user to check current role
+        $targetUser = $userModel->findById($targetUserId);
+        if (!$targetUser) {
+            $this->app->session()->set('error_message', 'Bruker ikke funnet.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        $currentRole = $targetUser->getRole();
+
+        // Clean up related data if role is changing
+        if ($currentRole !== $newRole) {
+            // If changing FROM student, delete their applications and documents
+            if ($currentRole === 'student') {
+                $applicationModel = new Application($this->app->db());
+                $documentModel = new Document($this->app->db());
+                
+                // Delete applications
+                $applicationModel->deleteAllByUserId($targetUserId);
+                
+                // Delete documents
+                $documentModel->deleteByUser($targetUserId);
+            }
+            
+            // If changing FROM employee or admin, delete their positions
+            if ($currentRole === 'employee' || $currentRole === 'admin') {
+                $positionModel = new Position($this->app->db());
+                
+                // Get all positions created by this user
+                $positions = $positionModel->findByCreatorId($targetUserId, false, false);
+                
+                // Delete each position (cascades to applications via foreign key)
+                foreach ($positions as $position) {
+                    $positionModel->delete($position['id']);
+                }
+            }
+        }
+
+        // Update role
+        $success = $userModel->updateRole($targetUserId, $newRole);
+
+        if ($success) {
+            $this->app->session()->set('success_message', 'Brukerrolle oppdatert.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke oppdatere brukerrolle.');
+        }
+
+        $this->app->redirect('/min-side');
+    }
+
+    /**
+     * Delete a user (admin only)
+     * 
+     * @return void
+     */
+    public function deleteUser() {
+        // Redirect if not authenticated or not admin
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        $currentUserId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $currentUser = $userModel->findById($currentUserId);
+
+        if (!$currentUser || $currentUser->getRole() !== 'admin') {
+            $this->app->session()->set('error_message', 'Ingen tilgang.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        $targetUserId = (int) ($this->app->request()->data->user_id);
+
+        // Prevent admin from deleting themselves
+        if ($targetUserId === $currentUserId) {
+            $this->app->session()->set('error_message', 'Du kan ikke slette din egen konto. Bruk "Slett konto" under dine kontoinnstillinger.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Delete user's documents (files and database records)
+        $docModel = new Document($this->app->db());
+        $docModel->deleteByUser($targetUserId);
+
+        // Delete user
+        $success = $userModel->delete($targetUserId);
+
+        if ($success) {
+            $this->app->session()->set('success_message', 'Bruker slettet.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke slette bruker.');
+        }
+
+        $this->app->redirect('/min-side');
+    }
+
+    /**
+     * Update application status (admin only)
+     * 
+     * @return void
+     */
+    public function updateApplicationStatus() {
+        // Redirect if not authenticated or not admin
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        $currentUserId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $currentUser = $userModel->findById($currentUserId);
+
+        if (!$currentUser || $currentUser->getRole() !== 'admin') {
+            $this->app->session()->set('error_message', 'Ingen tilgang.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        $applicationId = (int) $this->app->request()->data->application_id;
+        $newStatus = $this->app->request()->data->status;
+        $notes = $this->app->request()->data->notes ?? null;
+
+        // Sanitize notes
+        if ($notes !== null) {
+            $notes = strip_tags($notes);
+            if (mb_strlen($notes) > 1000) {
+                $notes = mb_substr($notes, 0, 1000);
+            }
+        }
+
+        // Validate status
+        $allowedStatuses = ['pending', 'reviewed', 'accepted', 'rejected'];
+        if (!in_array($newStatus, $allowedStatuses, true)) {
+            $this->app->session()->set('error_message', 'Ugyldig status.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Update status
+        $applicationModel = new Application($this->app->db());
+        $success = $applicationModel->updateStatus($applicationId, $newStatus, $notes);
+
+        if ($success) {
+            $this->app->session()->set('success_message', 'Søknadsstatus oppdatert.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke oppdatere søknadsstatus.');
+        }
+
+        $this->app->redirect('/min-side');
+    }
+
+    /**
+     * Delete an application (admin only)
+     * 
+     * @return void
+     */
+    public function deleteApplication() {
+        // Redirect if not authenticated or not admin
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        $currentUserId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $currentUser = $userModel->findById($currentUserId);
+
+        if (!$currentUser || $currentUser->getRole() !== 'admin') {
+            $this->app->session()->set('error_message', 'Ingen tilgang.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        $applicationId = (int) $this->app->request()->data->application_id;
+
+        // Delete application
+        $applicationModel = new Application($this->app->db());
+        $success = $applicationModel->deleteById($applicationId);
+
+        if ($success) {
+            $this->app->session()->set('success_message', 'Søknad slettet.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke slette søknad.');
+        }
+
+        $this->app->redirect('/min-side');
     }
 }

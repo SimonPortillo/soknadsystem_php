@@ -221,4 +221,58 @@ class Application
             ':user_id' => $userId
         ]);
     }
+
+    /**
+     * Delete an application by ID (admin only)
+     * 
+     * @param int $applicationId The application ID
+     * @return bool True on success, false on failure
+     */
+    public function deleteById(int $applicationId): bool
+    {
+        $stmt = $this->db->prepare('DELETE FROM applications WHERE id = :id');
+        return $stmt->execute([':id' => $applicationId]);
+    }
+
+    /**
+     * Delete all applications for a user
+     * 
+     * @param int $userId The user ID
+     * @return bool True on success, false on failure
+     */
+    public function deleteAllByUserId(int $userId): bool
+    {
+        $stmt = $this->db->prepare('DELETE FROM applications WHERE user_id = :user_id');
+        return $stmt->execute([':user_id' => $userId]);
+    }
+
+    /**
+     * Get all applications (for admin)
+     *
+     * @return array Array of applications with position and user details
+     */
+    public function getAll(): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT 
+                a.id, 
+                a.position_id, 
+                a.user_id, 
+                a.status,
+                a.notes,
+                a.application_date,
+                p.title as position_title,
+                p.department,
+                p.location,
+                u.username,
+                u.email,
+                u.full_name
+             FROM applications a
+             JOIN positions p ON a.position_id = p.id
+             JOIN users u ON a.user_id = u.id
+             ORDER BY a.application_date DESC'
+        );
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
