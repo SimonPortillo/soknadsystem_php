@@ -39,26 +39,12 @@ class UserController {
     }
 
     /**
-     * Display the user profile page (Min Side)
+     * Display the user profile page ("Min Side")
      * 
-     * Shows the authenticated user's profile information with fields for viewing
-     * and editing. Some fields are disabled (cannot be changed), while others
-     * can be edited.
+     * Dynamically displays user information based on role (student, employee, admin)
+     * and fetches related data such as documents, applications, and positions.
      * 
-     * Route: GET /min-side
-     * 
-     * Disabled fields (cannot be changed):
-     *   - Username
-     *   - Email
-     *   - Role
-     *   - Account creation date
-     * 
-     * Editable fields (can be changed):
-     *   - Full name
-     *   - Phone number
-     *   - Password (via separate action)
-     * 
-     * @return void Redirects to login if not authenticated, renders profile page otherwise
+     * @return void
      */
     public function index() {
         // Redirect to login if not authenticated
@@ -102,37 +88,20 @@ class UserController {
         $positionModel = new Position($this->app->db());
         $positions = $positionModel->findByCreatorId($userId, false, true);
 
-        // Fetch all users for admin (with pagination and search)
+        // Fetch all users for admin
         $allUsers = [];
-        $totalUsers = 0;
-        $currentPage = 1;
-        $usersPerPage = 20;
-        $searchQuery = null;
-        
-        // Fetch all applications for admin (with pagination and search)
+        // Fetch all applications for admin
         $allApplications = [];
-        $totalApplications = 0;
-        $currentAppPage = 1;
-        $applicationsPerPage = 20;
-        $appSearchQuery = null;
-        
         // Fetch all positions for admin
         $allPositions = [];
         
         if ($user->getRole() === 'admin') {
-            $searchQuery = $this->app->request()->query->search ?? null;
-            $currentPage = max(1, (int) ($this->app->request()->query->page ?? 1));
+            // Fetch all users (bare minimum - no pagination/search)
+            $allUsers = $userModel->getAll();
             
-            $allUsers = $userModel->getAllPaginated($currentPage, $usersPerPage, $searchQuery);
-            $totalUsers = $userModel->getTotalCount($searchQuery);
-
-            // Fetch applications data
-            $appSearchQuery = $this->app->request()->query->app_search ?? null;
-            $currentAppPage = max(1, (int) ($this->app->request()->query->app_page ?? 1));
+            // Fetch all applications
+            $allApplications = $applicationModel->getAll();
             
-            $allApplications = $applicationModel->getAllPaginated($currentAppPage, $applicationsPerPage, $appSearchQuery);
-            $totalApplications = $applicationModel->getTotalCount($appSearchQuery);
-
             // Fetch all positions
             $allPositions = $positionModel->getAll(true, true);
         }
@@ -150,15 +119,7 @@ class UserController {
             'applications' => $applications,
             'positions' => $positions,
             'all_users' => $allUsers,
-            'total_users' => $totalUsers,
-            'current_page' => $currentPage,
-            'users_per_page' => $usersPerPage,
-            'search_query' => $searchQuery,
             'all_applications' => $allApplications,
-            'total_applications' => $totalApplications,
-            'current_app_page' => $currentAppPage,
-            'applications_per_page' => $applicationsPerPage,
-            'app_search_query' => $appSearchQuery,
             'all_positions' => $allPositions
         ]);
     }
@@ -236,13 +197,14 @@ class UserController {
         }
 
         $userId = $this->app->session()->get('user_id');
+        
+        // Delete user's documents (files and database records)
         $docModel = new Document($this->app->db());
-        if (!empty($docModel->findByUser($userId))) {
-            $docModel->deleteByUser($userId); // ← Deletes files & DB records if user has documents
-        }
+        $docModel->deleteByUser($userId);
 
+        // Delete the user
         $userModel = new User($this->app->db());
-        $userModel->delete($userId); // ← deletes the user
+        $userModel->delete($userId);
 
         // clear session and redirect to home
         $this->app->session()->clear();
@@ -285,6 +247,44 @@ class UserController {
             return;
         }
 
+        // Get target user to check current role
+        $targetUser = $userModel->findById($targetUserId);
+        if (!$targetUser) {
+            $this->app->session()->set('error_message', 'Bruker ikke funnet.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        $currentRole = $targetUser->getRole();
+
+        // Clean up related data if role is changing
+        if ($currentRole !== $newRole) {
+            // If changing FROM student, delete their applications and documents
+            if ($currentRole === 'student') {
+                $applicationModel = new Application($this->app->db());
+                $documentModel = new Document($this->app->db());
+                
+                // Delete applications
+                $applicationModel->deleteAllByUserId($targetUserId);
+                
+                // Delete documents
+                $documentModel->deleteByUser($targetUserId);
+            }
+            
+            // If changing FROM employee or admin, delete their positions
+            if ($currentRole === 'employee' || $currentRole === 'admin') {
+                $positionModel = new Position($this->app->db());
+                
+                // Get all positions created by this user
+                $positions = $positionModel->findByCreatorId($targetUserId, false, false);
+                
+                // Delete each position (cascades to applications via foreign key)
+                foreach ($positions as $position) {
+                    $positionModel->delete($position['id']);
+                }
+            }
+        }
+
         // Update role
         $success = $userModel->updateRole($targetUserId, $newRole);
 
@@ -319,13 +319,11 @@ class UserController {
             return;
         }
 
-        $targetUserId = (int) ($this->app->request()->data->user_id ?? 0);
+        $targetUserId = (int) ($this->app->request()->data->user_id);
 
-        // Delete user's documents first
+        // Delete user's documents (files and database records)
         $docModel = new Document($this->app->db());
-        if (!empty($docModel->findByUser($targetUserId))) {
-            $docModel->deleteByUser($targetUserId);
-        }
+        $docModel->deleteByUser($targetUserId);
 
         // Delete user
         $success = $userModel->delete($targetUserId);

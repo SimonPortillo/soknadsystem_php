@@ -176,3 +176,30 @@
     </div>
     {/foreach}
 {/if}
+
+{* Delete Position Modals (Admin only - for all positions) *}
+{if !empty($all_positions)}
+    {foreach $all_positions as $admin_position}
+    <div class="modal fade" id="deletePositionModal{$admin_position['id']}" tabindex="-1" aria-labelledby="deletePositionModalLabel{$admin_position['id']}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deletePositionModalLabel{$admin_position['id']}">Bekreft sletting av stilling</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                </div>
+                <div class="modal-body">
+                    Er du sikker på at du vil slette stillingen <strong>{$admin_position['title']}</strong>?
+                    <br><br>
+                    <span class="text-danger"><strong>Advarsel:</strong> Dette vil også slette alle søknader til denne stillingen. Handlingen kan ikke angres.</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                    <form method="post" action="/positions/{$admin_position['id']}/delete" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-loader">Slett stilling</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {/foreach}
+{/if}

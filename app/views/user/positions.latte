@@ -50,13 +50,10 @@
                                         {else}
                                             <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
                                         {/if}
-                                    {elseif isset($role) && ($role === 'employee' || $role === 'admin')}
-                                        <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
-                                        {if $role === 'admin'}
-                                            <a href="/positions/{$position['id']}/edit" class="btn btn-outline-secondary btn-sm">
-                                                <i class="bi bi-pencil"></i> Rediger
-                                            </a>
-                                        {/if}
+                                    {elseif isset($role) && ($role === 'admin' || (isset($userId) && $position['creator_id'] == $userId))}
+                                        <a href="/positions/{$position['id']}/edit" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-pencil"></i> Rediger
+                                        </a>
                                     {/if}
                                 </div>
                             </div>
@@ -101,9 +98,8 @@
                                     <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
                                 {/if}
                             {elseif $role === 'employee' || $role === 'admin'}
-                                <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
-                                {if $role === 'admin'}
-                                    <a href="/positions/{$position['id']}/edit" class="btn btn-outline-secondary btn-sm">
+                                {if $role === 'admin' || (isset($userId) && $position['creator_id'] == $userId)}
+                                    <a href="/positions/{$position['id']}/edit" class="btn btn-primary btn-sm">
                                         <i class="bi bi-pencil"></i> Rediger
                                     </a>
                                 {/if}

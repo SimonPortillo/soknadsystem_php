@@ -96,6 +96,7 @@ class PositionController {
             'isLoggedIn' => true,
             'username' => $this->app->session()->get('username'),
             'role' => $role,
+            'userId' => $userId,
             'positions' => $positions,
             'appliedPositionIds' => $appliedPositionIds,
             'message' => $successMessage,
