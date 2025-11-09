@@ -265,7 +265,8 @@ class Application
                 p.department,
                 p.location,
                 u.username,
-                u.email
+                u.email,
+                u.full_name
              FROM applications a
              JOIN positions p ON a.position_id = p.id
              JOIN users u ON a.user_id = u.id

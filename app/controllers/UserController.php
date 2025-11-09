@@ -256,8 +256,15 @@ class UserController {
             return;
         }
 
-        $targetUserId = (int) ($this->app->request()->data->user_id ?? 0);
-        $newRole = $this->app->request()->data->role ?? '';
+        $targetUserId = (int) $this->app->request()->data->user_id;
+        $newRole = $this->app->request()->data->role;
+
+        // Prevent admin from changing their own role
+        if ($targetUserId === $currentUserId) {
+            $this->app->session()->set('error_message', 'Du kan ikke endre din egen rolle.');
+            $this->app->redirect('/min-side');
+            return;
+        }
 
         // Validate role
         $allowedRoles = ['student', 'employee', 'admin'];
@@ -341,6 +348,13 @@ class UserController {
 
         $targetUserId = (int) ($this->app->request()->data->user_id);
 
+        // Prevent admin from deleting themselves
+        if ($targetUserId === $currentUserId) {
+            $this->app->session()->set('error_message', 'Du kan ikke slette din egen konto. Bruk "Slett konto" under dine kontoinnstillinger.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
         // Delete user's documents (files and database records)
         $docModel = new Document($this->app->db());
         $docModel->deleteByUser($targetUserId);
@@ -379,8 +393,8 @@ class UserController {
             return;
         }
 
-        $applicationId = (int) ($this->app->request()->data->application_id ?? 0);
-        $newStatus = $this->app->request()->data->status ?? '';
+        $applicationId = (int) $this->app->request()->data->application_id;
+        $newStatus = $this->app->request()->data->status;
         $notes = $this->app->request()->data->notes ?? null;
 
         // Sanitize notes
@@ -434,7 +448,7 @@ class UserController {
             return;
         }
 
-        $applicationId = (int) ($this->app->request()->data->application_id ?? 0);
+        $applicationId = (int) $this->app->request()->data->application_id;
 
         // Delete application
         $applicationModel = new Application($this->app->db());

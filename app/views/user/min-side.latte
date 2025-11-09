@@ -166,7 +166,7 @@
                                             <span class="badge rounded-pill text-bg-primary">
                                                 {if !empty($cv_documents) && count($cv_documents) > 1}
                                                     Dine CV-er:
-                                                {elseif !empty($cv_documents) && count($cv_documents) == 1}
+                                                {elseif !empty($cv_documents) && count($cv_documents) === 1}
                                                     Din CV:
                                                 {else}
                                                     Last opp CV:
@@ -204,7 +204,7 @@
                                             <span class="badge rounded-pill text-bg-primary">
                                                 {if !empty($cover_letter_documents) && count($cover_letter_documents) > 1}
                                                     Dine søknadsbrev:
-                                                {elseif !empty($cover_letter_documents) && count($cover_letter_documents) == 1}
+                                                {elseif !empty($cover_letter_documents) && count($cover_letter_documents) === 1}
                                                     Ditt søknadsbrev:
                                                 {else}
                                                     Last opp søknadsbrev:
@@ -316,27 +316,25 @@
                                         {foreach $all_users as $admin_user}
                                             <div class="accordion-item">
                                                 <h2 class="accordion-header" id="userHeading{$admin_user['id']}">
-                                                    <div class="d-flex align-items-center p-0">
-                                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#userCollapse{$admin_user['id']}" aria-expanded="false" aria-controls="userCollapse{$admin_user['id']}">
-                                                            <div class="d-flex justify-content-between align-items-center w-100 me-3">
-                                                                <div>
-                                                                    <span><i class="bi bi-person-circle"></i> {$admin_user['username']}</span>
-                                                                    {if $admin_user['full_name']}
-                                                                        <span class="text-muted ms-2">({$admin_user['full_name']})</span>
-                                                                    {/if}
-                                                                </div>
-                                                                <div class="d-flex align-items-center gap-3">
-                                                                    {if $admin_user['role'] === 'student'}
-                                                                        <span class="badge bg-primary">Student</span>
-                                                                    {elseif $admin_user['role'] === 'employee'}
-                                                                        <span class="badge bg-success">Ansatt</span>
-                                                                    {elseif $admin_user['role'] === 'admin'}
-                                                                        <span class="badge bg-danger">Admin</span>
-                                                                    {/if}
-                                                                </div>
+                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#userCollapse{$admin_user['id']}" aria-expanded="false" aria-controls="userCollapse{$admin_user['id']}">
+                                                        <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                                            <div>
+                                                                <span><i class="bi bi-person-circle"></i> {$admin_user['username']}</span>
+                                                                {if $admin_user['full_name']}
+                                                                    <span class="text-muted ms-2">({$admin_user['full_name']})</span>
+                                                                {/if}
                                                             </div>
-                                                        </button>
-                                                    </div>
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                {if $admin_user['role'] === 'student'}
+                                                                    <span class="badge bg-primary">Student</span>
+                                                                {elseif $admin_user['role'] === 'employee'}
+                                                                    <span class="badge bg-success">Ansatt</span>
+                                                                {elseif $admin_user['role'] === 'admin'}
+                                                                    <span class="badge bg-danger">Admin</span>
+                                                                {/if}
+                                                            </div>
+                                                        </div>
+                                                    </button>
                                                 </h2>
                                                 <div id="userCollapse{$admin_user['id']}" class="accordion-collapse collapse" aria-labelledby="userHeading{$admin_user['id']}" data-bs-parent="#usersAccordion">
                                                     <div class="accordion-body">
