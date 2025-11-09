@@ -88,15 +88,15 @@ class UserController {
         $positionModel = new Position($this->app->db());
         $positions = $positionModel->findByCreatorId($userId, false, true);
 
-        // Fetch all users for admin
+        // arrays to hold all users, applications, positions (for admin view)
         $allUsers = [];
-        // Fetch all applications for admin
         $allApplications = [];
-        // Fetch all positions for admin
         $allPositions = [];
+        $positionsByCreator = [];
+        $applicationsByUser = [];
         
         if ($user->getRole() === 'admin') {
-            // Fetch all users (bare minimum - no pagination/search)
+            // Fetch all users 
             $allUsers = $userModel->getAll();
             
             // Fetch all applications
@@ -104,6 +104,24 @@ class UserController {
             
             // Fetch all positions
             $allPositions = $positionModel->getAll(true, true);
+            
+            // Group positions by creator_id 
+            foreach ($allPositions as $position) {
+                $creatorId = $position['creator_id'];
+                if (!isset($positionsByCreator[$creatorId])) {
+                    $positionsByCreator[$creatorId] = [];
+                }
+                $positionsByCreator[$creatorId][] = $position;
+            }
+            
+            // Group applications by user_id 
+            foreach ($allApplications as $application) {
+                $applicantId = $application['user_id'];
+                if (!isset($applicationsByUser[$applicantId])) {
+                    $applicationsByUser[$applicantId] = [];
+                }
+                $applicationsByUser[$applicantId][] = $application;
+            }
         }
 
         // Render the profile page with user data
@@ -120,7 +138,9 @@ class UserController {
             'positions' => $positions,
             'all_users' => $allUsers,
             'all_applications' => $allApplications,
-            'all_positions' => $allPositions
+            'all_positions' => $allPositions,
+            'positions_by_creator' => $positionsByCreator,
+            'applications_by_user' => $applicationsByUser
         ]);
     }
 
