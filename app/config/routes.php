@@ -72,6 +72,11 @@ $router->group('', function(Router $router) use ($app) {
 	
 	// Process registration form submission
 	$router->post('/register', [ AuthController::class, 'register' ]);
+
+	// Display password reset form (guest only)
+	$router->get('/reset-password', [ AuthController::class, 'showResetPassword' ]);
+	// Process password reset form submission
+	$router->post('/reset-password', [ AuthController::class, 'resetPassword' ]);
 	
 	// Display job positions page (authenticated users only)
 	$router->get('/positions', [ AuthController::class, 'showPositions' ]);

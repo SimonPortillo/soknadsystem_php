@@ -90,6 +90,20 @@ class AuthController {
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
+
+    public function showResetPassword() {
+        // Don't show reset password if user is already logged in
+        if ($this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/positions');
+            return;
+        }
+        
+        $this->app->latte()->render(__DIR__ . '/../views/auth/reset-password.latte', [
+            'isLoggedIn' => false,
+            'username' => null,
+            'csp_nonce' => $this->app->get('csp_nonce')
+        ]);
+    }
     
     /**
      * Display the positions page
