@@ -379,9 +379,9 @@
                                                                     <ul class="list-group list-group-flush">
                                                                         <li class="list-group-item bg-transparent px-0">
                                                                             <strong>Rolle:</strong>
-                                                                            <form method="post" action="/admin/users/update-role" class="d-inline ms-2">
+                                                                            <form method="post" action="/admin/users/update-role" class="d-inline ms-2 user-role-form">
                                                                                 <input type="hidden" name="user_id" value="{$admin_user['id']}">
-                                                                                <select name="role" class="form-select form-select-sm d-inline-block" onchange="this.form.submit()" style="width: auto;">
+                                                                                <select name="role" class="form-select form-select-sm d-inline-block user-role-select" style="width: auto;">
                                                                                     <option value="student" {if $admin_user['role'] === 'student'}selected{/if}>Student</option>
                                                                                     <option value="employee" {if $admin_user['role'] === 'employee'}selected{/if}>Ansatt</option>
                                                                                     <option value="admin" {if $admin_user['role'] === 'admin'}selected{/if}>Admin</option>
@@ -604,4 +604,5 @@
     <script src="/js/form-spinner.js" nonce="{$csp_nonce}"></script>
     <script src="/js/bootstrap-toast-logic.js" nonce="{$csp_nonce}"></script> 
     <script src="/js/accordion-state-persistence.js" nonce="{$csp_nonce}"></script>
+    <script src="/js/admin-role-update.js" nonce="{$csp_nonce}"></script>
 {/block}
