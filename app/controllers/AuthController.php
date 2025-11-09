@@ -6,6 +6,7 @@ use flight\Engine;
 use app\models\User;
 use app\models\Position;
 use app\models\Application;
+use app\utils\EmailUtil;
 
 /**
  * AuthController
@@ -55,9 +56,16 @@ class AuthController {
             $this->app->redirect('/positions');
             return;
         }
-
-        $successMessage = $this->app->session()->get('logout_message');
-        $this->app->session()->delete('logout_message');
+        // Check for either login_success or logout_message, preferring login_success if both exist
+        $successMessage = $this->app->session()->get('login_success');
+        if ($successMessage) {
+            $this->app->session()->delete('login_success');
+        } else {
+            $successMessage = $this->app->session()->get('logout_message');
+            if ($successMessage) {
+            $this->app->session()->delete('logout_message');
+            }
+        }
 
         $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
             'isLoggedIn' => false,
@@ -91,6 +99,16 @@ class AuthController {
         ]);
     }
 
+    /**
+     * Display the password reset page
+     * 
+     * Shows the password reset form to guest users. If the user is already authenticated,
+     * they are redirected to the positions page.
+     * 
+     * Route: GET /reset-password
+     * 
+     * @return void
+     */
     public function showResetPassword() {
         // Don't show reset password if user is already logged in
         if ($this->app->session()->get('is_logged_in')) {
@@ -105,71 +123,134 @@ class AuthController {
         ]);
     }
     
-    /**
-     * Display the positions page
-     * 
-     * Shows the job positions page to authenticated users. If the user is not
-     * authenticated, they are redirected to the login page.
-     * 
-     * Route: GET /positions
-     * 
-     * @return void
-     */
-    public function showPositions() {
-        // Redirect to login if not authenticated
-        if (!$this->app->session()->get('is_logged_in')) {
-            $this->app->redirect('/login');
+    public function resetPassword() {
+        // Allow password reset regardless of login status for security and usability.
+        $data = $this->app->request()->data;
+        $email = $data->email ?? '';
+
+        // Basic validation
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/reset-password.latte', [
+                'errors' => ['Gyldig e-postadresse er påkrevd.'],
+                'email' => $email,
+                'csp_nonce' => $this->app->get('csp_nonce')
+            ]);
             return;
         }
-        
-        // Get all positions
-        $positionModel = new Position($this->app->db());
-        $positions = $positionModel->getAll();
-        
-        // For students, get the positions they have applied to
-        $appliedPositionIds = [];
-        $userId = $this->app->session()->get('user_id');
-        $role = $this->app->session()->get('role');
-        
-        if ($role === 'student') {
-            $applicationModel = new Application($this->app->db());
-            $userApplications = $applicationModel->getByUser($userId);
-            
-            // Extract position IDs from user's applications
-            foreach ($userApplications as $application) {
-                $appliedPositionIds[] = $application['position_id'];
-            }
+
+        $userModel = new User($this->app->db());
+        $user = $userModel->findByEmail($email);
+
+        // Always show the same message for security (prevent user enumeration)
+        $message = 'Hvis e-postadressen finnes, har vi sendt instruksjoner for tilbakestilling av passord.';
+
+        if ($user) {
+            $token = $userModel->createPasswordResetToken($user->getId());
+            $this->sendResetEmail($email, $token, $user->getUsername());
+        } else {
+            // Add delay to prevent timing attacks that could reveal valid emails
+            usleep(2000000); // 2 second delay
         }
-        
-        // Get any success message from session and clear it
-        $successMessage = $this->app->session()->get('login_success') 
-            ?? $this->app->session()->get('position_success')
-            ?? $this->app->session()->get('registration_success')
-            ?? $this->app->session()->get('application_success');
-        
-        $this->app->session()->delete('login_success');
-        $this->app->session()->delete('position_success');
-        $this->app->session()->delete('registration_success');
-        $this->app->session()->delete('application_success');
-        
-        // Get any error message from session and clear it
-        $errorMessage = $this->app->session()->get('position_error')
-            ?? $this->app->session()->get('application_error');
-        
-        $this->app->session()->delete('position_error');
-        $this->app->session()->delete('application_error');
 
-
-        $this->app->latte()->render(__DIR__ . '/../views/user/positions.latte', [
-            'isLoggedIn' => true,
-            'username' => $this->app->session()->get('username'),
-            'role' => $role,
-            'positions' => $positions,
-            'appliedPositionIds' => $appliedPositionIds,
-            'message' => $successMessage,
-            'errors' => $errorMessage ? [$errorMessage] : null,
+        $this->app->latte()->render(__DIR__ . '/../views/auth/reset-password.latte', [
+            'message' => $message,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
+    }
+
+    /**
+     * Send password reset email
+     * 
+     * Sends an email with a password reset link to the user's email address.
+     * Uses the EmailUtil utility class with PHPMailer.
+     * 
+     * @param string $email The recipient's email address
+     * @param string $token The password reset token
+     * @param string $username The user's username for personalization
+     * @return bool True if email was sent successfully, false otherwise
+     */
+    private function sendResetEmail(string $email, string $token, string $username): bool {
+        try {
+            $emailConfig = $this->app->get('email_config');
+            $emailUtil = new EmailUtil($emailConfig);
+            $emailUtil->sendPasswordResetEmail($email, $token, $username);
+            return true;
+        } catch (\Exception $e) {
+            // Log error but don't expose to user for security
+            error_log("Failed to send password reset email: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function showSetNewPassword(string $token) {
+        // Don't show set new password if user is already logged in
+        if ($this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/positions');
+            return;
+        }
+
+        $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
+            'token' => $token,
+            'csp_nonce' => $this->app->get('csp_nonce')
+        ]);
+    }
+
+    /**
+     * Process set new password form submission
+     * 
+     * Handles the form where users set their new password using a valid reset token.
+     * Validates password complexity and confirmation, then updates the password in the database.
+     * 
+     * Route: POST /reset-password/{token}
+     * 
+     * @param string $token The password reset token from the URL
+     * @return void Redirects to login on success, re-renders form with errors on failure
+     */
+    public function setNewPassword(string $token) {
+        $data = $this->app->request()->data;
+        $newPassword = $data->password ?? '';
+        $passwordConfirm = $data->password_confirm ?? '';
+
+        // Validate password confirmation
+        if ($newPassword !== $passwordConfirm) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
+                'errors' => ['Passordene matcher ikke. Vennligst prøv igjen.'],
+                'token' => $token,
+                'csp_nonce' => $this->app->get('csp_nonce')
+            ]);
+            return;
+        }
+
+        // Basic validation
+        $passwordValidation = $this->validatePassword($newPassword);
+        if ($passwordValidation !== true) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
+                'errors' => [$passwordValidation],
+                'token' => $token,
+                'csp_nonce' => $this->app->get('csp_nonce')
+            ]);
+            return;
+        }
+
+        $userModel = new User($this->app->db());
+        $userId = $userModel->getUserIdByResetToken($token);
+
+        if (!$userId) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
+                'errors' => ['Ugyldig eller utløpt token. Vennligst prøv å tilbakestille passordet igjen.'],
+                'token' => $token,
+                'csp_nonce' => $this->app->get('csp_nonce')
+            ]);
+            return;
+        }
+
+        // Update the user's password
+        $userModel->updatePassword($userId, $newPassword);
+        // Invalidate the used token
+        $userModel->invalidateResetToken($token);
+
+        $this->app->session()->set('login_success', 'Passordet ditt har blitt oppdatert. Du kan nå logge inn med ditt nye passord.');
+        $this->app->redirect('/login');
     }
 
     /**
@@ -420,7 +501,7 @@ class AuthController {
 
             // Check if the account should be locked
             if ($user->getFailedAttempts() + 1 >= 3) { // Lock after 3 failed attempts
-                $userModel->lockAccount($user->getId(), 60); // Lock for 60 minutes
+                $userModel->lockAccount($user->getId());
                 $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
                     'errors' => ['For mange mislykkede forsøk. Kontoen din er låst i 60 minutter.'],
                     'csp_nonce' => $this->app->get('csp_nonce')

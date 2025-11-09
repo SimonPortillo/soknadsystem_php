@@ -54,7 +54,7 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/', [ HomeController::class, 'index' ]);
 
 	/**
-	 * Authentication Routes
+	 * Authenticated Routes
 	 * 
 	 * Each controller method handles its own authentication checks:
 	 *   - Guest routes (login/register) redirect authenticated users to /positions
@@ -75,11 +75,21 @@ $router->group('', function(Router $router) use ($app) {
 
 	// Display password reset form (guest only)
 	$router->get('/reset-password', [ AuthController::class, 'showResetPassword' ]);
+
 	// Process password reset form submission
 	$router->post('/reset-password', [ AuthController::class, 'resetPassword' ]);
+
+	// Display set new password form (guest only)
+	$router->get('/reset-password/@token', [ AuthController::class, 'showSetNewPassword' ]);
+	
+	// Process set new password form submission
+	$router->post('/reset-password/@token', [ AuthController::class, 'setNewPassword' ]);
+
+	// Logout user and destroy session (authenticated users only)
+	$router->get('/logout', [ AuthController::class, 'logout' ]);
 	
 	// Display job positions page (authenticated users only)
-	$router->get('/positions', [ AuthController::class, 'showPositions' ]);
+	$router->get('/positions', [ PositionController::class, 'showPositions' ]);
 	
 	// Display create position form (admin/employee users only)
 	$router->get('/positions/create', [ PositionController::class, 'showCreate' ]);
@@ -106,9 +116,6 @@ $router->group('', function(Router $router) use ($app) {
 	// Withdraw an application (authenticated users only)
 	$router->post('/applications/@applicationId:[0-9]+/withdraw', [ ApplicationController::class, 'withdraw' ]);
 
-	
-	// Logout user and destroy session (authenticated users only)
-	$router->get('/logout', [ AuthController::class, 'logout' ]);
 
 	/**
 	 * User Profile Routes

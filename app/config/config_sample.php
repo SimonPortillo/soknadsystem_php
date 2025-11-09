@@ -17,7 +17,7 @@
  *         Application Environment            *
  **********************************************/
 // Set your timezone (e.g., 'America/New_York', 'UTC')
-date_default_timezone_set('UTC');
+date_default_timezone_set('Europe/Oslo');
 
 // Error reporting level (E_ALL recommended for development)
 error_reporting(E_ALL);
@@ -67,21 +67,29 @@ return [
 	 **************************************/
 	'database' => [
 		// MySQL Example:
-		// 'host'     => 'localhost',      // Database host (e.g., 'localhost', 'db.example.com')
-		// 'dbname'   => 'your_db_name',   // Database name (e.g., 'flightphp')
-		// 'user'     => 'your_username',  // Database user (e.g., 'root')
-		// 'password' => 'your_password',  // Database password (never commit real passwords)
-
-		// SQLite Example:
-		// 'file_path' => __DIR__ . $ds . '..' . $ds . 'database.sqlite', // Path to SQLite file
+		'host'     => 'localhost',      // Database host (e.g., 'localhost', 'db.example.com')
+		'dbname'   => 'soknadsystemdb',   // Database name (e.g., 'flightphp')
+		'user'     => 'root',  // Database user (e.g., 'root')
+		'password' => '',  // Database password (never commit real passwords)
 	],
 
-	// Google OAuth Credentials
-	// 'google_oauth' => [
-	//     'client_id'     => 'your_client_id',     // Google API client ID
-	//     'client_secret' => 'your_client_secret', // Google API client secret
-	//     'redirect_uri'  => 'your_redirect_uri',  // Redirect URI for OAuth callback
-	// ],
+	
+	// latte templating engine
+		'latte' => [
+		'cache_dir' => __DIR__ . '/../../cache/latte',
+	],
 
-	// Add more configuration sections below as needed
+	/**************************************
+	 *         Email Settings             *
+	 **************************************/
+	'email' => [
+		'smtp_host'     => 'smtp.gmail.com',        // SMTP server (e.g., 'smtp.gmail.com', 'smtp.office365.com')
+		'smtp_port'     => 587,                     // SMTP port (587 for TLS, 465 for SSL)
+		'smtp_username' => 'youremail@gmail.com',  // SMTP username (usually your email)
+		'smtp_password' => 'yourpassword',     // SMTP password or app-specific password get at https://myaccount.google.com/apppasswords
+		'smtp_secure'   => 'tls',                   // Encryption type ('tls' or 'ssl')
+		'from_email'    => 'no-reply@soknadssystem.com',  // From email address
+		'from_name'     => 'Søknadssystem',         // From name
+	],
+
 ];

@@ -102,6 +102,9 @@ $app->register('db', $pdoClass, [ $dsn, $config['database']['user'] ?? null, $co
 
 // Add more service registrations below as needed
 
+// Set email configuration 
+$app->set('email_config', $config['email']);
+
 // Register Latte templating engine
 Flight::register('latte', \Latte\Engine::class, [], function($latte) use ($config) {
     // Set the cache directory
