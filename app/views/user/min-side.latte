@@ -300,6 +300,50 @@
                         </div>
                     </div>
                 {/if}
+                
+                {if $user->getRole() === 'admin'}
+                    <div class="accordion mb-4" id="adminAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="administrationHeading">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#administrationCollapse" aria-expanded="false" aria-controls="administrationCollapse">
+                                    Administrasjon
+                                </button>
+                            </h2>
+                            <div id="administrationCollapse" class="accordion-collapse collapse" aria-labelledby="administrationHeading" data-bs-parent="#adminAccordion">
+                                <div class="accordion-body">
+                                    {* Nested accordion for admin functions *}
+                                    <div class="accordion" id="adminSubAccordion">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="userAdminHeading">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#userAdminCollapse" aria-expanded="false" aria-controls="userAdminCollapse">
+                                                    Bruker administrasjon
+                                                </button>
+                                            </h2>
+                                            <div id="userAdminCollapse" class="accordion-collapse collapse" aria-labelledby="userAdminHeading" data-bs-parent="#adminSubAccordion">
+                                                <div class="accordion-body">
+                                                    <p>Bruker administrasjon innhold kommer her...</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="applicationAdminHeading">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#applicationAdminCollapse" aria-expanded="false" aria-controls="applicationAdminCollapse">
+                                                    Søknads administrasjon
+                                                </button>
+                                            </h2>
+                                            <div id="applicationAdminCollapse" class="accordion-collapse collapse" aria-labelledby="applicationAdminHeading" data-bs-parent="#adminSubAccordion">
+                                                <div class="accordion-body">
+                                                    <p>Søknads administrasjon innhold kommer her...</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {/if}
+                
                 <div class="accordion mb-4" id="accountAccordion">
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="deleteAccountHeading">
