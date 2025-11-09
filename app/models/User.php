@@ -321,6 +321,15 @@ class User
         $stmt->execute([':lockout_until' => $lockoutUntil, ':id' => $userId]);
     }
 
+    /**
+     * Create a password reset token
+     * 
+     * Generates a unique token for password reset and stores it in the database
+     * along with an expiration time (1 hour from creation).
+     * 
+     * @param int $userId The ID of the user requesting the password reset
+     * @return string The generated reset token
+     */
     public function createPasswordResetToken(int $userId): string
     {
         $token = bin2hex(random_bytes(16));
