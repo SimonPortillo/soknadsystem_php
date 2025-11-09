@@ -311,33 +311,259 @@
                             </h2>
                             <div id="administrationCollapse" class="accordion-collapse collapse" aria-labelledby="administrationHeading" data-bs-parent="#adminAccordion">
                                 <div class="accordion-body">
-                                    {* Nested accordion for admin functions *}
-                                    <div class="accordion" id="adminSubAccordion">
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="userAdminHeading">
-                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#userAdminCollapse" aria-expanded="false" aria-controls="userAdminCollapse">
-                                                    Bruker administrasjon
-                                                </button>
-                                            </h2>
-                                            <div id="userAdminCollapse" class="accordion-collapse collapse" aria-labelledby="userAdminHeading" data-bs-parent="#adminSubAccordion">
-                                                <div class="accordion-body">
-                                                    <p>Bruker administrasjon innhold kommer her...</p>
-                                                </div>
-                                            </div>
+                                    {* Search bar *}
+                                    <form method="get" action="/min-side" class="mb-3">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="search" placeholder="Søk etter brukernavn, e-post eller navn..." value="{$search_query ?? ''}">
+                                            <button class="btn btn-outline-primary" type="submit">
+                                                <i class="bi bi-search"></i> Søk
+                                            </button>
+                                            {if $search_query}
+                                                <a href="/min-side" class="btn btn-outline-secondary">
+                                                    <i class="bi bi-x-circle"></i> Nullstill
+                                                </a>
+                                            {/if}
                                         </div>
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="applicationAdminHeading">
-                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#applicationAdminCollapse" aria-expanded="false" aria-controls="applicationAdminCollapse">
-                                                    Søknads administrasjon
-                                                </button>
-                                            </h2>
-                                            <div id="applicationAdminCollapse" class="accordion-collapse collapse" aria-labelledby="applicationAdminHeading" data-bs-parent="#adminSubAccordion">
-                                                <div class="accordion-body">
-                                                    <p>Søknads administrasjon innhold kommer her...</p>
+                                    </form>
+
+                                    {if !empty($all_users)}
+                                        {* User Accordions *}
+                                        <div class="accordion" id="usersAccordion">
+                                            {foreach $all_users as $admin_user}
+                                                <div class="accordion-item mb-2">
+                                                    <h2 class="accordion-header" id="userHeading{$admin_user['id']}">
+                                                        <div class="d-flex align-items-center p-0">
+                                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#userCollapse{$admin_user['id']}" aria-expanded="false" aria-controls="userCollapse{$admin_user['id']}">
+                                                                <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                                                    <div>
+                                                                        <strong>{$admin_user['username']}</strong>
+                                                                        {if $admin_user['full_name']}
+                                                                            <span class="text-muted ms-2">({$admin_user['full_name']})</span>
+                                                                        {/if}
+                                                                    </div>
+                                                                    <div class="d-flex align-items-center gap-3">
+                                                                        {if $admin_user['role'] === 'student'}
+                                                                            <span class="badge bg-primary">Student</span>
+                                                                        {elseif $admin_user['role'] === 'employee'}
+                                                                            <span class="badge bg-success">Ansatt</span>
+                                                                        {elseif $admin_user['role'] === 'admin'}
+                                                                            <span class="badge bg-danger">Admin</span>
+                                                                        {/if}
+                                                                    </div>
+                                                                </div>
+                                                            </button>
+                                                        </div>
+                                                    </h2>
+                                                    <div id="userCollapse{$admin_user['id']}" class="accordion-collapse collapse" aria-labelledby="userHeading{$admin_user['id']}" data-bs-parent="#usersAccordion">
+                                                        <div class="accordion-body">
+                                                            <div class="row mb-4">
+                                                                <div class="col-md-6">
+                                                                    <h6 class="mb-3">Brukerinformasjon</h6>
+                                                                    <ul class="list-group list-group-flush">
+                                                                        <li class="list-group-item bg-transparent px-0">
+                                                                            <strong>Bruker ID:</strong> {$admin_user['id']}
+                                                                        </li>
+                                                                        <li class="list-group-item bg-transparent px-0">
+                                                                            <strong>E-post:</strong> {$admin_user['email']}
+                                                                        </li>
+                                                                        <li class="list-group-item bg-transparent px-0">
+                                                                            <strong>Telefon:</strong> {$admin_user['phone'] ?? 'Ikke oppgitt'}
+                                                                        </li>
+                                                                        <li class="list-group-item bg-transparent px-0">
+                                                                            <strong>Opprettet:</strong> {date('d.m.Y H:i', strtotime($admin_user['created_at']))}
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <h6 class="mb-3">Status</h6>
+                                                                    <ul class="list-group list-group-flush">
+                                                                        <li class="list-group-item bg-transparent px-0">
+                                                                            <strong>Rolle:</strong>
+                                                                            <form method="post" action="/admin/users/update-role" class="d-inline ms-2">
+                                                                                <input type="hidden" name="user_id" value="{$admin_user['id']}">
+                                                                                <select name="role" class="form-select form-select-sm d-inline-block" onchange="this.form.submit()" style="width: auto;">
+                                                                                    <option value="student" {if $admin_user['role'] === 'student'}selected{/if}>Student</option>
+                                                                                    <option value="employee" {if $admin_user['role'] === 'employee'}selected{/if}>Ansatt</option>
+                                                                                    <option value="admin" {if $admin_user['role'] === 'admin'}selected{/if}>Admin</option>
+                                                                                </select>
+                                                                            </form>
+                                                                        </li>
+                                                                        <li class="list-group-item bg-transparent px-0">
+                                                                            <strong>Status:</strong> 
+                                                                            {if $admin_user['is_active']}
+                                                                                <span class="badge bg-success">Aktiv</span>
+                                                                            {else}
+                                                                                <span class="badge bg-secondary">Inaktiv</span>
+                                                                            {/if}
+                                                                        </li>
+                                                                        <li class="list-group-item bg-transparent px-0">
+                                                                            <strong>Sist oppdatert:</strong> {date('d.m.Y H:i', strtotime($admin_user['updated_at']))}
+                                                                        </li>
+                                                                    </ul>
+                                                                    <div class="mt-3">
+                                                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal{$admin_user['id']}">
+                                                                            <i class="bi bi-trash"></i> Slett bruker
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <hr>
+
+                                                            {* Show positions or applications based on role *}
+                                                            {if $admin_user['role'] === 'employee' || $admin_user['role'] === 'admin'}
+                                                                <h6 class="mb-3">
+                                                                    <i class="bi bi-briefcase"></i> Stillinger opprettet av bruker
+                                                                </h6>
+                                                                {var $user_positions = []}
+                                                                {foreach $all_positions as $pos}
+                                                                    {if $pos['creator_id'] == $admin_user['id']}
+                                                                        {var $user_positions[] = $pos}
+                                                                    {/if}
+                                                                {/foreach}
+
+                                                                {if !empty($user_positions)}
+                                                                    <div class="row g-3 mb-0">
+                                                                        {foreach $user_positions as $position}
+                                                                            <div class="col-12">
+                                                                                <div class="card shadow-sm h-100">
+                                                                                    <div class="card-body">
+                                                                                        <h6 class="card-title mb-2">{$position['title']}</h6>
+                                                                                        <div class="mb-1 text-muted small">
+                                                                                            <span><i class="bi bi-building"></i> {$position['department']}</span> |
+                                                                                            <span><i class="bi bi-geo-alt"></i> {$position['location']}</span> |
+                                                                                            <span><i class="bi bi-clock"></i> {($position['created_at']|date:'d.m.Y H:i')}</span>
+                                                                                        </div>
+                                                                                        <p class="card-text mb-2">{$position['description']|truncate:120}</p>
+                                                                                        <div class="d-flex justify-content-between align-items-end">
+                                                                                            <span class="badge bg-secondary">Søknader: {$position['application_count']}</span>
+                                                                                            <div class="d-flex align-items-center gap-2">
+                                                                                                <a href="/positions/{$position['id']}/applicants" class="btn btn-outline-primary btn-sm">
+                                                                                                    <i class="bi bi-people"></i> Se søkere
+                                                                                                </a>
+                                                                                                <a href="/positions/{$position['id']}/edit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i> Rediger</a>
+                                                                                                <form action="/positions/{$position['id']}/delete" method="post" class="m-0">
+                                                                                                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePositionModal{$position['id']}"> <i class="bi bi-trash"></i> Slett</button>
+                                                                                                </form>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        {/foreach}
+                                                                    </div>
+                                                                {else}
+                                                                    <div class="alert alert-info mb-0">
+                                                                        <i class="bi bi-info-circle"></i> Ingen stillinger opprettet.
+                                                                    </div>
+                                                                {/if}
+                                                            {/if}
+
+                                                            {if $admin_user['role'] === 'student'}
+                                                                <h6 class="mb-3">
+                                                                    <i class="bi bi-file-earmark-text"></i> Søknader fra bruker
+                                                                </h6>
+                                                                {var $user_applications = []}
+                                                                {foreach $all_applications as $app}
+                                                                    {if $app['user_id'] == $admin_user['id']}
+                                                                        {var $user_applications[] = $app}
+                                                                    {/if}
+                                                                {/foreach}
+
+                                                                {if !empty($user_applications)}
+                                                                    <div class="list-group mb-0">
+                                                                        {foreach $user_applications as $application}
+                                                                            <div class="list-group-item">
+                                                                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                                                                    <div>
+                                                                                        <h6 class="mb-1">{$application['position_title']}</h6>
+                                                                                        <p class="mb-1 text-muted">
+                                                                                            <small>
+                                                                                                <i class="bi bi-building"></i> {$application['department']}
+                                                                                                {if $application['location']}
+                                                                                                    • <i class="bi bi-geo-alt"></i> {$application['location']}
+                                                                                                {/if}
+                                                                                            </small>
+                                                                                        </p>
+                                                                                        <p class="mb-1">
+                                                                                            <small class="text-muted">
+                                                                                                Søkt: {$application['application_date']|date:'d.m.Y H:i'}
+                                                                                            </small>
+                                                                                        </p>
+                                                                                    </div>
+                                                                                    <div class="text-end flex-shrink-0 d-flex flex-column align-items-end gap-2">
+                                                                                        {if $application['status'] === 'pending'}
+                                                                                            <span class="badge bg-warning text-dark">Venter</span>
+                                                                                        {elseif $application['status'] === 'reviewed'}
+                                                                                            <span class="badge bg-info">Under vurdering</span>
+                                                                                        {elseif $application['status'] === 'accepted'}
+                                                                                            <span class="badge bg-success">Akseptert</span>
+                                                                                        {elseif $application['status'] === 'rejected'}
+                                                                                            <span class="badge bg-danger">Avslått</span>
+                                                                                        {/if}
+                                                                                        <div class="d-flex gap-2">
+                                                                                            <a href="/positions/{$application['position_id']}/applicants" class="btn btn-sm btn-outline-primary">
+                                                                                                <i class="bi bi-eye"></i> Vis søknad
+                                                                                            </a>
+                                                                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteApplicationModal{$application['id']}">
+                                                                                                <i class="bi bi-trash"></i>
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                {if $application['notes']}
+                                                                                    <hr class="my-2">
+                                                                                    <p class="mb-0"><small><strong>Svar fra arbeidsgiver: <br></strong> {$application['notes']}</small></p>
+                                                                                {/if}
+                                                                            </div>
+                                                                        {/foreach}
+                                                                    </div>
+                                                                {else}
+                                                                    <div class="alert alert-info mb-0">
+                                                                        <i class="bi bi-info-circle"></i> Ingen søknader.
+                                                                    </div>
+                                                                {/if}
+                                                            {/if}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            {/foreach}
                                         </div>
-                                    </div>
+
+                                        {* Pagination *}
+                                        {var $total_pages = ceil($total_users / $users_per_page)}
+                                        {if $total_pages > 1}
+                                            <nav aria-label="User pagination" class="mt-3">
+                                                <ul class="pagination justify-content-center">
+                                                    <li class="page-item {if $current_page <= 1}disabled{/if}">
+                                                        <a class="page-link" href="/min-side?page={$current_page - 1}{if $search_query}&search={$search_query}{/if}">Forrige</a>
+                                                    </li>
+                                                    
+                                                    {for $i = 1; $i <= $total_pages; $i++}
+                                                        <li class="page-item {if $i === $current_page}active{/if}">
+                                                            <a class="page-link" href="/min-side?page={$i}{if $search_query}&search={$search_query}{/if}">{$i}</a>
+                                                        </li>
+                                                    {/for}
+                                                    
+                                                    <li class="page-item {if $current_page >= $total_pages}disabled{/if}">
+                                                        <a class="page-link" href="/min-side?page={$current_page + 1}{if $search_query}&search={$search_query}{/if}">Neste</a>
+                                                    </li>
+                                                </ul>
+                                            </nav>
+                                            <p class="text-center text-muted">
+                                                Viser side {$current_page} av {$total_pages} (totalt {$total_users} brukere)
+                                            </p>
+                                        {/if}
+                                    {else}
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-info-circle"></i> 
+                                            {if $search_query}
+                                                Ingen brukere funnet for søket "{$search_query}".
+                                            {else}
+                                                Ingen brukere funnet.
+                                            {/if}
+                                        </div>
+                                    {/if}
                                 </div>
                             </div>
                         </div>

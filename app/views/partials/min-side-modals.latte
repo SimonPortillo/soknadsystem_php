@@ -120,3 +120,59 @@
     </div>
     {/foreach}
 {/if}
+
+{* Delete User Modals (Admin only) *}
+{if !empty($all_users)}
+    {foreach $all_users as $admin_user}
+    <div class="modal fade" id="deleteUserModal{$admin_user['id']}" tabindex="-1" aria-labelledby="deleteUserModalLabel{$admin_user['id']}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteUserModalLabel{$admin_user['id']}">Bekreft sletting av bruker</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                </div>
+                <div class="modal-body">
+                    Er du sikker på at du vil slette brukeren <strong>{$admin_user['username']}</strong> ({$admin_user['email']})?
+                    <br><br>
+                    <span class="text-danger"><strong>Advarsel:</strong> Dette vil også slette alle brukerens dokumenter og søknader. Handlingen kan ikke angres.</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                    <form method="post" action="/admin/users/delete" style="display:inline;">
+                        <input type="hidden" name="user_id" value="{$admin_user['id']}">
+                        <button type="submit" class="btn btn-danger btn-loader">Slett bruker</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {/foreach}
+{/if}
+
+{* Delete Application Modals (Admin only) *}
+{if !empty($all_applications)}
+    {foreach $all_applications as $app}
+    <div class="modal fade" id="deleteApplicationModal{$app['id']}" tabindex="-1" aria-labelledby="deleteApplicationModalLabel{$app['id']}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteApplicationModalLabel{$app['id']}">Bekreft sletting av søknad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                </div>
+                <div class="modal-body">
+                    Er du sikker på at du vil slette søknaden fra <strong>{$app['full_name'] ?? $app['username']}</strong> for stillingen <strong>{$app['position_title']}</strong>?
+                    <br><br>
+                    <span class="text-danger"><strong>Advarsel:</strong> Handlingen kan ikke angres.</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                    <form method="post" action="/admin/applications/delete" style="display:inline;">
+                        <input type="hidden" name="application_id" value="{$app['id']}">
+                        <button type="submit" class="btn btn-danger btn-loader">Slett søknad</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {/foreach}
+{/if}

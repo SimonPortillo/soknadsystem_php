@@ -93,7 +93,7 @@
                                                             {if substr($applicant['phone'], 0, 1) === '+'}
                                                                 <a href="tel:{$applicant['phone']}">{$applicant['phone']}</a>
                                                             {else}
-                                                                <a href="tel:{$countryCode}{$applicant['phone']}">{$countryCode} {$applicant['phone']}</a>
+                                                                <a href="tel:{$applicant['phone']}">{$applicant['phone']}</a>
                                                             {/if}
                                                         </li>
                                                     {/if}

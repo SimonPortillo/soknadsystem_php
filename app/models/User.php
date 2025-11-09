@@ -429,4 +429,89 @@ class User
         $stmt = $this->db->prepare('DELETE FROM users WHERE id = :id');
         return $stmt->execute([':id' => $userId]);
     }
+
+    /**
+     * Get all users with pagination and optional search
+     * 
+     * @param int $page The page number (1-indexed)
+     * @param int $perPage Number of users per page
+     * @param string|null $search Optional search term for username, email, or full name
+     * @return array Array of user data
+     */
+    public function getAllPaginated(int $page = 1, int $perPage = 20, ?string $search = null): array
+    {
+        $offset = ($page - 1) * $perPage;
+        
+        $sql = 'SELECT id, username, email, full_name, phone, role, is_active, created_at, updated_at 
+                FROM users';
+        
+        $params = [];
+        
+        if ($search) {
+            $sql .= ' WHERE username LIKE :search 
+                      OR email LIKE :search 
+                      OR full_name LIKE :search';
+            $params[':search'] = '%' . $search . '%';
+        }
+        
+        $sql .= ' ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
+        
+        $stmt = $this->db->prepare($sql);
+        
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        
+        $stmt->bindValue(':limit', $perPage, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+        
+        $stmt->execute();
+        
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get total count of users (for pagination)
+     * 
+     * @param string|null $search Optional search term
+     * @return int Total number of users
+     */
+    public function getTotalCount(?string $search = null): int
+    {
+        $sql = 'SELECT COUNT(*) as total FROM users';
+        
+        $params = [];
+        
+        if ($search) {
+            $sql .= ' WHERE username LIKE :search 
+                      OR email LIKE :search 
+                      OR full_name LIKE :search';
+            $params[':search'] = '%' . $search . '%';
+        }
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return (int) $result['total'];
+    }
+
+    /**
+     * Update user role (admin only)
+     * 
+     * @param int $userId The ID of the user to update
+     * @param string $role The new role (student, employee, admin)
+     * @return bool True on success, false on failure
+     */
+    public function updateRole(int $userId, string $role): bool
+    {
+        $allowedRoles = ['student', 'employee', 'admin'];
+        
+        if (!in_array($role, $allowedRoles, true)) {
+            return false;
+        }
+        
+        $stmt = $this->db->prepare('UPDATE users SET role = :role, updated_at = NOW() WHERE id = :id');
+        return $stmt->execute([':role' => $role, ':id' => $userId]);
+    }
 }

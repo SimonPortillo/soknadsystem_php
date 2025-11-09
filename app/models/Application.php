@@ -221,4 +221,102 @@ class Application
             ':user_id' => $userId
         ]);
     }
+
+    /**
+     * Get all applications with pagination and optional search (admin only)
+     * 
+     * @param int $page The page number (1-indexed)
+     * @param int $perPage Number of applications per page
+     * @param string|null $search Optional search term for applicant name, email, or position title
+     * @return array Array of application data
+     */
+    public function getAllPaginated(int $page = 1, int $perPage = 20, ?string $search = null): array
+    {
+        $offset = ($page - 1) * $perPage;
+        
+        $sql = 'SELECT 
+                    a.id, 
+                    a.position_id, 
+                    a.user_id, 
+                    a.status, 
+                    a.application_date,
+                    a.notes,
+                    u.username, 
+                    u.full_name, 
+                    u.email,
+                    u.phone,
+                    p.title as position_title,
+                    p.department,
+                    p.location
+                FROM applications a
+                JOIN users u ON a.user_id = u.id
+                JOIN positions p ON a.position_id = p.id';
+        
+        $params = [];
+        
+        if ($search) {
+            $sql .= ' WHERE u.username LIKE :search 
+                      OR u.full_name LIKE :search 
+                      OR u.email LIKE :search
+                      OR p.title LIKE :search';
+            $params[':search'] = '%' . $search . '%';
+        }
+        
+        $sql .= ' ORDER BY a.application_date DESC LIMIT :limit OFFSET :offset';
+        
+        $stmt = $this->db->prepare($sql);
+        
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        
+        $stmt->bindValue(':limit', $perPage, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+        
+        $stmt->execute();
+        
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get total count of applications (for pagination)
+     * 
+     * @param string|null $search Optional search term
+     * @return int Total number of applications
+     */
+    public function getTotalCount(?string $search = null): int
+    {
+        $sql = 'SELECT COUNT(*) as total 
+                FROM applications a
+                JOIN users u ON a.user_id = u.id
+                JOIN positions p ON a.position_id = p.id';
+        
+        $params = [];
+        
+        if ($search) {
+            $sql .= ' WHERE u.username LIKE :search 
+                      OR u.full_name LIKE :search 
+                      OR u.email LIKE :search
+                      OR p.title LIKE :search';
+            $params[':search'] = '%' . $search . '%';
+        }
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return (int) $result['total'];
+    }
+
+    /**
+     * Delete an application by ID (admin only - no user check)
+     * 
+     * @param int $applicationId The application ID
+     * @return bool True on success, false on failure
+     */
+    public function deleteById(int $applicationId): bool
+    {
+        $stmt = $this->db->prepare('DELETE FROM applications WHERE id = :id');
+        return $stmt->execute([':id' => $applicationId]);
+    }
 }

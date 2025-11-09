@@ -102,6 +102,41 @@ class UserController {
         $positionModel = new Position($this->app->db());
         $positions = $positionModel->findByCreatorId($userId, false, true);
 
+        // Fetch all users for admin (with pagination and search)
+        $allUsers = [];
+        $totalUsers = 0;
+        $currentPage = 1;
+        $usersPerPage = 20;
+        $searchQuery = null;
+        
+        // Fetch all applications for admin (with pagination and search)
+        $allApplications = [];
+        $totalApplications = 0;
+        $currentAppPage = 1;
+        $applicationsPerPage = 20;
+        $appSearchQuery = null;
+        
+        // Fetch all positions for admin
+        $allPositions = [];
+        
+        if ($user->getRole() === 'admin') {
+            $searchQuery = $this->app->request()->query->search ?? null;
+            $currentPage = max(1, (int) ($this->app->request()->query->page ?? 1));
+            
+            $allUsers = $userModel->getAllPaginated($currentPage, $usersPerPage, $searchQuery);
+            $totalUsers = $userModel->getTotalCount($searchQuery);
+
+            // Fetch applications data
+            $appSearchQuery = $this->app->request()->query->app_search ?? null;
+            $currentAppPage = max(1, (int) ($this->app->request()->query->app_page ?? 1));
+            
+            $allApplications = $applicationModel->getAllPaginated($currentAppPage, $applicationsPerPage, $appSearchQuery);
+            $totalApplications = $applicationModel->getTotalCount($appSearchQuery);
+
+            // Fetch all positions
+            $allPositions = $positionModel->getAll(true, true);
+        }
+
         // Render the profile page with user data
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', [
             'isLoggedIn' => true,
@@ -113,7 +148,18 @@ class UserController {
             'cv_documents' => $cvDocuments, 
             'cover_letter_documents' => $coverLetterDocuments,
             'applications' => $applications,
-            'positions' => $positions
+            'positions' => $positions,
+            'all_users' => $allUsers,
+            'total_users' => $totalUsers,
+            'current_page' => $currentPage,
+            'users_per_page' => $usersPerPage,
+            'search_query' => $searchQuery,
+            'all_applications' => $allApplications,
+            'total_applications' => $totalApplications,
+            'current_app_page' => $currentAppPage,
+            'applications_per_page' => $applicationsPerPage,
+            'app_search_query' => $appSearchQuery,
+            'all_positions' => $allPositions
         ]);
     }
 
@@ -204,5 +250,184 @@ class UserController {
         $this->app->session()->set('deletion_message', 'Brukeren har blitt slettet.');
 
         $this->app->redirect('/');
+    }
+
+    /**
+     * Update a user's role (admin only)
+     * 
+     * @return void
+     */
+    public function updateUserRole() {
+        // Redirect if not authenticated or not admin
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        $currentUserId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $currentUser = $userModel->findById($currentUserId);
+
+        if (!$currentUser || $currentUser->getRole() !== 'admin') {
+            $this->app->session()->set('error_message', 'Ingen tilgang.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        $targetUserId = (int) ($this->app->request()->data->user_id ?? 0);
+        $newRole = $this->app->request()->data->role ?? '';
+
+        // Validate role
+        $allowedRoles = ['student', 'employee', 'admin'];
+        if (!in_array($newRole, $allowedRoles, true)) {
+            $this->app->session()->set('error_message', 'Ugyldig rolle.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Update role
+        $success = $userModel->updateRole($targetUserId, $newRole);
+
+        if ($success) {
+            $this->app->session()->set('success_message', 'Brukerrolle oppdatert.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke oppdatere brukerrolle.');
+        }
+
+        $this->app->redirect('/min-side');
+    }
+
+    /**
+     * Delete a user (admin only)
+     * 
+     * @return void
+     */
+    public function deleteUser() {
+        // Redirect if not authenticated or not admin
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        $currentUserId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $currentUser = $userModel->findById($currentUserId);
+
+        if (!$currentUser || $currentUser->getRole() !== 'admin') {
+            $this->app->session()->set('error_message', 'Ingen tilgang.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        $targetUserId = (int) ($this->app->request()->data->user_id ?? 0);
+
+        // Delete user's documents first
+        $docModel = new Document($this->app->db());
+        if (!empty($docModel->findByUser($targetUserId))) {
+            $docModel->deleteByUser($targetUserId);
+        }
+
+        // Delete user
+        $success = $userModel->delete($targetUserId);
+
+        if ($success) {
+            $this->app->session()->set('success_message', 'Bruker slettet.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke slette bruker.');
+        }
+
+        $this->app->redirect('/min-side');
+    }
+
+    /**
+     * Update application status (admin only)
+     * 
+     * @return void
+     */
+    public function updateApplicationStatus() {
+        // Redirect if not authenticated or not admin
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        $currentUserId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $currentUser = $userModel->findById($currentUserId);
+
+        if (!$currentUser || $currentUser->getRole() !== 'admin') {
+            $this->app->session()->set('error_message', 'Ingen tilgang.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        $applicationId = (int) ($this->app->request()->data->application_id ?? 0);
+        $newStatus = $this->app->request()->data->status ?? '';
+        $notes = $this->app->request()->data->notes ?? null;
+
+        // Sanitize notes
+        if ($notes !== null) {
+            $notes = strip_tags($notes);
+            if (mb_strlen($notes) > 1000) {
+                $notes = mb_substr($notes, 0, 1000);
+            }
+        }
+
+        // Validate status
+        $allowedStatuses = ['pending', 'reviewed', 'accepted', 'rejected'];
+        if (!in_array($newStatus, $allowedStatuses, true)) {
+            $this->app->session()->set('error_message', 'Ugyldig status.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Update status
+        $applicationModel = new Application($this->app->db());
+        $success = $applicationModel->updateStatus($applicationId, $newStatus, $notes);
+
+        if ($success) {
+            $this->app->session()->set('success_message', 'Søknadsstatus oppdatert.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke oppdatere søknadsstatus.');
+        }
+
+        $this->app->redirect('/min-side');
+    }
+
+    /**
+     * Delete an application (admin only)
+     * 
+     * @return void
+     */
+    public function deleteApplication() {
+        // Redirect if not authenticated or not admin
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        $currentUserId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $currentUser = $userModel->findById($currentUserId);
+
+        if (!$currentUser || $currentUser->getRole() !== 'admin') {
+            $this->app->session()->set('error_message', 'Ingen tilgang.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        $applicationId = (int) ($this->app->request()->data->application_id ?? 0);
+
+        // Delete application
+        $applicationModel = new Application($this->app->db());
+        $success = $applicationModel->deleteById($applicationId);
+
+        if ($success) {
+            $this->app->session()->set('success_message', 'Søknad slettet.');
+        } else {
+            $this->app->session()->set('error_message', 'Kunne ikke slette søknad.');
+        }
+
+        $this->app->redirect('/min-side');
     }
 }
