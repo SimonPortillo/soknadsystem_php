@@ -315,10 +315,107 @@ class User
      * @param int $minutes The number of minutes to lock the account for
      * @return void
     */
-    public function lockAccount(int $userId, int $minutes): void {
-        $lockoutUntil = date('Y-m-d H:i:s', strtotime("+{$minutes} minutes"));
+    public function lockAccount(int $userId): void {
+        $lockoutUntil = date('Y-m-d H:i:s', strtotime('+1 hour'));
         $stmt = $this->db->prepare('UPDATE users SET lockout_until = :lockout_until, failed_attempts = 0 WHERE id = :id');
         $stmt->execute([':lockout_until' => $lockoutUntil, ':id' => $userId]);
+    }
+
+    /**
+     * Create a password reset token
+     * 
+     * Generates a unique token for password reset and stores it in the database
+     * along with an expiration time (1 hour from creation).
+     * 
+     * @param int $userId The ID of the user requesting the password reset
+     * @return string The generated reset token
+     */
+    public function createPasswordResetToken(int $userId): string
+    {
+        $token = bin2hex(random_bytes(16));
+    
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+        $stmt = $this->db->prepare(
+            'UPDATE users SET reset_token = :reset_token, reset_token_expires_at = :expires_at WHERE id = :id'
+        );
+        $stmt->execute([
+            ':reset_token' => $token,
+            ':expires_at' => $expiresAt,
+            ':id' => $userId
+        ]);
+
+        return $token;
+    }
+
+    /**
+     * Get user ID by reset token
+     * 
+     * Validates the reset token and checks if it's still valid (not expired).
+     * 
+     * @param string $token The password reset token
+     * @return int|null User ID if token is valid, null otherwise
+     */
+    public function getUserIdByResetToken(string $token): ?int
+    {
+        $stmt = $this->db->prepare(
+            'SELECT id FROM users 
+             WHERE reset_token = :token 
+             AND reset_token_expires_at > NOW() 
+             LIMIT 1'
+        );
+        $stmt->execute([':token' => $token]);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        return $result ? (int) $result['id'] : null;
+    }
+
+    /**
+     * Invalidate a reset token
+     * 
+     * Clears the reset token and expiration time after it has been used
+     * or when it needs to be invalidated for security reasons.
+     * 
+     * @param string $token The password reset token to invalidate
+     * @return bool True on success, false on failure
+     */
+    public function invalidateResetToken(string $token): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE users 
+             SET reset_token = NULL, reset_token_expires_at = NULL 
+             WHERE reset_token = :token'
+        );
+        return $stmt->execute([':token' => $token]);
+    }
+
+    /**
+     * Update user password
+     * 
+     * Updates the user's password with a new hashed password.
+     * Also resets failed login attempts and clears any account lockout.
+     * 
+     * @param int $userId The ID of the user
+     * @param string $newPassword The new plain-text password (will be hashed)
+     * @return bool True on success, false on failure
+     */
+    public function updatePassword(int $userId, string $newPassword): bool
+    {
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        
+        $stmt = $this->db->prepare(
+            'UPDATE users 
+             SET password = :password, 
+                 failed_attempts = 0, 
+                 lockout_until = NULL,
+                 updated_at = NOW() 
+             WHERE id = :id'
+        );
+        
+        return $stmt->execute([
+            ':password' => $hashedPassword,
+            ':id' => $userId
+        ]);
     }
 
     /**

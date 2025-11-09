@@ -5,6 +5,7 @@ namespace app\controllers;
 use flight\Engine;
 use app\models\Position;
 use app\models\User;
+use app\models\Application;
 /**
  * PositionController
  * 
@@ -34,6 +35,73 @@ class PositionController {
      */
     public function __construct(Engine $app) {
         $this->app = $app;
+    }
+
+    /**
+     * Display the positions page
+     * 
+     * Shows the job positions page to authenticated users. If the user is not
+     * authenticated, they are redirected to the login page.
+     * 
+     * Route: GET /positions
+     * 
+     * @return void
+     */
+    public function showPositions() {
+        // Redirect to login if not authenticated
+        if (!$this->app->session()->get('is_logged_in')) {
+            $this->app->redirect('/login');
+            return;
+        }
+        
+        // Get all positions
+        $positionModel = new Position($this->app->db());
+        $positions = $positionModel->getAll();
+        
+        // For students, get the positions they have applied to
+        $appliedPositionIds = [];
+        $userId = $this->app->session()->get('user_id');
+        $role = $this->app->session()->get('role');
+        
+        if ($role === 'student') {
+            $applicationModel = new Application($this->app->db());
+            $userApplications = $applicationModel->getByUser($userId);
+            
+            // Extract position IDs from user's applications
+            foreach ($userApplications as $application) {
+                $appliedPositionIds[] = $application['position_id'];
+            }
+        }
+        
+        // Get any success message from session and clear it
+        $successMessage = $this->app->session()->get('login_success') 
+            ?? $this->app->session()->get('position_success')
+            ?? $this->app->session()->get('registration_success')
+            ?? $this->app->session()->get('application_success');
+        
+        $this->app->session()->delete('login_success');
+        $this->app->session()->delete('position_success');
+        $this->app->session()->delete('registration_success');
+        $this->app->session()->delete('application_success');
+        
+        // Get any error message from session and clear it
+        $errorMessage = $this->app->session()->get('position_error')
+            ?? $this->app->session()->get('application_error');
+        
+        $this->app->session()->delete('position_error');
+        $this->app->session()->delete('application_error');
+
+
+        $this->app->latte()->render(__DIR__ . '/../views/user/positions.latte', [
+            'isLoggedIn' => true,
+            'username' => $this->app->session()->get('username'),
+            'role' => $role,
+            'positions' => $positions,
+            'appliedPositionIds' => $appliedPositionIds,
+            'message' => $successMessage,
+            'errors' => $errorMessage ? [$errorMessage] : null,
+            'csp_nonce' => $this->app->get('csp_nonce')
+        ]);
     }
 
     /**
