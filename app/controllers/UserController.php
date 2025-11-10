@@ -79,8 +79,8 @@ class UserController {
         $viewData = [
             'user' => $user,
             'csp_nonce' => $nonce,
-            'success_message' => $successMessage,
-            'error_message' => $errorMessage,
+            'message' => $successMessage,
+            'errors' => $errorMessage,
             'isLoggedIn' => true,
         ];
 
