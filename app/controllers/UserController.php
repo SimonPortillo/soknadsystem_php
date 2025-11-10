@@ -75,60 +75,60 @@ class UserController {
         $this->app->session()->delete('success_message');
         $this->app->session()->delete('error_message');
 
-            // Prepare data for view
-            $viewData = [
-                'user' => $user,
-                'csp_nonce' => $nonce,
-                'success_message' => $successMessage,
-                'error_message' => $errorMessage,
-                'isLoggedIn' => true,
-            ];
+        // Prepare data for view
+        $viewData = [
+            'user' => $user,
+            'csp_nonce' => $nonce,
+            'success_message' => $successMessage,
+            'error_message' => $errorMessage,
+            'isLoggedIn' => true,
+        ];
 
-            // Student-specific data
-            if ($user->getRole() === 'student') {
-                $docModel = new Document($this->app->db());
-                $viewData['cv_documents'] = $docModel->findByUser($userId, 'cv');
-                $viewData['cover_letter_documents'] = $docModel->findByUser($userId, 'cover_letter');
-                $applicationModel = new Application($this->app->db());
-                $viewData['applications'] = $applicationModel->getByUser($userId);
+        // Student-specific data
+        if ($user->getRole() === 'student') {
+            $docModel = new Document($this->app->db());
+            $viewData['cv_documents'] = $docModel->findByUser($userId, 'cv');
+            $viewData['cover_letter_documents'] = $docModel->findByUser($userId, 'cover_letter');
+            $applicationModel = new Application($this->app->db());
+            $viewData['applications'] = $applicationModel->getByUser($userId);
+        }
+
+        // Employee or admin-specific data
+        if ($user->getRole() === 'employee' || $user->getRole() === 'admin') {
+            $positionModel = new Position($this->app->db());
+            $viewData['positions'] = $positionModel->findByCreatorId($userId, false, true);
+        }
+
+        // Admin-specific data
+        if ($user->getRole() === 'admin') {
+            // Fetch all users, applications, positions, etc.
+            $allUsers = $userModel->getAll();
+            $applicationModel = new Application($this->app->db());
+            $allApplications = $applicationModel->getAll();
+            $positionModel = new Position($this->app->db());
+            $allPositions = $positionModel->getAll(true, true);
+
+            // Group positions by creator
+            $positionsByCreator = [];
+            foreach ($allPositions as $pos) {
+                $positionsByCreator[$pos['creator_id']][] = $pos;
             }
 
-            // Employee or admin-specific data
-            if ($user->getRole() === 'employee' || $user->getRole() === 'admin') {
-                $positionModel = new Position($this->app->db());
-                $viewData['positions'] = $positionModel->findByCreatorId($userId, false, true);
+            // Group applications by user
+            $applicationsByUser = [];
+            foreach ($allApplications as $app) {
+                $applicationsByUser[$app['user_id']][] = $app;
             }
 
-            // Admin-specific data
-            if ($user->getRole() === 'admin') {
-                // Fetch all users, applications, positions, etc.
-                $allUsers = $userModel->getAll();
-                $applicationModel = new Application($this->app->db());
-                $allApplications = $applicationModel->getAll();
-                $positionModel = new Position($this->app->db());
-                $allPositions = $positionModel->getAll(true, true);
+            $viewData['all_users'] = $allUsers;
+            $viewData['all_applications'] = $allApplications;
+            $viewData['all_positions'] = $allPositions;
+            $viewData['positions_by_creator'] = $positionsByCreator;
+            $viewData['applications_by_user'] = $applicationsByUser;
+        }
 
-                // Group positions by creator
-                $positionsByCreator = [];
-                foreach ($allPositions as $pos) {
-                    $positionsByCreator[$pos['creator_id']][] = $pos;
-                }
-
-                // Group applications by user
-                $applicationsByUser = [];
-                foreach ($allApplications as $app) {
-                    $applicationsByUser[$app['user_id']][] = $app;
-                }
-
-                $viewData['all_users'] = $allUsers;
-                $viewData['all_applications'] = $allApplications;
-                $viewData['all_positions'] = $allPositions;
-                $viewData['positions_by_creator'] = $positionsByCreator;
-                $viewData['applications_by_user'] = $applicationsByUser;
-            }
-
-            // Render the profile page with only relevant user data
-            $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', $viewData);
+        // Render the profile page with only relevant user data
+        $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', $viewData);
     }
 
     public function update() {
