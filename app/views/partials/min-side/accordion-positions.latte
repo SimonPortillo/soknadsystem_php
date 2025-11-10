@@ -1,0 +1,50 @@
+<div class="accordion mb-4" id="positionsAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="positionsHeading">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#positionsCollapse" aria-expanded="true" aria-controls="positionsCollapse">
+                Mine stillinger
+            </button>
+        </h2>
+        <div id="positionsCollapse" class="accordion-collapse collapse" aria-labelledby="positionsHeading" data-bs-parent="#positionsAccordion">
+            <div class="accordion-body">
+                {if !empty($positions)}
+                    <div class="row g-3 mb-0">
+                        {foreach $positions as $position}
+                            <div class="col-12">
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-2">{$position['title']}</h6>
+                                        <div class="mb-1 text-muted small">
+                                            <span><i class="bi bi-building"></i> {$position['department']}</span> |
+                                            <span><i class="bi bi-geo-alt"></i> {$position['location']}</span> |
+                                            <span><i class="bi bi-clock"></i> {($position['created_at']|date:'d.m.Y H:i')}</span>
+                                        </div>
+                                        <p class="card-text mb-2">{$position['description']|truncate:120}</p>
+                                        <div class="d-flex justify-content-between align-items-end">
+                                            <span class="badge bg-secondary">Søknader: {$position['application_count']}</span>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <a href="/positions/{$position['id']}/applicants" class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-people"></i> Se søkere
+                                                </a>
+                                                <a href="/positions/{$position['id']}/edit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i> Rediger</a>
+                                                <form action="/positions/{$position['id']}/delete" method="post" class="m-0">
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePositionModal{$position['id']}"> <i class="bi bi-trash"></i> Slett</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        {/foreach}
+                    </div>
+                {else}
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> Du har ingen stillinger ennå. Gå til <a href="/positions" class="alert-link">stillinger</a> for å opprette en stilling.
+                    </div>
+                {/if}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,22 @@
+<div class="accordion mb-4" id="accountAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="deleteAccountHeading">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#deleteAccountCollapse" aria-expanded="false" aria-controls="deleteAccountCollapse">
+                Slett konto
+            </button>
+        </h2>
+        <div id="deleteAccountCollapse" class="accordion-collapse collapse" aria-labelledby="deleteAccountHeading" data-bs-parent="#accountAccordion">
+            <div class="accordion-body">
+                <span class="badge rounded-pill bg-warning text-dark">Advarsel</span>
+                <p class="form-text"><strong>
+                Dette vil slette kontoen din, alle relaterte data og kan ikke angres.
+                </strong></p>
+                <div class="d-grid">
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                        Slett konto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
