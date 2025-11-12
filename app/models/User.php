@@ -109,11 +109,6 @@ class User
         return $this->lockout_until;
     }
 
-    // Setters
-
-
-    // Other methods
-
     /**
      * Create a new user
      * 
@@ -405,11 +400,9 @@ class User
         
         $stmt = $this->db->prepare(
             'UPDATE users 
-             SET password = :password, 
-                 failed_attempts = 0, 
-                 lockout_until = NULL,
-                 updated_at = NOW() 
-             WHERE id = :id'
+            SET password = :password, 
+            updated_at = NOW() 
+            WHERE id = :id'
         );
         
         return $stmt->execute([
