@@ -111,7 +111,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
-                    <form method="post" action="/applications/{$application['id']}/withdraw" style="display:inline;">
+                    <form method="post" action="/applications/{$application['id']}/delete" style="display:inline;">
                         <button type="submit" class="btn btn-danger btn-loader">Slett søknad</button>
                     </form>
                 </div>
@@ -166,8 +166,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
-                    <form method="post" action="/admin/applications/delete" style="display:inline;">
-                        <input type="hidden" name="application_id" value="{$app['id']}">
+                    <form method="post" action="/applications/{$app['id']}/delete" style="display:inline;">
                         <button type="submit" class="btn btn-danger btn-loader">Slett søknad</button>
                     </form>
                 </div>

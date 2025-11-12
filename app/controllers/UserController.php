@@ -358,40 +358,4 @@ class UserController {
         $this->app->redirect('/min-side');
     }
 
-    /**
-     * Delete an application (admin only)
-     * 
-     * @return void
-     */
-    public function deleteApplication() {
-        // Redirect if not authenticated or not admin
-        if (!$this->app->session()->get('is_logged_in')) {
-            $this->app->redirect('/login');
-            return;
-        }
-
-        $currentUserId = $this->app->session()->get('user_id');
-        $userModel = new User($this->app->db());
-        $currentUser = $userModel->findById($currentUserId);
-
-        if (!$currentUser || $currentUser->getRole() !== 'admin') {
-            $this->app->session()->set('error_message', 'Ingen tilgang.');
-            $this->app->redirect('/min-side');
-            return;
-        }
-
-        $applicationId = (int) $this->app->request()->data->application_id;
-
-        // Delete application
-        $applicationModel = new Application($this->app->db());
-        $success = $applicationModel->deleteById($applicationId);
-
-        if ($success) {
-            $this->app->session()->set('success_message', 'Søknad slettet.');
-        } else {
-            $this->app->session()->set('error_message', 'Kunne ikke slette søknad.');
-        }
-
-        $this->app->redirect('/min-side');
-    }
 }

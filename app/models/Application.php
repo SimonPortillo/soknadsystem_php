@@ -242,18 +242,6 @@ class Application
     }
 
     /**
-     * Delete an application by ID (admin only)
-     * 
-     * @param int $applicationId The application ID
-     * @return bool True on success, false on failure
-     */
-    public function deleteById(int $applicationId): bool
-    {
-        $stmt = $this->db->prepare('DELETE FROM applications WHERE id = :id');
-        return $stmt->execute([':id' => $applicationId]);
-    }
-
-    /**
      * Delete all applications for a user
      * 
      * @param int $userId The user ID

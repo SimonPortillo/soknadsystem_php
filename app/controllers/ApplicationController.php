@@ -415,7 +415,7 @@ class ApplicationController {
     * @param int $applicationId The application ID
     * @return void
     */
-    public function withdraw($applicationId) {
+    public function delete($applicationId) {
         // Redirect to login if not authenticated
         if (!$this->app->session()->get('is_logged_in')) {
             $this->app->redirect('/login');
@@ -436,19 +436,31 @@ class ApplicationController {
         $applicationModel = new Application($this->app->db());
         $application = $applicationModel->findById($applicationId);
         
-        if (!$application || $application['user_id'] !== $userId) {
-            $this->app->session()->set('error_message', 'Søknaden ble ikke funnet eller du har ikke tilgang til å trekke den tilbake.');
+        if (!$application) {
+            $this->app->session()->set('error_message', 'Søknaden ble ikke funnet.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Check permissions: user must own the application OR be an admin
+        $isOwner = $application['user_id'] === $userId;
+        $isAdmin = $user->getRole() === 'admin';
+        
+        if (!$isOwner && !$isAdmin) {
+            $this->app->session()->set('error_message', 'Du har ikke tilgang til å slette denne søknaden.');
             $this->app->redirect('/min-side');
             return;
         }
 
         // Delete the application
-        $result = $applicationModel->delete($applicationId, $userId);
+        // For admin, pass the application owner's user_id; for owner, pass their own user_id
+        $result = $applicationModel->delete($applicationId, $application['user_id']);
 
         if ($result) {
-            $this->app->session()->set('success_message', 'Søknaden din er trukket tilbake.');
+            $successMessage = $isOwner ? 'Søknaden din er trukket tilbake.' : 'Søknad slettet.';
+            $this->app->session()->set('success_message', $successMessage);
         } else {
-            $this->app->session()->set('error_message', 'Kunne ikke trekke tilbake søknaden. Prøv igjen senere.');
+            $this->app->session()->set('error_message', 'Kunne ikke slette søknaden. Prøv igjen senere.');
         }
 
         $this->app->redirect('/min-side');
