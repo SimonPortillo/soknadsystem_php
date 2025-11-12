@@ -131,6 +131,15 @@ class UserController {
         $this->app->latte()->render(__DIR__ . '/../views/user/min-side.latte', $viewData);
     }
 
+    /**
+     * Update user profile information
+     * 
+     * Allows users to update their full name and phone number.
+     * Validates input and provides feedback messages.
+     * 
+     * @return void
+     * route: POST /min-side/update
+     */
     public function update() {
         // Redirect to login if not authenticated
         if (!$this->app->session()->get('is_logged_in')) {
@@ -196,6 +205,16 @@ class UserController {
         $this->app->redirect('/min-side');
     }
 
+    /**
+     * Delete a user account (self-deletion or admin deletion)
+     * 
+     * Deletes the user account and associated documents.
+     * Admins can delete any user except themselves via the admin panel.
+     * Users and admins can delete their own account via their profile settings.
+     * 
+     * @return void
+     * route: POST /min-side/delete
+     */
     public function delete() {
         // Redirect to login if not authenticated
         if (!$this->app->session()->get('is_logged_in')) {
@@ -203,28 +222,65 @@ class UserController {
             return;
         }
 
-        $userId = $this->app->session()->get('user_id');
-        
+        $currentUserId = $this->app->session()->get('user_id');
+        $userModel = new User($this->app->db());
+        $currentUser = $userModel->findById($currentUserId);
+
+        if (!$currentUser) {
+            $this->app->redirect('/login');
+            return;
+        }
+
+        // Check if this is an admin deleting another user or a user deleting themselves
+        $targetUserId = (int) ($this->app->request()->data->user_id ?? $currentUserId);
+        $isAdmin = $currentUser->getRole() === 'admin';
+        $isSelfDeletion = $targetUserId === $currentUserId;
+
+        // If trying to delete another user, must be admin
+        if (!$isSelfDeletion && !$isAdmin) {
+            $this->app->session()->set('error_message', 'Ingen tilgang.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Prevent admin from deleting themselves via the admin panel (when user_id is explicitly passed)
+        if ($isAdmin && $isSelfDeletion && isset($this->app->request()->data->user_id)) {
+            $this->app->session()->set('error_message', 'Du kan ikke slette din egen konto via admin-panelet. Bruk "Slett konto" under dine kontoinnstillinger.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
         // Delete user's documents (files and database records)
         $docModel = new Document($this->app->db());
-        $docModel->deleteByUser($userId);
+        $docModel->deleteByUser($targetUserId);
 
         // Delete the user
-        $userModel = new User($this->app->db());
-        $userModel->delete($userId);
+        $success = $userModel->delete($targetUserId);
 
-        // clear session and redirect to home
-        $this->app->session()->clear();
-
-        $this->app->session()->set('deletion_message', 'Brukeren har blitt slettet.');
-
-        $this->app->redirect('/');
+        if ($isSelfDeletion) {
+            // User deleted their own account - clear session and redirect to home
+            $this->app->session()->clear();
+            $this->app->session()->set('deletion_message', 'Brukeren har blitt slettet.');
+            $this->app->redirect('/');
+        } else {
+            // Admin deleted another user - show message and stay on min-side
+            if ($success) {
+                $this->app->session()->set('success_message', 'Bruker slettet.');
+            } else {
+                $this->app->session()->set('error_message', 'Kunne ikke slette bruker.');
+            }
+            $this->app->redirect('/min-side');
+        }
     }
 
     /**
      * Update a user's role (admin only)
      * 
+     * Allows an admin to update another user's role.
+     * Cleans up related data when changing roles.
+     * 
      * @return void
+     * route: POST /admin/users/update-role
      */
     public function updateUserRole() {
         // Redirect if not authenticated or not admin
@@ -306,53 +362,6 @@ class UserController {
             $this->app->session()->set('success_message', 'Brukerrolle oppdatert.');
         } else {
             $this->app->session()->set('error_message', 'Kunne ikke oppdatere brukerrolle.');
-        }
-
-        $this->app->redirect('/min-side');
-    }
-
-    /**
-     * Delete a user (admin only)
-     * 
-     * @return void
-     */
-    public function deleteUser() {
-        // Redirect if not authenticated or not admin
-        if (!$this->app->session()->get('is_logged_in')) {
-            $this->app->redirect('/login');
-            return;
-        }
-
-        $currentUserId = $this->app->session()->get('user_id');
-        $userModel = new User($this->app->db());
-        $currentUser = $userModel->findById($currentUserId);
-
-        if (!$currentUser || $currentUser->getRole() !== 'admin') {
-            $this->app->session()->set('error_message', 'Ingen tilgang.');
-            $this->app->redirect('/min-side');
-            return;
-        }
-
-        $targetUserId = (int) ($this->app->request()->data->user_id);
-
-        // Prevent admin from deleting themselves
-        if ($targetUserId === $currentUserId) {
-            $this->app->session()->set('error_message', 'Du kan ikke slette din egen konto. Bruk "Slett konto" under dine kontoinnstillinger.');
-            $this->app->redirect('/min-side');
-            return;
-        }
-
-        // Delete user's documents (files and database records)
-        $docModel = new Document($this->app->db());
-        $docModel->deleteByUser($targetUserId);
-
-        // Delete user
-        $success = $userModel->delete($targetUserId);
-
-        if ($success) {
-            $this->app->session()->set('success_message', 'Bruker slettet.');
-        } else {
-            $this->app->session()->set('error_message', 'Kunne ikke slette bruker.');
         }
 
         $this->app->redirect('/min-side');

@@ -113,7 +113,8 @@ $router->group('', function(Router $router) use ($app) {
 
 	// Update application status (admin/employee only)
 	$router->post('/positions/@id:[0-9]+/applicants/@applicationId:[0-9]+/status', [ ApplicationController::class, 'updateStatus' ]);
-	// Withdraw an application (authenticated users only)
+
+	// Delete an application (admin/owner only)
 	$router->post('/applications/@applicationId:[0-9]+/delete', [ ApplicationController::class, 'delete' ]);
 
 
@@ -130,14 +131,11 @@ $router->group('', function(Router $router) use ($app) {
 	// Update user profile information
 	$router->post('/min-side/update', [ UserController::class, 'update' ]);
 
-	// Delete user account and associated documents
+	// Delete user account and associated documents (admin can delete any user)
 	$router->post('/min-side/delete', [ UserController::class, 'delete' ]);
 
 	// Admin: Update user role
 	$router->post('/admin/users/update-role', [ UserController::class, 'updateUserRole' ]);
-
-	// Admin: Delete user
-	$router->post('/admin/users/delete', [ UserController::class, 'deleteUser' ]);
 
 	/**
 	 * Document Management Routes (under min-side)
