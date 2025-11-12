@@ -359,61 +359,6 @@ class UserController {
     }
 
     /**
-     * Update application status (admin only)
-     * 
-     * @return void
-     */
-    public function updateApplicationStatus() {
-        // Redirect if not authenticated or not admin
-        if (!$this->app->session()->get('is_logged_in')) {
-            $this->app->redirect('/login');
-            return;
-        }
-
-        $currentUserId = $this->app->session()->get('user_id');
-        $userModel = new User($this->app->db());
-        $currentUser = $userModel->findById($currentUserId);
-
-        if (!$currentUser || $currentUser->getRole() !== 'admin') {
-            $this->app->session()->set('error_message', 'Ingen tilgang.');
-            $this->app->redirect('/min-side');
-            return;
-        }
-
-        $applicationId = (int) $this->app->request()->data->application_id;
-        $newStatus = $this->app->request()->data->status;
-        $notes = $this->app->request()->data->notes ?? null;
-
-        // Sanitize notes
-        if ($notes !== null) {
-            $notes = strip_tags($notes);
-            if (mb_strlen($notes) > 1000) {
-                $notes = mb_substr($notes, 0, 1000);
-            }
-        }
-
-        // Validate status
-        $allowedStatuses = ['pending', 'reviewed', 'accepted', 'rejected'];
-        if (!in_array($newStatus, $allowedStatuses, true)) {
-            $this->app->session()->set('error_message', 'Ugyldig status.');
-            $this->app->redirect('/min-side');
-            return;
-        }
-
-        // Update status
-        $applicationModel = new Application($this->app->db());
-        $success = $applicationModel->updateStatus($applicationId, $newStatus, $notes);
-
-        if ($success) {
-            $this->app->session()->set('success_message', 'Søknadsstatus oppdatert.');
-        } else {
-            $this->app->session()->set('error_message', 'Kunne ikke oppdatere søknadsstatus.');
-        }
-
-        $this->app->redirect('/min-side');
-    }
-
-    /**
      * Delete an application (admin only)
      * 
      * @return void

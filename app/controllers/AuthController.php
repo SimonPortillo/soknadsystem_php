@@ -4,8 +4,6 @@ namespace app\controllers;
 
 use flight\Engine;
 use app\models\User;
-use app\models\Position;
-use app\models\Application;
 use app\utils\EmailUtil;
 
 /**

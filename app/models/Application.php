@@ -72,6 +72,25 @@ class Application
     }
 
     /**
+     * Get user information by application ID
+     *
+     * @param int $applicationId The application ID
+     * @return array User data 
+     */
+    public function getUserByApplicationId(int $applicationId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT u.* 
+            FROM applications a
+            JOIN users u ON a.user_id = u.id
+            WHERE a.id = :application_id
+            LIMIT 1'
+        );
+        $stmt->execute([':application_id' => $applicationId]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+    
+    /**
      * Get applications by position ID
      * 
      * @param int $positionId The position ID

@@ -139,9 +139,6 @@ $router->group('', function(Router $router) use ($app) {
 	// Admin: Delete user
 	$router->post('/admin/users/delete', [ UserController::class, 'deleteUser' ]);
 
-	// Admin: Update application status
-	$router->post('/admin/applications/update-status', [ UserController::class, 'updateApplicationStatus' ]);
-
 	// Admin: Delete application
 	$router->post('/admin/applications/delete', [ UserController::class, 'deleteApplication' ]);
 

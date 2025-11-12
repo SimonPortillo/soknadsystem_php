@@ -366,8 +366,11 @@ class ApplicationController {
             return;
         }
 
-        // Update the application status
+        // Get the applicant's information for email notification
         $applicationModel = new Application($this->app->db());
+        $applicant = $applicationModel->getUserByApplicationId($applicationId);
+
+        // Update the application status
         $result = $applicationModel->updateStatus($applicationId, $status, $notes);
 
         if ($result) {
@@ -377,7 +380,24 @@ class ApplicationController {
                 'accepted' => 'akseptert',
                 'rejected' => 'avslått'
             ];
-            $this->app->session()->set('success_message', 'Søknadsstatus oppdatert til: ' . $statusText[$status] . '.');
+            
+            // Send email notification to the applicant
+            if ($applicant) {
+                $emailConfig = $this->app->get('email_config');
+                $emailUtil = new \app\utils\EmailUtil($emailConfig);
+                
+                $emailSent = $emailUtil->sendMail(
+                    $applicant['email'], 
+                    'Søknadsstatus oppdatert', 
+                    "Hei {$applicant['username']},\n\nStatusen på din søknad til stillingen \"{$position['title']}\" har blitt oppdatert til: {$statusText[$status]}.\n\nSe mer informasjon på din profilside\n\nMvh,\nSøknadssystem"
+                );
+                
+                if (!$emailSent) {
+                    error_log("Failed to send email notification to {$applicant['email']} for application ID: {$applicationId}");
+                }
+            }
+            
+            $this->app->session()->set('success_message', 'Søknadsstatus for ' . $applicant['username'] . ' oppdatert til: ' . $statusText[$status] . '.');
         } else {
             $this->app->session()->set('error_message', 'Kunne ikke oppdatere søknadsstatus. Prøv igjen.');
         }
