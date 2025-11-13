@@ -209,12 +209,16 @@ class AuthController {
         $newPassword = $data->password ?? '';
         $passwordConfirm = $data->password_confirm ?? '';
 
+        $viewdata = [
+            'token' => $token,
+            'csp_nonce' => $this->app->get('csp_nonce')
+        ];
+
         // Validate password confirmation
         if ($newPassword !== $passwordConfirm) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
                 'errors' => ['Passordene må være like.'],
-                'token' => $token,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
             return;
         }
@@ -224,8 +228,7 @@ class AuthController {
         if ($passwordValidation !== true) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
                 'errors' => [$passwordValidation],
-                'token' => $token,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
             return;
         }
@@ -236,8 +239,7 @@ class AuthController {
         if (!$userId) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
                 'errors' => ['Ugyldig eller utløpt token. Vennligst prøv å tilbakestille passordet igjen.'],
-                'token' => $token,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
             return;
         }
