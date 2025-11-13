@@ -111,7 +111,10 @@
                                                                     </div>
                                                                     <p class="card-text mb-2">{$position['description']|truncate:120}</p>
                                                                     <div class="d-flex justify-content-between align-items-end">
-                                                                        <span class="badge bg-secondary">Søknader: {$position['application_count']}</span>
+                                                                        <span class="badge bg-secondary d-inline-flex align-items-center gap-2">
+                                                                            Søknader
+                                                                            <span class="badge rounded-pill bg-light text-dark">{$position['application_count']}</span>
+                                                                        </span>
                                                                         <div class="d-flex align-items-center gap-2">
                                                                             <a href="/positions/{$position['id']}/applicants" class="btn btn-outline-primary btn-sm">
                                                                                 <i class="bi bi-people"></i> Se søkere
