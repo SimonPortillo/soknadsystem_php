@@ -24,22 +24,27 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav nav-underline ms-auto">
                         {block navigation}
                         <li class="nav-item">
                             <a class="nav-link" href="/">Hjem</a>
                         </li>
                         {if isset($isLoggedIn) && $isLoggedIn}
                             <li class="nav-item">
-                                <a class="nav-link" href="/positions">Stillinger</a>
+                                <a class="nav-link" href="/positions">
+                                    Stillinger
+                                    {if isset($openPositionsCount) && $openPositionsCount > 0}
+                                        <span class="badge rounded-pill bg-primary ms-1">{$openPositionsCount}</span>
+                                    {/if}
+                                </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/min-side">Min Side</a>
                             </li>
                             <li class="nav-item">
-                                <button type="button" class="nav-link btn btn-link" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                    Logg ut 
-                                </button>
+                                <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                    Logg ut
+                                </a>
                             </li>
                         {else}
                             <li class="nav-item">

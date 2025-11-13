@@ -81,11 +81,14 @@ class ApplicationController {
         $cvDocuments = $docModel->findByUser($userId, 'cv');
         $coverLetterDocuments = $docModel->findByUser($userId, 'cover_letter'); 
 
-        // Get session messages and clear them
+	// Get session messages and clear them
         $successMessage = $this->app->session()->get('application_success');
         $errorMessage = $this->app->session()->get('application_error');
         $this->app->session()->delete('application_success');
         $this->app->session()->delete('application_error');
+        
+        // Get position count for navbar
+        $openPositionsCount = $positionModel->getCount();
         
         // Render the application form
         $this->app->latte()->render(__DIR__ . '/../views/user/apply-position.latte', [
@@ -99,6 +102,7 @@ class ApplicationController {
             'cv_documents' => $cvDocuments, 
             'cover_letter_documents' => $coverLetterDocuments, 
             'user' => $user,
+            'openPositionsCount' => $openPositionsCount,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
@@ -279,6 +283,9 @@ class ApplicationController {
         $this->app->session()->delete('success_message');
         $this->app->session()->delete('error_message');
         
+        // Get position count for navbar
+        $openPositionsCount = $positionModel->getCount();
+        
         // Render the applicants view
         $this->app->latte()->render(__DIR__ . '/../views/user/view-applicants.latte', [
             'isLoggedIn' => true,
@@ -288,6 +295,7 @@ class ApplicationController {
             'applicants' => $applicants,
             'message' => $successMessage,
             'errors' => $errorMessage,
+            'openPositionsCount' => $openPositionsCount,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }

@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use flight\Engine;
+use app\models\Position;
 
 /**
  * HomeController
@@ -45,10 +46,18 @@ class HomeController {
 		$deletionMessage = $this->app->session()->get('deletion_message');
 		$this->app->session()->delete('deletion_message');
 
+		// Get position count for logged-in users
+		$openPositionsCount = null;
+		if ($this->app->session()->get('is_logged_in')) {
+			$positionModel = new Position($this->app->db());
+			$openPositionsCount = $positionModel->getCount();
+		}
+
 		$this->app->latte()->render(__DIR__ . '/../views/home/home.latte', [
 			'isLoggedIn' => $this->app->session()->get('is_logged_in'),
 			'username' => $this->app->session()->get('username'),
 			'message' => $deletionMessage,
+			'openPositionsCount' => $openPositionsCount,
 			'csp_nonce' => $this->app->get('csp_nonce')
 		]);
 	}

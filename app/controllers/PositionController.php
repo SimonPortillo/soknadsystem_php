@@ -57,6 +57,8 @@ class PositionController {
         // Get all positions
         $positionModel = new Position($this->app->db());
         $positions = $positionModel->getAll();
+        // used to show count of open positions in navbar
+        $openPositionsCount = $positionModel->getCount();
         
         // For students, get the positions they have applied to
         $appliedPositionIds = [];
@@ -98,6 +100,7 @@ class PositionController {
             'role' => $role,
             'userId' => $userId,
             'positions' => $positions,
+            'openPositionsCount' => $openPositionsCount,
             'appliedPositionIds' => $appliedPositionIds,
             'message' => $successMessage,
             'errors' => $errorMessage ? [$errorMessage] : null,
@@ -127,17 +130,22 @@ class PositionController {
         $userModel = new User($this->app->db());
         $user = $userModel->findById($userId);
         
-        // Only allow admin and employee roles
+	// Only allow admin and employee roles
         if (!$user || !in_array($user->getRole(), ['admin', 'employee'])) {
             $this->app->redirect('/positions');
             return;
         }
+        
+        // Get position count for navbar
+        $positionModel = new Position($this->app->db());
+        $openPositionsCount = $positionModel->getCount();
         
         // Render the create position form
         $this->app->latte()->render(__DIR__ . '/../views/user/create-position.latte', [
             'isLoggedIn' => true,
             'username' => $user->getUsername(),
             'role' => $user->getRole(),
+            'openPositionsCount' => $openPositionsCount,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
@@ -177,6 +185,9 @@ class PositionController {
         $location = $data->location ?? '';
         $description = $data->description ?? null;
         
+        // Instantiate position model
+        $positionModel = new Position($this->app->db());
+        
         // Validate required fields
         $errors = [];
         if (empty($title)) {
@@ -189,8 +200,9 @@ class PositionController {
             $errors[] = 'Lokasjon er påkrevd.';
         }
         
-        // If validation fails, re-render form with errors
+	// If validation fails, re-render form with errors
         if (!empty($errors)) {
+            $openPositionsCount = $positionModel->getCount();
             $this->app->latte()->render(__DIR__ . '/../views/user/create-position.latte', [
                 'isLoggedIn' => true,
                 'username' => $user->getUsername(),
@@ -200,13 +212,13 @@ class PositionController {
                 'department' => $department,
                 'location' => $location,
                 'description' => $description,
+                'openPositionsCount' => $openPositionsCount,
                 'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
         }
         
         // Create the position
-        $positionModel = new Position($this->app->db());
         $result = $positionModel->create($userId, $title, $department, $location, $description);
         
         if ($result) {
@@ -214,7 +226,8 @@ class PositionController {
             $this->app->session()->set('position_success', 'Stillingen ble opprettet.');
             $this->app->redirect('/positions');
         } else {
-            // Re-render form with error
+		// Re-render form with error
+            $openPositionsCount = $positionModel->getCount();
             $this->app->latte()->render(__DIR__ . '/../views/user/create-position.latte', [
                 'isLoggedIn' => true,
                 'username' => $user->getUsername(),
@@ -224,6 +237,7 @@ class PositionController {
                 'department' => $department,
                 'location' => $location,
                 'description' => $description,
+                'openPositionsCount' => $openPositionsCount,
                 'csp_nonce' => $this->app->get('csp_nonce')
             ]);
         }
@@ -259,9 +273,12 @@ class PositionController {
             return;
         }
 
-        // fetch the position by ID 
+	// fetch the position by ID 
         $positionModel = new Position($this->app->db());
         $position = $positionModel->findById($id, false, false);
+        
+        // Get position count for navbar
+        $openPositionsCount = $positionModel->getCount();
         
         // Render the edit position form
         $this->app->latte()->render(__DIR__ . '/../views/user/edit-position.latte', [
@@ -270,8 +287,9 @@ class PositionController {
             'role' => $user->getRole(),
             'csp_nonce' => $this->app->get('csp_nonce'),
             'position' => $position,
+            'openPositionsCount' => $openPositionsCount,
 
-        ]); 
+        ]);
     }
 
     /**
@@ -322,8 +340,9 @@ class PositionController {
             $errors[] = 'Lokasjon er påkrevd.';
         }
         
-        // If validation fails, re-render form with errors
+	// If validation fails, re-render form with errors
         if (!empty($errors)) {
+            $openPositionsCount = $positionModel->getCount();
             $this->app->latte()->render(__DIR__ . '/../views/user/edit-position.latte', [
                 'isLoggedIn' => true,
                 'username' => $user->getUsername(),
@@ -336,12 +355,11 @@ class PositionController {
                     'location' => $location,
                     'description' => $description
                 ],
+                'openPositionsCount' => $openPositionsCount,
                 'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
-        }
-
-        // arrange data in array (the update method below expects an array)
+        }        // arrange data in array (the update method below expects an array)
         $data = [
             'title' => $title,
             'department' => $department,
@@ -357,7 +375,8 @@ class PositionController {
             $currentPosition['location'] === $location &&
             ($currentPosition['description'] ?? '') === ($description ?? '')
         );
-        if ($unchanged) {
+	if ($unchanged) {
+            $openPositionsCount = $positionModel->getCount();
             $this->app->latte()->render(__DIR__ . '/../views/user/edit-position.latte', [
                 'isLoggedIn' => true,
                 'username' => $user->getUsername(),
@@ -370,12 +389,11 @@ class PositionController {
                     'location' => $location,
                     'description' => $description
                 ],
+                'openPositionsCount' => $openPositionsCount,
                 'csp_nonce' => $this->app->get('csp_nonce')
             ]);
             return;
-        }
-
-        // update the position
+        }        // update the position
         $result = $positionModel->update($id, $data);
 
         if ($result) {
@@ -384,6 +402,7 @@ class PositionController {
             $this->app->redirect('/min-side');
         } else {
             // Re-render form with error
+            $openPositionsCount = $positionModel->getCount();
             $this->app->latte()->render(__DIR__ . '/../views/user/edit-position.latte', [
                 'isLoggedIn' => true,
                 'username' => $user->getUsername(),
@@ -396,6 +415,7 @@ class PositionController {
                     'location' => $location,
                     'description' => $description
                 ],
+                'openPositionsCount' => $openPositionsCount,
                 'csp_nonce' => $this->app->get('csp_nonce')
             ]);
         }

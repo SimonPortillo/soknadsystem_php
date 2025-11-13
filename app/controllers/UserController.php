@@ -69,11 +69,15 @@ class UserController {
             return;
         }
 
-        // Get flash messages and clear them
+	// Get flash messages and clear them
         $successMessage = $this->app->session()->get('success_message');
         $errorMessage = $this->app->session()->get('error_message');
         $this->app->session()->delete('success_message');
         $this->app->session()->delete('error_message');
+
+        // Get position count for navbar
+        $positionModel = new Position($this->app->db());
+        $openPositionsCount = $positionModel->getCount();
 
         // Prepare data for view
         $viewData = [
@@ -82,9 +86,8 @@ class UserController {
             'message' => $successMessage,
             'errors' => $errorMessage,
             'isLoggedIn' => true,
-        ];
-
-        // Student-specific data
+            'openPositionsCount' => $openPositionsCount,
+        ];        // Student-specific data
         if ($user->getRole() === 'student') {
             $docModel = new Document($this->app->db());
             $viewData['cv_documents'] = $docModel->findByUser($userId, 'cv');
