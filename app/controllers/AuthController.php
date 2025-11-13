@@ -335,6 +335,14 @@ class AuthController {
         $email = $data->email ?? '';
         $full_name = $data->full_name ?? null;
         $phone = $data->phone ?? null;
+
+        $viewdata = [
+            'username' => $username,
+            'email' => $email,
+            'full_name' => $full_name,
+            'phone' => $phone,
+            'csp_nonce' => $this->app->get('csp_nonce')
+        ];
         
         // Trim whitespace and convert empty strings to null for optional fields
         $full_name = !empty(trim($full_name)) ? trim($full_name) : null;
@@ -345,11 +353,7 @@ class AuthController {
         if ($errors) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => $errors,
-                'username' => $username,
-                'email' => $email,
-                'full_name' => $full_name,
-                'phone' => $phone,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
             return;
         }
@@ -360,11 +364,7 @@ class AuthController {
         if ($existingUser) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => ['Brukernavnet er allerede i bruk.'],
-                'username' => $username,
-                'email' => $email,
-                'full_name' => $full_name,
-                'phone' => $phone,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
             return;
         }
@@ -374,11 +374,7 @@ class AuthController {
         if ($existingEmail) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => ['En bruker med denne e-postadressen finnes allerede.'],
-                'username' => $username,
-                'email' => $email,
-                'full_name' => $full_name,
-                'phone' => $phone,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
             return;
         }
@@ -387,11 +383,7 @@ class AuthController {
         if ($password !== $confirm_password) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => ['Passordene må være like.'],
-                'username' => $username,
-                'email' => $email,
-                'full_name' => $full_name,
-                'phone' => $phone,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
             return;
         }
@@ -415,11 +407,7 @@ class AuthController {
         } catch (\Exception $e) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => ['En feil oppstod ved registrering. Vennligst prøv igjen.'],
-                'username' => $username,
-                'email' => $email,
-                'full_name' => $full_name,
-                'phone' => $phone,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
         }
     }
