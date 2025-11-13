@@ -212,7 +212,7 @@ class AuthController {
         // Validate password confirmation
         if ($newPassword !== $passwordConfirm) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
-                'errors' => ['Passordene matcher ikke. Vennligst prøv igjen.'],
+                'errors' => ['Passordene må være like.'],
                 'token' => $token,
                 'csp_nonce' => $this->app->get('csp_nonce')
             ]);
@@ -331,6 +331,7 @@ class AuthController {
         $data = $this->app->request()->data;
         $username = $data->username ?? '';
         $password = $data->password ?? '';
+        $confirm_password = $data->confirm_password ?? '';
         $email = $data->email ?? '';
         $full_name = $data->full_name ?? null;
         $phone = $data->phone ?? null;
@@ -373,6 +374,19 @@ class AuthController {
         if ($existingEmail) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => ['En bruker med denne e-postadressen finnes allerede.'],
+                'username' => $username,
+                'email' => $email,
+                'full_name' => $full_name,
+                'phone' => $phone,
+                'csp_nonce' => $this->app->get('csp_nonce')
+            ]);
+            return;
+        }
+
+        // Check if passwords match
+        if ($password !== $confirm_password) {
+            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
+                'errors' => ['Passordene må være like.'],
                 'username' => $username,
                 'email' => $email,
                 'full_name' => $full_name,
