@@ -54,11 +54,6 @@ class EmailUtil {
         // Default from address
         $mail->setFrom($this->config['from_email'], $this->config['from_name']);
         
-        // Reply-to address (if configured)
-        if (!empty($this->config['reply_to'])) {
-            $mail->addReplyTo($this->config['reply_to'], $this->config['from_name']);
-        }
-        
         // Disable debug output in production
         $mail->SMTPDebug = 0;
         
@@ -107,6 +102,42 @@ class EmailUtil {
             return false;
         }
     }
+    
+    /**
+     * Send a generic email
+     * 
+     * Sends an email to the specified recipient with the given subject and body.
+     * Uses plain text format (not HTML).
+     * 
+     * @param string $toEmail The recipient's email address
+     * @param string $subject The subject of the email
+     * @param string $body The plain text body of the email
+     * @return bool True if the email was sent successfully, false otherwise
+     * @throws Exception If PHPMailer encounters an error during sending
+     */
+    public function sendMail(string $toEmail, string $subject, string $body): bool {
+        try {
+            $mail = $this->createMailer();
+            
+            // Recipient
+            $mail->addAddress($toEmail);
+            
+            // Content
+            $mail->isHTML(false);
+            $mail->Subject = $subject;
+            $mail->Body = $body;
+            
+            $mail->send();
+            error_log("Email sent successfully to {$toEmail}: {$subject}");
+            return true;
+            
+        } catch (Exception $e) {
+            // Log detailed error information for debugging
+            error_log("Email sending failed to {$toEmail}. PHPMailer Error: {$mail->ErrorInfo}. Exception: {$e->getMessage()}");
+            return false;
+        }
+    }
+
 
     /**
      * Generate HTML email body for password reset

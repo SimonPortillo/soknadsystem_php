@@ -176,6 +176,20 @@ class Position
     }
 
     /**
+     * Get the total number of positions
+     * 
+     * used for displaying count in navbar for logged in users
+     *
+     * @return int
+     */
+    public function getCount(): int
+    {
+        $stmt = $this->db->query('SELECT COUNT(*) as count FROM positions');
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return (int)($result['count'] ?? 0);
+    }
+
+    /**
      * Delete position
      * 
      * @param int $id The position ID

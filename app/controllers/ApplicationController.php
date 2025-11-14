@@ -8,6 +8,7 @@ use app\models\Application;
 use app\models\Position;
 use app\models\User;
 use app\models\Document;
+use app\utils\EmailUtil;
 
 class ApplicationController {
 
@@ -81,11 +82,14 @@ class ApplicationController {
         $cvDocuments = $docModel->findByUser($userId, 'cv');
         $coverLetterDocuments = $docModel->findByUser($userId, 'cover_letter'); 
 
-        // Get session messages and clear them
+	// Get session messages and clear them
         $successMessage = $this->app->session()->get('application_success');
         $errorMessage = $this->app->session()->get('application_error');
         $this->app->session()->delete('application_success');
         $this->app->session()->delete('application_error');
+        
+        // Get position count for navbar
+        $openPositionsCount = $positionModel->getCount();
         
         // Render the application form
         $this->app->latte()->render(__DIR__ . '/../views/user/apply-position.latte', [
@@ -99,6 +103,7 @@ class ApplicationController {
             'cv_documents' => $cvDocuments, 
             'cover_letter_documents' => $coverLetterDocuments, 
             'user' => $user,
+            'openPositionsCount' => $openPositionsCount,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
@@ -279,6 +284,9 @@ class ApplicationController {
         $this->app->session()->delete('success_message');
         $this->app->session()->delete('error_message');
         
+        // Get position count for navbar
+        $openPositionsCount = $positionModel->getCount();
+        
         // Render the applicants view
         $this->app->latte()->render(__DIR__ . '/../views/user/view-applicants.latte', [
             'isLoggedIn' => true,
@@ -288,6 +296,7 @@ class ApplicationController {
             'applicants' => $applicants,
             'message' => $successMessage,
             'errors' => $errorMessage,
+            'openPositionsCount' => $openPositionsCount,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
@@ -366,8 +375,11 @@ class ApplicationController {
             return;
         }
 
-        // Update the application status
+        // Get the applicant's information for email notification
         $applicationModel = new Application($this->app->db());
+        $applicant = $applicationModel->getUserByApplicationId($applicationId);
+
+        // Update the application status
         $result = $applicationModel->updateStatus($applicationId, $status, $notes);
 
         if ($result) {
@@ -377,7 +389,24 @@ class ApplicationController {
                 'accepted' => 'akseptert',
                 'rejected' => 'avslått'
             ];
-            $this->app->session()->set('success_message', 'Søknadsstatus oppdatert til: ' . $statusText[$status] . '.');
+            
+            // Send email notification to the applicant
+            if ($applicant) {
+                $emailConfig = $this->app->get('email_config');
+                $emailUtil = new EmailUtil($emailConfig);
+                
+                $emailSent = $emailUtil->sendMail(
+                    $applicant['email'], 
+                    'Søknadsstatus oppdatert', 
+                    "Hei {$applicant['username']},\n\nStatusen på din søknad til stillingen \"{$position['title']}\" har blitt oppdatert til: {$statusText[$status]}.\n\nSe mer informasjon på din profilside\n\nMvh,\nSøknadssystem"
+                );
+                
+                if (!$emailSent) {
+                    error_log("Failed to send email notification to {$applicant['email']} for application ID: {$applicationId}");
+                }
+            }
+            
+            $this->app->session()->set('success_message', 'Søknadsstatus for ' . $applicant['username'] . ' oppdatert til: ' . $statusText[$status] . '.');
         } else {
             $this->app->session()->set('error_message', 'Kunne ikke oppdatere søknadsstatus. Prøv igjen.');
         }
@@ -395,7 +424,7 @@ class ApplicationController {
     * @param int $applicationId The application ID
     * @return void
     */
-    public function withdraw($applicationId) {
+    public function delete($applicationId) {
         // Redirect to login if not authenticated
         if (!$this->app->session()->get('is_logged_in')) {
             $this->app->redirect('/login');
@@ -416,19 +445,31 @@ class ApplicationController {
         $applicationModel = new Application($this->app->db());
         $application = $applicationModel->findById($applicationId);
         
-        if (!$application || $application['user_id'] !== $userId) {
-            $this->app->session()->set('error_message', 'Søknaden ble ikke funnet eller du har ikke tilgang til å trekke den tilbake.');
+        if (!$application) {
+            $this->app->session()->set('error_message', 'Søknaden ble ikke funnet.');
+            $this->app->redirect('/min-side');
+            return;
+        }
+
+        // Check permissions: user must own the application OR be an admin
+        $isOwner = $application['user_id'] === $userId;
+        $isAdmin = $user->getRole() === 'admin';
+        
+        if (!$isOwner && !$isAdmin) {
+            $this->app->session()->set('error_message', 'Du har ikke tilgang til å slette denne søknaden.');
             $this->app->redirect('/min-side');
             return;
         }
 
         // Delete the application
-        $result = $applicationModel->delete($applicationId, $userId);
+        // For admin, pass the application owner's user_id; for owner, pass their own user_id
+        $result = $applicationModel->delete($applicationId, $application['user_id']);
 
         if ($result) {
-            $this->app->session()->set('success_message', 'Søknaden din er trukket tilbake.');
+            $successMessage = $isOwner ? 'Søknaden din er trukket tilbake.' : 'Søknad slettet.';
+            $this->app->session()->set('success_message', $successMessage);
         } else {
-            $this->app->session()->set('error_message', 'Kunne ikke trekke tilbake søknaden. Prøv igjen senere.');
+            $this->app->session()->set('error_message', 'Kunne ikke slette søknaden. Prøv igjen senere.');
         }
 
         $this->app->redirect('/min-side');

@@ -209,20 +209,20 @@
                     <h5 class="modal-title" id="statusModalLabel{$applicant['id']}">Oppdater søknadsstatus</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
                 </div>
-                <div class="modal-body">
-                    <p>Endre status for søknaden til <strong>{$applicant['full_name'] ?? $applicant['username']}</strong>?</p>
-                    <form method="post" action="/positions/{$position['id']}/applicants/{$applicant['id']}/status" id="statusForm{$applicant['id']}">
+                <form method="post" action="/positions/{$position['id']}/applicants/{$applicant['id']}/status" id="statusForm{$applicant['id']}">
+                    <div class="modal-body">
+                        <p>Endre status for søknaden til <strong>{$applicant['full_name'] ?? $applicant['username']}</strong>?</p>
                         <input type="hidden" name="status" id="statusInput{$applicant['id']}" value="">
                         <div class="mb-3">
                             <label for="statusNotes{$applicant['id']}" class="form-label">Notater (valgfritt)</label>
                             <textarea class="form-control" id="statusNotes{$applicant['id']}" name="notes" rows="3" placeholder="Legg til notater om statusendringen..."></textarea>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Avbryt</button>
-                    <button type="submit" form="statusForm{$applicant['id']}" class="btn btn-primary">Oppdater status</button>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Avbryt</button>
+                        <button type="submit" class="btn btn-primary btn-loader">Oppdater status</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -231,20 +231,21 @@
 {/block}
 
 {block scripts}
-<script nonce="{$csp_nonce}">
-    // Handle status modal button clicks to set the status value
-    document.querySelectorAll('[data-bs-toggle="modal"][data-status]').forEach(button => {
-        button.addEventListener('click', function() {
-            const status = this.getAttribute('data-status');
-            const targetModal = this.getAttribute('data-bs-target');
-            const modalElement = document.querySelector(targetModal);
-            if (modalElement) {
-                const statusInput = modalElement.querySelector('input[name="status"]');
-                if (statusInput) {
-                    statusInput.value = status;
+    <script src="/js/form-spinner.js" nonce="{$csp_nonce}"></script>
+    <script nonce="{$csp_nonce}">
+        // Handle status modal button clicks to set the status value
+        document.querySelectorAll('[data-bs-toggle="modal"][data-status]').forEach(button => {
+            button.addEventListener('click', function() {
+                const status = this.getAttribute('data-status');
+                const targetModal = this.getAttribute('data-bs-target');
+                const modalElement = document.querySelector(targetModal);
+                if (modalElement) {
+                    const statusInput = modalElement.querySelector('input[name="status"]');
+                    if (statusInput) {
+                        statusInput.value = status;
+                    }
                 }
-            }
+            });
         });
-    });
-</script>
+    </script>
 {/block}

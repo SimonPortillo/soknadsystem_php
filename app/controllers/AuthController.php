@@ -4,8 +4,6 @@ namespace app\controllers;
 
 use flight\Engine;
 use app\models\User;
-use app\models\Position;
-use app\models\Application;
 use app\utils\EmailUtil;
 
 /**
@@ -211,12 +209,16 @@ class AuthController {
         $newPassword = $data->password ?? '';
         $passwordConfirm = $data->password_confirm ?? '';
 
+        $viewdata = [
+            'token' => $token,
+            'csp_nonce' => $this->app->get('csp_nonce')
+        ];
+
         // Validate password confirmation
         if ($newPassword !== $passwordConfirm) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
-                'errors' => ['Passordene matcher ikke. Vennligst prøv igjen.'],
-                'token' => $token,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                'errors' => ['Passordene må være like.'],
+                ...$viewdata
             ]);
             return;
         }
@@ -226,8 +228,7 @@ class AuthController {
         if ($passwordValidation !== true) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
                 'errors' => [$passwordValidation],
-                'token' => $token,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
             return;
         }
@@ -238,8 +239,7 @@ class AuthController {
         if (!$userId) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
                 'errors' => ['Ugyldig eller utløpt token. Vennligst prøv å tilbakestille passordet igjen.'],
-                'token' => $token,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
             return;
         }
@@ -265,10 +265,11 @@ class AuthController {
      * 
      * @param string $username The username to validate
      * @param string $password The password to validate
+     * @param string $confirm_password The password confirmation to validate
      * @param string $email The email address to validate
      * @return array Array of error messages (empty if validation passes)
      */
-    private function validateRegistration($username, $password, $email, $phone): array {
+    private function validateRegistration($username, $password, $confirm_password, $email, $phone): array {
         $errors = [];
 
         if (empty($username) || strlen(trim($username)) === 0) { // Check for empty or whitespace-only username
@@ -283,9 +284,26 @@ class AuthController {
         if($phone && strlen($phone) !== 8) {
             $errors[] = "Telefonnummer må være nøyaktig 8 siffer.";
         }
+        if ($password !== $confirm_password) {
+            $errors[] = 'Passordene må være like.';
+        }
+        // Validate password complexity
         $passwordValidation = $this->validatePassword($password);
         if ($passwordValidation !== true) {
             $errors[] = $passwordValidation;
+        }
+       
+        // Check if username already exists
+        $userModel = new User($this->app->db());
+        $existingUser = $userModel->findByUsername($username);
+        if ($existingUser) {
+            $errors[] = 'Brukernavnet er allerede tatt.';
+        }
+
+        // Check if email already exists
+        $existingEmail = $userModel->findByEmail($email);
+        if ($existingEmail) {
+            $errors[] = 'E-postadressen er allerede registrert.';
         }
 
         return $errors;
@@ -333,53 +351,29 @@ class AuthController {
         $data = $this->app->request()->data;
         $username = $data->username ?? '';
         $password = $data->password ?? '';
+        $confirm_password = $data->confirm_password ?? '';
         $email = $data->email ?? '';
         $full_name = $data->full_name ?? null;
         $phone = $data->phone ?? null;
+
+        $viewdata = [
+            'username' => $username,
+            'email' => $email,
+            'full_name' => $full_name,
+            'phone' => $phone,
+            'csp_nonce' => $this->app->get('csp_nonce')
+        ];
         
         // Trim whitespace and convert empty strings to null for optional fields
         $full_name = !empty(trim($full_name)) ? trim($full_name) : null;
         $phone = !empty(trim($phone)) ? trim($phone) : null;
         
-        $errors = $this->validateRegistration($username, $password, $email, $phone);
+        $errors = $this->validateRegistration($username, $password, $confirm_password, $email, $phone);
         
         if ($errors) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => $errors,
-                'username' => $username,
-                'email' => $email,
-                'full_name' => $full_name,
-                'phone' => $phone,
-                'csp_nonce' => $this->app->get('csp_nonce')
-            ]);
-            return;
-        }
-        
-        // Check if username already exists
-        $userModel = new User($this->app->db());
-        $existingUser = $userModel->findByUsername($username);
-        if ($existingUser) {
-            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
-                'errors' => ['Brukernavnet er allerede i bruk.'],
-                'username' => $username,
-                'email' => $email,
-                'full_name' => $full_name,
-                'phone' => $phone,
-                'csp_nonce' => $this->app->get('csp_nonce')
-            ]);
-            return;
-        }
-
-        // Check if email already exists
-        $existingEmail = $userModel->findByEmail($email);
-        if ($existingEmail) {
-            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
-                'errors' => ['En bruker med denne e-postadressen finnes allerede.'],
-                'username' => $username,
-                'email' => $email,
-                'full_name' => $full_name,
-                'phone' => $phone,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
             return;
         }
@@ -403,11 +397,7 @@ class AuthController {
         } catch (\Exception $e) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => ['En feil oppstod ved registrering. Vennligst prøv igjen.'],
-                'username' => $username,
-                'email' => $email,
-                'full_name' => $full_name,
-                'phone' => $phone,
-                'csp_nonce' => $this->app->get('csp_nonce')
+                ...$viewdata
             ]);
         }
     }
