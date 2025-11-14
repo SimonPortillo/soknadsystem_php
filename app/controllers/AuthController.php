@@ -265,10 +265,11 @@ class AuthController {
      * 
      * @param string $username The username to validate
      * @param string $password The password to validate
+     * @param string $confirm_password The password confirmation to validate
      * @param string $email The email address to validate
      * @return array Array of error messages (empty if validation passes)
      */
-    private function validateRegistration($username, $password, $email, $phone): array {
+    private function validateRegistration($username, $password, $confirm_password, $email, $phone): array {
         $errors = [];
 
         if (empty($username) || strlen(trim($username)) === 0) { // Check for empty or whitespace-only username
@@ -283,9 +284,26 @@ class AuthController {
         if($phone && strlen($phone) !== 8) {
             $errors[] = "Telefonnummer må være nøyaktig 8 siffer.";
         }
+        if ($password !== $confirm_password) {
+            $errors[] = 'Passordene må være like.';
+        }
+        // Validate password complexity
         $passwordValidation = $this->validatePassword($password);
         if ($passwordValidation !== true) {
             $errors[] = $passwordValidation;
+        }
+       
+        // Check if username already exists
+        $userModel = new User($this->app->db());
+        $existingUser = $userModel->findByUsername($username);
+        if ($existingUser) {
+            $errors[] = 'Brukernavnet er allerede tatt.';
+        }
+
+        // Check if email already exists
+        $existingEmail = $userModel->findByEmail($email);
+        if ($existingEmail) {
+            $errors[] = 'E-postadressen er allerede registrert.';
         }
 
         return $errors;
@@ -350,41 +368,11 @@ class AuthController {
         $full_name = !empty(trim($full_name)) ? trim($full_name) : null;
         $phone = !empty(trim($phone)) ? trim($phone) : null;
         
-        $errors = $this->validateRegistration($username, $password, $email, $phone);
+        $errors = $this->validateRegistration($username, $password, $confirm_password, $email, $phone);
         
         if ($errors) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
                 'errors' => $errors,
-                ...$viewdata
-            ]);
-            return;
-        }
-        
-        // Check if username already exists
-        $userModel = new User($this->app->db());
-        $existingUser = $userModel->findByUsername($username);
-        if ($existingUser) {
-            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
-                'errors' => ['Brukernavnet er allerede i bruk.'],
-                ...$viewdata
-            ]);
-            return;
-        }
-
-        // Check if email already exists
-        $existingEmail = $userModel->findByEmail($email);
-        if ($existingEmail) {
-            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
-                'errors' => ['En bruker med denne e-postadressen finnes allerede.'],
-                ...$viewdata
-            ]);
-            return;
-        }
-
-        // Check if passwords match
-        if ($password !== $confirm_password) {
-            $this->app->latte()->render(__DIR__ . '/../views/auth/register.latte', [
-                'errors' => ['Passordene må være like.'],
                 ...$viewdata
             ]);
             return;
