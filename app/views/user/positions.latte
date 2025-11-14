@@ -85,7 +85,7 @@
                 </thead>
                 <tbody>
                     {foreach $positions as $position}
-                    <tr class="{if isset($role) && $role === 'student' && in_array($position['id'], $appliedPositionIds)}table-secondary opacity-75{/if}">
+                    <tr class="{if isset($role) && $role === 'student' && in_array($position['id'], $appliedPositionIds)} opacity-75{/if}">
                         <td class="{if isset($role) && $role === 'student' && in_array($position['id'], $appliedPositionIds)}text-muted{/if}">{$position['title']}</td>
                         <td class="{if isset($role) && $role === 'student' && in_array($position['id'], $appliedPositionIds)}text-muted{/if}">{$position['department']}</td>
                         <td class="{if isset($role) && $role === 'student' && in_array($position['id'], $appliedPositionIds)}text-muted{/if}">{$position['location']}</td>
