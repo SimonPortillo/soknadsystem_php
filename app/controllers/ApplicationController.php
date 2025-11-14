@@ -8,6 +8,7 @@ use app\models\Application;
 use app\models\Position;
 use app\models\User;
 use app\models\Document;
+use app\utils\EmailUtil;
 
 class ApplicationController {
 
@@ -392,7 +393,7 @@ class ApplicationController {
             // Send email notification to the applicant
             if ($applicant) {
                 $emailConfig = $this->app->get('email_config');
-                $emailUtil = new \app\utils\EmailUtil($emailConfig);
+                $emailUtil = new EmailUtil($emailConfig);
                 
                 $emailSent = $emailUtil->sendMail(
                     $applicant['email'], 
