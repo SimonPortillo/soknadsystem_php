@@ -102,7 +102,19 @@ class EmailUtil {
             return false;
         }
     }
-
+    
+    /**
+     * Send a generic email
+     * 
+     * Sends an email to the specified recipient with the given subject and body.
+     * Uses plain text format (not HTML).
+     * 
+     * @param string $toEmail The recipient's email address
+     * @param string $subject The subject of the email
+     * @param string $body The plain text body of the email
+     * @return bool True if the email was sent successfully, false otherwise
+     * @throws Exception If PHPMailer encounters an error during sending
+     */
     public function sendMail(string $toEmail, string $subject, string $body): bool {
         try {
             $mail = $this->createMailer();
