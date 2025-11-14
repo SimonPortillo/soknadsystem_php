@@ -5,7 +5,7 @@
 {block content}
 <div class="row justify-content-center">
     <div class="col-lg-8">
-        <div class="card shadow-sm border-1 rounded-3">
+        <div class="card bg-light shadow-sm border-2 border-white rounded-3">
             <div class="card-body p-4">
                 <h1 class="card-title text-center mb-4">Søk på stilling</h1>
                 {if $hasApplied}
@@ -21,10 +21,6 @@
                         <div class="mb-3">
                             <span class="badge bg-primary">{$position['department']}</span>
                             <span id="location-badge" class="badge bg-secondary">{$position['location']}</span>
-                            <span role="button" class="badge bg-light border text-dark" id="toggleMapBtn">
-                            <i class="bi bi-map"></i> Vis kart
-                            </span>
-
                         </div>
                             <div class="mb-3">
                                 <p class="text-muted">
@@ -36,14 +32,21 @@
                                 </p>
                             </div>
                        
-                        <span class="badge bg-light text-muted border">
-                            <i class="bi bi-person"></i>
-                            {$position['creator_full_name'] ?: $position['creator_username']}
-                        </span>
-                        <span class="badge bg-light text-muted border">
-                            <i class="bi bi-calendar"></i>
-                            {date('d.m.Y', strtotime($position['created_at']))}
-                        </span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-light text-muted border">
+                                    <i class="bi bi-person"></i>
+                                    {$position['creator_full_name'] ?: $position['creator_username']}
+                                </span>
+                                <span class="badge bg-light text-muted border">
+                                    <i class="bi bi-calendar"></i>
+                                    {date('d.m.Y', strtotime($position['created_at']))}
+                                </span>
+                            </div>
+                            <button type="button" class="btn btn-light border btn-sm" id="toggleMapBtn">
+                                <i class="bi bi-map"></i> Vis kart
+                            </button>
+                        </div>
 
                     </div>
                     
