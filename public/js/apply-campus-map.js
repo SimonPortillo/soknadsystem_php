@@ -20,14 +20,15 @@ if (positionLocation === 'Kristiansand') {
     var coords = [58.33443208634853, 8.576996682251023];
 }
 // Initialize Leaflet map
-var map = L.map('map').setView(coords, 15);
+var map = L.map('map').setView(coords, 16);
 var marker = L.marker(coords).addTo(map);
 marker.bindPopup("Campus " + positionLocation);
 
 // Add OpenStreetMap tiles
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { 
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 20,
 }).addTo(map);
 
         

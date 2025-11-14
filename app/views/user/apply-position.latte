@@ -39,7 +39,7 @@
                     </div>
                     
                     <!-- Map container -->
-                    <div class="mb-3" id="map" style="height: 300px; display: none;"></div>
+                    <div class="mb-3" id="map" style="height: 350px; display: none;"></div>
 
                     <form method="post" action="/positions/{$position['id']}/apply" enctype="multipart/form-data" novalidate>
                     <h6>Søknadsdokumenter <span class="badge rounded-pill text-bg-warning">Påkrevd</span></h6>
@@ -61,7 +61,7 @@
                                 <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center cv-document-option" id="cv-option-{$cv['id']}" data-cv-id="{$cv['id']}" data-cv-name="{$cv['original_name']}">
                                     <div>
                                         <i class="bi bi-file-earmark-text"></i> 
-                                        <strong>{$cv['original_name']}</strong>
+                                        <strong>{$cv['original_name']|truncate:40}</strong>
                                         <br>
                                         <small class="text-muted">Lastet opp: {$cv['uploaded_at']}</small>
                                     </div>
@@ -97,7 +97,7 @@
                                 <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center cover-letter-document-option" id="cover-letter-option-{$coverLetter['id']}" data-cover-letter-id="{$coverLetter['id']}" data-cover-letter-name="{$coverLetter['original_name']}">
                                     <div>
                                         <i class="bi bi-file-earmark-text"></i> 
-                                        <strong>{$coverLetter['original_name']}</strong>
+                                        <strong>{$coverLetter['original_name']|truncate:40}</strong>
                                         <br>
                                         <small class="text-muted">Lastet opp: {$coverLetter['uploaded_at']}</small>
                                     </div>

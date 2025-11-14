@@ -28,9 +28,9 @@ class SecurityHeadersMiddleware
 		$csp = "default-src 'self'; "
 			. "script-src 'self' 'nonce-{$nonce}' 'strict-dynamic' https://cdn.jsdelivr.net https://unpkg.com; "
 			. "style-src 'self' {$tracyCssBypass} https://cdn.jsdelivr.net https://unpkg.com; "
-			. "connect-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://tile.openstreetmap.org; "
+			. "connect-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://*.basemaps.cartocdn.com; "
 			. "font-src 'self' https://cdn.jsdelivr.net data:; "
-			. "img-src 'self' data: https://tile.openstreetmap.org https://unpkg.com;";
+			. "img-src 'self' data: https://*.basemaps.cartocdn.com https://unpkg.com;";
 		$this->app->response()->header('X-Frame-Options', 'SAMEORIGIN');
 		$this->app->response()->header("Content-Security-Policy", $csp);
 		$this->app->response()->header('X-XSS-Protection', '1; mode=block');
