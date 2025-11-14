@@ -5,7 +5,7 @@
 {block content}
 <div class="row justify-content-center">
     <div class="col-lg-8">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm border-1 rounded-3">
             <div class="card-body p-4">
                 <h1 class="card-title text-center mb-4">Søk på stilling</h1>
                 {if $hasApplied}
@@ -27,7 +27,7 @@
 
                         </div>
                             <div class="mb-3">
-                                <p>
+                                <p class="text-muted">
                                 {if $position['description']} 
                                     {$position['description']}
                                 {else}
@@ -35,7 +35,16 @@
                                 {/if}
                                 </p>
                             </div>
-                        <small class="text-muted">Publisert av {$position['creator_full_name'] ?: $position['creator_username']} • {date('d.m.Y', strtotime($position['created_at']))}</small>
+                       
+                        <span class="badge bg-light text-muted border">
+                            <i class="bi bi-person"></i>
+                            {$position['creator_full_name'] ?: $position['creator_username']}
+                        </span>
+                        <span class="badge bg-light text-muted border">
+                            <i class="bi bi-calendar"></i>
+                            {date('d.m.Y', strtotime($position['created_at']))}
+                        </span>
+
                     </div>
                     
                     <!-- Map container -->
