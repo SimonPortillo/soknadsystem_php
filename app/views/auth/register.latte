@@ -21,57 +21,50 @@
                 <form method="post" action="/register" novalidate> 
                     <!-- Username field: Required, must be unique -->
                     <div class="mb-3">
-                        <label for="username" class="form-label">Brukernavn
-                            <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span>
-                        </label>
+                        <label for="username" class="form-label">Brukernavn</label>
                          <div class="input-group mb-3">
-                         <span class="input-group-text" id="basic-addon1">@</span>
-                            <input type="text" class="form-control" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
+                         <span class="input-group-text border-white bg-light shadow-sm text-muted" id="basic-addon1">@</span>
+                            <input type="text" class="form-control border-white bg-white shadow-sm" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
                         </div>
                     </div>
 
                     <!-- Email field: Required, must be a valid email format -->
                     <div class="mb-3">
-                        <label for="email" class="form-label">E-post
-                            <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span>
-                        </label>
-                        <input type="email" class="form-control" id="email" name="email" required value="{$email ?? ''}" autocomplete="email">
+                        <label for="email" class="form-label">E-post</label>
+                        <input type="email" class="form-control border-white bg-white shadow-sm" id="email" name="email" required value="{$email ?? ''}" autocomplete="email">
                     </div>
 
                     <!-- Full Name field: Optional -->
                     <div class="mb-3">
                         <label for="full_name" class="form-label">Fullt navn</label>
-                        <input type="text" class="form-control" id="full_name" name="full_name" value="{$full_name ?? ''}" autocomplete="name">
+                        <span class="badge rounded-pill bg-white border border-light text-muted shadow-sm">Valgfritt</span>
+                        <input type="text" class="form-control border-white bg-white shadow-sm" id="full_name" name="full_name" value="{$full_name ?? ''}" autocomplete="name">
                     </div>
 
                     <!-- Phone field: Optional -->
                     <div class="mb-3">
                         <label for="phone" class="form-label">Telefon</label>
-                        
+                        <span class="badge rounded-pill bg-white border border-light text-muted shadow-sm">Valgfritt</span>
                         <div class="input-group mb-3">
-                            <span class="input-group-text" id="basic-addon1">+47</span>
-                            <input type="tel" class="form-control" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
+                            <span class="input-group-text border-white bg-light shadow-sm text-muted" id="basic-addon1">+47</span>
+                            <input type="tel" class="form-control border-white bg-white shadow-sm" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
                         </div>
                     </div>
 
                     <!-- Password field: Required, minimum 8 characters -->
                     <div class="mb-3">
-                        <label for="password" class="form-label">Passord
-                            <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span>
-                        </label>
+                        <label for="password" class="form-label">Passord</label>
                         <br>
                         <small class="form-text text-muted">
                             Minst 8 tegn, én stor bokstav, én liten bokstav og to tall
                         </small>
-                        <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+                        <input type="password" class="form-control border-white bg-white shadow-sm" id="password" name="password" required autocomplete="current-password">
                     </div>
 
                     <!-- Confirm Password field: Required, must match Password -->
                     <div class="mb-4">
-                        <label for="confirm_password" class="form-label">Bekreft passord
-                            <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span>
-                        </label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required autocomplete="current-password">
+                        <label for="confirm_password" class="form-label">Bekreft passord</label>
+                        <input type="password" class="form-control border-white bg-white shadow-sm" id="confirm_password" name="confirm_password" required autocomplete="current-password">
                     </div>
                     
                     <!-- Submit Button -->
