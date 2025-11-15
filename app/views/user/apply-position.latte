@@ -54,11 +54,11 @@
                     <div class="mb-3 border border-white rounded-3" id="map" style="height: 350px; display: none;"></div>
 
                     <form method="post" action="/positions/{$position['id']}/apply" enctype="multipart/form-data" novalidate>
-                    <h6>Søknadsdokumenter <span class="badge rounded-pill text-bg-warning shadow-sm">Påkrevd</span></h6>
+                    <h6>Søknadsdokumenter</h6>
                     <!-- CV/Resume upload field -->
                     <div class="mb-3">
                         <label for="cv_file" class="form-label">
-                            <span class="badge rounded-pill bg-white text-muted shadow-sm border border-light">
+                            <span class="badge rounded-pill bg-white text-dark shadow-sm border border-light text-muted">
                                 {if !empty($cv_documents) && count($cv_documents) > 1}
                                     Dine CV-er:
                                 {elseif !empty($cv_documents) && count($cv_documents) == 1}
@@ -70,7 +70,7 @@
                         </label>
                         {if !empty($cv_documents)}
                             {foreach $cv_documents as $cv}
-                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center cv-document-option" id="cv-option-{$cv['id']}" data-cv-id="{$cv['id']}" data-cv-name="{$cv['original_name']}">
+                                <div class="alert bg-white rounded-3 text-muted shadow-sm mb-2 d-flex justify-content-between align-items-center cv-document-option" id="cv-option-{$cv['id']}" data-cv-id="{$cv['id']}" data-cv-name="{$cv['original_name']}">
                                     <div>
                                         <i class="bi bi-file-earmark-text"></i> 
                                         <strong>{$cv['original_name']|truncate:40}</strong>
@@ -94,7 +94,7 @@
                     <!-- Cover letter upload field -->
                     <div class="mb-3">
                         <label for="cover_letter_file" class="form-label">
-                        <span class="badge rounded-pill bg-white text-muted shadow-sm border border-light">
+                        <span class="badge rounded-pill bg-white text-dark shadow-sm border border-light text-muted">
                                 {if !empty($cover_letter_documents) && count($cover_letter_documents) > 1}
                                     Dine søknadsbrev:
                                 {elseif !empty($cover_letter_documents) && count($cover_letter_documents) == 1}
@@ -106,7 +106,7 @@
                         </label>
                         {if !empty($cover_letter_documents)}
                             {foreach $cover_letter_documents as $coverLetter}
-                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center cover-letter-document-option" id="cover-letter-option-{$coverLetter['id']}" data-cover-letter-id="{$coverLetter['id']}" data-cover-letter-name="{$coverLetter['original_name']}">
+                                <div class="alert bg-white rounded-3 text-muted shadow-sm mb-2 d-flex justify-content-between align-items-center cover-letter-document-option" id="cover-letter-option-{$coverLetter['id']}" data-cover-letter-id="{$coverLetter['id']}" data-cover-letter-name="{$coverLetter['original_name']}">
                                     <div>
                                         <i class="bi bi-file-earmark-text"></i> 
                                         <strong>{$coverLetter['original_name']|truncate:40}</strong>
