@@ -214,20 +214,22 @@ class AuthController {
             'csp_nonce' => $this->app->get('csp_nonce')
         ];
 
-        // Validate password confirmation
-        if ($newPassword !== $passwordConfirm) {
+        // Basic validation
+        $passwordValidation = $this->validatePassword($newPassword);
+        if ($passwordValidation !== true) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
-                'errors' => ['Passordene må være like.'],
+                'errors' => ['password' => $passwordValidation],
                 ...$viewdata
             ]);
             return;
         }
 
-        // Basic validation
-        $passwordValidation = $this->validatePassword($newPassword);
-        if ($passwordValidation !== true) {
+        // Validate password confirmation
+        if ($newPassword !== $passwordConfirm) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/set-new-password.latte', [
-                'errors' => [$passwordValidation],
+                'errors' => [
+                    'password' => 'Passordene må være like.',
+                ],
                 ...$viewdata
             ]);
             return;
