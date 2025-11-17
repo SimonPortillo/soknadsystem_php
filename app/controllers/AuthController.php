@@ -267,43 +267,53 @@ class AuthController {
      * @param string $password The password to validate
      * @param string $confirm_password The password confirmation to validate
      * @param string $email The email address to validate
-     * @return array Array of error messages (empty if validation passes)
+     * @return array Associative array where keys are field names and values are error messages
      */
     private function validateRegistration($username, $password, $confirm_password, $email, $phone): array {
         $errors = [];
 
         if (empty($username) || strlen(trim($username)) === 0) { // Check for empty or whitespace-only username
-            $errors[] = 'Brukernavn er påkrevd.';
+            $errors['username'] = 'Brukernavn er påkrevd.';
+        } 
+        elseif (!preg_match('/^[A-Za-z0-9ÆØÅæøå_-]+$/u', $username)) { // Limit allowed characters for usernames
+            $errors['username'] = 'Brukernavn kan kun inneholde bokstaver, tall, understrek (_) og bindestrek (-).';
+        } 
+        else {
+            // Check if username already exists
+            $userModel = new User($this->app->db());
+            $existingUser = $userModel->findByUsername($username);
+            if ($existingUser) {
+                $errors['username'] = 'Brukernavnet er allerede tatt.';
+            }
         }
-        if (!empty($username) && !preg_match('/^[A-Za-z0-9ÆØÅæøå_-]+$/u', $username)) { // Limit allowed characters for usernames
-            $errors[] = 'Brukernavn kan kun inneholde bokstaver, tall, understrek (_) og bindestrek (-).';
-        }
+        
         if (empty($email) || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-            $errors[] = 'Gyldig e-postadresse er påkrevd.';
+            $errors['email'] = 'Gyldig e-postadresse er påkrevd.';
+        } 
+        else {
+            // Check if email already exists
+            $userModel = new User($this->app->db());
+            $existingEmail = $userModel->findByEmail($email);
+            if ($existingEmail) {
+                $errors['email'] = 'E-postadressen er allerede registrert.';
+            }
         }
+        
         if($phone && strlen($phone) !== 8) {
-            $errors[] = "Telefonnummer må være nøyaktig 8 siffer.";
+            $errors['phone'] = "Telefonnummer må være nøyaktig 8 siffer.";
         }
-        if ($password !== $confirm_password) {
-            $errors[] = 'Passordene må være like.';
-        }
+        
         // Validate password complexity
         $passwordValidation = $this->validatePassword($password);
         if ($passwordValidation !== true) {
-            $errors[] = $passwordValidation;
+            $errors['password'] = $passwordValidation;
         }
-       
-        // Check if username already exists
-        $userModel = new User($this->app->db());
-        $existingUser = $userModel->findByUsername($username);
-        if ($existingUser) {
-            $errors[] = 'Brukernavnet er allerede tatt.';
-        }
-
-        // Check if email already exists
-        $existingEmail = $userModel->findByEmail($email);
-        if ($existingEmail) {
-            $errors[] = 'E-postadressen er allerede registrert.';
+        
+        if ($password !== $confirm_password) {
+            if (!isset($errors['password'])) {
+                $errors['password'] = 'Passordene må være like.';
+            }
+            $errors['confirm_password'] = 'Passordene må være like.';
         }
 
         return $errors;

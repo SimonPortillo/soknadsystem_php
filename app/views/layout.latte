@@ -96,16 +96,24 @@
                 <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="d-flex">
                         <div class="toast-body">
-                            {if is_array($errors) && count($errors) > 1}
+                            <!-- Error messages:
+                                If $errors is an array with multiple items, display as a list. (removes duplicates if array contains same error multiple times)
+                                If $errors is an array with a single item, display that item.
+                                If $errors is a string, display the string.
+                             -->
+                            {var $errorList = is_array($errors) ? array_unique($errors) : [$errors]}
+                            {if count($errorList) > 1}
                                 <ul class="mb-0 ps-3">
-                                    {foreach $errors as $item}
-                                        <li>{$item}</li>
+                                    {foreach $errorList as $item}
+                                        {if is_string($item)}
+                                            <li>{$item}</li>
+                                        {/if}
                                     {/foreach}
                                 </ul>
-                            {elseif is_array($errors) && count($errors) === 1}
-                                {$errors[0]}
-                            {elseif !is_array($errors)}
-                                {$errors}
+                            {elseif count($errorList) === 1}
+                                {foreach $errorList as $item}
+                                    {if is_string($item)}{$item}{/if}
+                                {/foreach}
                             {/if}
                         </div>
                         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>

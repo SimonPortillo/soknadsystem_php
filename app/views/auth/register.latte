@@ -9,14 +9,6 @@
             <div class="card-body">
                 <h2 class="mb-4 text-center">Registrer bruker</h2>
 
-                <!-- Error Message -->
-                {if isset($error_message)}
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {$error_message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {/if}
-
                 <!-- The form does NOT use client-side validation and relies on server-side PHP validation entirely -->
                 <form method="post" action="/register" novalidate> 
                     <!-- Username field: Required, must be unique -->
@@ -24,14 +16,14 @@
                         <label for="username" class="form-label">Brukernavn</label>
                          <div class="input-group mb-3">
                          <span class="input-group-text border-white bg-light shadow-sm text-muted" id="basic-addon1">@</span>
-                            <input type="text" class="form-control border-white bg-white shadow-sm" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
+                            <input type="text" class="form-control {if isset($errors['username'])}is-invalid{elseif isset($errors) && !empty($username)}is-valid{else}border-white{/if} bg-white shadow-sm" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
                         </div>
                     </div>
 
                     <!-- Email field: Required, must be a valid email format -->
                     <div class="mb-3">
                         <label for="email" class="form-label">E-post</label>
-                        <input type="email" class="form-control border-white bg-white shadow-sm" id="email" name="email" required value="{$email ?? ''}" autocomplete="email">
+                        <input type="email" class="form-control {if isset($errors['email'])}is-invalid{elseif isset($errors) && !empty($email)}is-valid{else}border-white{/if} bg-white shadow-sm" id="email" name="email" required value="{$email ?? ''}" autocomplete="email">
                     </div>
 
                     <!-- Full Name field: Optional -->
@@ -47,7 +39,7 @@
                         <span class="badge rounded-pill bg-white border border-light text-muted shadow-sm">Valgfritt</span>
                         <div class="input-group mb-3">
                             <span class="input-group-text border-white bg-light shadow-sm text-muted" id="basic-addon1">+47</span>
-                            <input type="tel" class="form-control border-white bg-white shadow-sm" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
+                            <input type="tel" class="form-control {if isset($errors['phone'])}is-invalid{else}border-white{/if} bg-white shadow-sm" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
                         </div>
                     </div>
 
@@ -58,13 +50,13 @@
                         <small class="form-text text-muted">
                             Minst 8 tegn, én stor bokstav, én liten bokstav og to tall
                         </small>
-                        <input type="password" class="form-control border-white bg-white shadow-sm" id="password" name="password" required autocomplete="current-password">
+                        <input type="password" class="form-control {if isset($errors['password'])}is-invalid{else}border-white{/if} bg-white shadow-sm" id="password" name="password" required autocomplete="current-password">
                     </div>
 
                     <!-- Confirm Password field: Required, must match Password -->
                     <div class="mb-4">
                         <label for="confirm_password" class="form-label">Bekreft passord</label>
-                        <input type="password" class="form-control border-white bg-white shadow-sm" id="confirm_password" name="confirm_password" required autocomplete="current-password">
+                        <input type="password" class="form-control {if isset($errors['confirm_password']) || isset($errors['password'])}is-invalid{else}border-white{/if} bg-white shadow-sm" id="confirm_password" name="confirm_password" required autocomplete="current-password">
                     </div>
                     
                     <!-- Submit Button -->
