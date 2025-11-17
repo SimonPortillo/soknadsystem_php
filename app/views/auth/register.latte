@@ -16,7 +16,7 @@
                         <label for="username" class="form-label">Brukernavn</label>
                          <div class="input-group mb-3">
                          <span class="input-group-text border-white bg-light shadow-sm text-muted" id="basic-addon1">@</span>
-                            <input type="text" class="form-control {if isset($errors['username'])}is-invalid{elseif isset($errors) && !empty($username)}is-valid{else}border-white{/if} bg-white shadow-sm" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
+                            <input type="text" class="form-control rounded-end-3 {if isset($errors['username'])}is-invalid{elseif isset($errors) && !empty($username)}is-valid{else}border-white{/if} bg-white shadow-sm" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
                             <div class="invalid-feedback">
                                 {if isset($errors['username'])}
                                     {$errors['username']}
@@ -47,7 +47,7 @@
                         <span class="badge rounded-pill bg-white border border-light text-muted shadow-sm">Valgfritt</span>
                         <div class="input-group mb-3">
                             <span class="input-group-text border-white bg-light shadow-sm text-muted" id="basic-addon1">+47</span>
-                            <input type="tel" class="form-control {if isset($errors['phone'])}is-invalid{else}border-white{/if} bg-white shadow-sm" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
+                            <input type="tel" class="form-control rounded-end-3 {if isset($errors['phone'])}is-invalid{else}border-white{/if} bg-white shadow-sm" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
                             <div class="invalid-feedback">
                                 {if isset($errors['phone'])}
                                     {$errors['phone']}
