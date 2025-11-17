@@ -17,6 +17,10 @@
                          <div class="input-group mb-3">
                          <span class="input-group-text border-white bg-light shadow-sm text-muted" id="basic-addon1">@</span>
                             <input type="text" class="form-control {if isset($errors['username'])}is-invalid{elseif isset($errors) && !empty($username)}is-valid{else}border-white{/if} bg-white shadow-sm" id="username" name="username" required value="{$username ?? ''}" autocomplete="username">
+                            <div class="invalid-feedback">
+                                {if isset($errors['username'])}
+                                    {$errors['username']}
+                                {/if}
                         </div>
                     </div>
 
@@ -24,6 +28,10 @@
                     <div class="mb-3">
                         <label for="email" class="form-label">E-post</label>
                         <input type="email" class="form-control {if isset($errors['email'])}is-invalid{elseif isset($errors) && !empty($email)}is-valid{else}border-white{/if} bg-white shadow-sm" id="email" name="email" required value="{$email ?? ''}" autocomplete="email">
+                        <div class="invalid-feedback">
+                            {if isset($errors['email'])}
+                                {$errors['email']}
+                            {/if}
                     </div>
 
                     <!-- Full Name field: Optional -->
@@ -40,6 +48,10 @@
                         <div class="input-group mb-3">
                             <span class="input-group-text border-white bg-light shadow-sm text-muted" id="basic-addon1">+47</span>
                             <input type="tel" class="form-control {if isset($errors['phone'])}is-invalid{else}border-white{/if} bg-white shadow-sm" id="phone" name="phone" value="{$phone ?? ''}" autocomplete="tel">
+                            <div class="invalid-feedback">
+                                {if isset($errors['phone'])}
+                                    {$errors['phone']}
+                                {/if}
                         </div>
                     </div>
 
@@ -51,6 +63,11 @@
                             Minst 8 tegn, én stor bokstav, én liten bokstav og to tall
                         </small>
                         <input type="password" class="form-control {if isset($errors['password'])}is-invalid{else}border-white{/if} bg-white shadow-sm" id="password" name="password" required autocomplete="current-password">
+                        <div class="invalid-feedback">
+                            {if isset($errors['password'])}
+                                {$errors['password']}
+                            {/if}
+                        </div>
                     </div>
 
                     <!-- Confirm Password field: Required, must match Password -->
