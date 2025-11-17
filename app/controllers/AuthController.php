@@ -129,7 +129,7 @@ class AuthController {
         // Basic validation
         if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/reset-password.latte', [
-                'errors' => ['Gyldig e-postadresse er påkrevd.'],
+                'errors' => ['email' => 'Gyldig e-postadresse er påkrevd.'],
                 'email' => $email,
                 'csp_nonce' => $this->app->get('csp_nonce')
             ]);
