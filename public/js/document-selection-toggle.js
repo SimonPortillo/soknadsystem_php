@@ -32,7 +32,7 @@ cvToggleBtns.forEach(function(btn) {
             // Select this one
             parentDiv.classList.remove('alert-light');
             parentDiv.classList.add('alert-success', 'border-success', 'border-2');
-            this.innerHTML = '<i class="bi bi-x-circle"></i> Fjern valg';
+            this.innerHTML = '<i class="bi bi-x-circle"></i> Fjern';
             this.classList.remove('btn-outline-primary');
             this.classList.add('btn-outline-secondary');
             cvDocumentIdInput.value = cvId;
@@ -92,7 +92,7 @@ coverLetterToggleBtns.forEach(function(btn) {
             // Select this one
             parentDiv.classList.remove('alert-light');
             parentDiv.classList.add('alert-success', 'border-success', 'border-2');
-            this.innerHTML = '<i class="bi bi-x-circle"></i> Fjern valg';
+            this.innerHTML = '<i class="bi bi-x-circle"></i> Fjern';
             this.classList.remove('btn-outline-primary');
             this.classList.add('btn-outline-secondary');
             coverLetterDocumentIdInput.value = coverLetterId;

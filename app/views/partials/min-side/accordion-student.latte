@@ -1,5 +1,5 @@
 <div class="accordion mb-4" id="studentAccordion">
-    <div class="accordion-item">
+    <div class="accordion-item bg-light border-2 border-white shadow-sm">
         <h2 class="accordion-header" id="applicationsHeading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#applicationsCollapse" aria-expanded="false" aria-controls="applicationsCollapse">
                 Mine søknader
@@ -10,33 +10,25 @@
                 {if !empty($applications)}
                     <div class="list-group mb-4">
                         {foreach $applications as $application}
-                            <div class="list-group-item">
+                            <div class="list-group-item mb-3 border border-white rounded-3 shadow-sm">
                                 <div class="d-flex w-100 justify-content-between align-items-start mb-2">
                                     <div>
                                         <h6 class="mb-1">{$application['title']}</h6>
-                                        <p class="mb-1 text-muted">
-                                            <small>
-                                                <i class="bi bi-building"></i> {$application['department']}
-                                                {if $application['location']}
-                                                    • <i class="bi bi-geo-alt"></i> {$application['location']}
-                                                {/if}
-                                            </small>
-                                        </p>
-                                        <p class="mb-1">
-                                            <small class="text-muted">
-                                                Søkt: {$application['application_date']|date:'d.m.Y H:i'}
-                                            </small>
-                                        </p>
+                                        <small class="text-muted">
+                                            <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-building"></i> {$application['department']}</span>
+                                            <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-geo-alt"></i> {$application['location']}</span>
+                                            <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-calendar-check"></i> {$application['application_date']|date:'d.m.Y H:i'}</i></span>
+                                        </small>
                                     </div>
                                     <div class="text-end flex-shrink-0">
                                         {if $application['status'] === 'pending'}
-                                            <span class="badge bg-warning text-dark">Venter</span>
+                                            <span class="badge bg-warning text-dark shadow-sm border border-white">Venter</span>
                                         {elseif $application['status'] === 'reviewed'}
-                                            <span class="badge bg-info">Under vurdering</span>
+                                            <span class="badge bg-info shadow-sm border border-white">Under vurdering</span>
                                         {elseif $application['status'] === 'accepted'}
-                                            <span class="badge bg-success">Akseptert</span>
+                                            <span class="badge bg-success shadow-sm border border-white">Akseptert</span>
                                         {elseif $application['status'] === 'rejected'}
-                                            <span class="badge bg-danger">Avslått</span>
+                                            <span class="badge bg-danger shadow-sm border border-white">Avslått</span>
                                         {/if}
                                     </div>
                                 </div>
@@ -60,7 +52,7 @@
             </div>
         </div>
     </div>
-    <div class="accordion-item">
+    <div class="accordion-item bg-light border-2 border-white shadow-sm">
         <h2 class="accordion-header" id="documentsHeading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#documentsCollapse" aria-expanded="false" aria-controls="documentsCollapse">
                 Søknadsdokumenter
@@ -73,7 +65,7 @@
                     <!-- CV/Resume upload field -->
                     <div class="mb-3">
                         <label for="cv_file" class="form-label">
-                            <span class="badge rounded-pill text-bg-primary">
+                            <span class="badge rounded-pill bg-white text-dark shadow-sm border border-light text-muted">
                                 {if !empty($cv_documents) && count($cv_documents) > 1}
                                     Dine CV-er:
                                 {elseif !empty($cv_documents) && count($cv_documents) === 1}
@@ -85,7 +77,7 @@
                         </label>
                         {if !empty($cv_documents)}
                             {foreach $cv_documents as $cv}
-                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center">
+                                <div class="alert bg-white rounded-3 text-muted shadow-sm mb-2 d-flex justify-content-between align-items-center">
                                     <div>
                                         <i class="bi bi-file-earmark-text"></i> 
                                        <strong >{$cv['original_name']|truncate:40}</strong>
@@ -103,7 +95,7 @@
                                 </div>
                             {/foreach}
                         {/if}
-                        <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
+                        <input type="file" class="form-control border-white bg-white shadow-sm" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
                         <div class="form-text">
                             Aksepterte filformater: PDF, DOC, DOCX. Maks filstørrelse: 5MB.
                         </div>
@@ -111,7 +103,7 @@
                     <!-- Cover letter upload field -->
                     <div class="mb-3">
                         <label for="cover_letter_file" class="form-label">
-                            <span class="badge rounded-pill text-bg-primary">
+                            <span class="badge rounded-pill bg-white text-dark shadow-sm border border-light text-muted">
                                 {if !empty($cover_letter_documents) && count($cover_letter_documents) > 1}
                                     Dine søknadsbrev:
                                 {elseif !empty($cover_letter_documents) && count($cover_letter_documents) === 1}
@@ -123,7 +115,7 @@
                         </label>
                         {if !empty($cover_letter_documents)}
                             {foreach $cover_letter_documents as $coverLetter}
-                                <div class="alert alert-light mb-2 d-flex justify-content-between align-items-center">
+                                <div class="alert bg-white rounded-3 text-muted shadow-sm mb-2 d-flex justify-content-between align-items-center">
                                     <div>
                                         <i class="bi bi-file-earmark-text"></i> 
                                         <strong>{$coverLetter['original_name']|truncate:40}</strong>
@@ -141,7 +133,7 @@
                                 </div>
                             {/foreach}
                         {/if}
-                        <input type="file" class="form-control" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx">
+                        <input type="file" class="form-control border-white bg-white shadow-sm" id="cover_letter_file" name="cover_letter_file" accept=".pdf,.doc,.docx">
                         <div class="form-text">
                             Aksepterte filformater: PDF, DOC, DOCX. Maks størrelse: 5MB.
                         </div>

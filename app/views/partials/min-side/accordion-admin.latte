@@ -1,5 +1,5 @@
 <div class="accordion mb-4" id="adminAccordion">
-    <div class="accordion-item">
+    <div class="accordion-item bg-light border-2 border-white shadow-sm rounded-3">
         <h2 class="accordion-header" id="administrationHeading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#administrationCollapse" aria-expanded="false" aria-controls="administrationCollapse">
                 Administrasjon
@@ -12,7 +12,7 @@
                     {* User Accordions *}
                     <div class="accordion" id="usersAccordion">
                         {foreach $all_users as $admin_user}
-                            <div class="accordion-item">
+                            <div class="accordion-item bg-light border-2 border-white shadow-sm">
                                 <h2 class="accordion-header" id="userHeading{$admin_user['id']}">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#userCollapse{$admin_user['id']}" aria-expanded="false" aria-controls="userCollapse{$admin_user['id']}">
                                         <div class="d-flex justify-content-between align-items-center w-100 me-3">
@@ -38,31 +38,31 @@
                                     <div class="accordion-body">
                                         <h6 class="mb-3"><i class="bi bi-person-lines-fill"></i> Informasjon om bruker</h6>
                                         <ul class="list-group mb-3">
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                                                 <span><i class="bi bi-hash"></i> ID</span>
                                                 <span>{$admin_user['id']}</span>
                                             </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                                                 <span><i class="bi bi-person"></i> Brukernavn</span>
                                                 <span>{$admin_user['username']}</span>
                                             </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                                                 <span><i class="bi bi-envelope"></i> E-post</span>
                                                 <span>{$admin_user['email']}</span>
                                             </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                                                 <span><i class="bi bi-telephone"></i> Telefon</span>
                                                 <span>{$admin_user['phone'] ?? 'Ikke oppgitt'}</span>
                                             </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                                                 <span><i class="bi bi-calendar"></i> Opprettet</span>
                                                 <span>{date('d.m.Y H:i', strtotime($admin_user['created_at']))}</span>
                                             </li>
-                                             <li class="list-group-item d-flex justify-content-between align-items-center">
+                                             <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                                                 <span><i class="bi bi-calendar-check"></i> Sist oppdatert</span>
                                                 <span>{date('d.m.Y H:i', strtotime($admin_user['updated_at']))}</span>
                                             </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                                                 <div>
                                                     <span><i class="bi bi-person-badge"></i> Rolle</span>
                                                     <div class="mt-1">
@@ -101,19 +101,19 @@
                                                 <div class="row g-3 mb-0">
                                                     {foreach $user_positions as $position}
                                                         <div class="col-12">
-                                                            <div class="card shadow-sm h-100">
+                                                            <div class="card bg-white border-2 border-light rounded-3 shadow-sm h-100">
                                                                 <div class="card-body">
                                                                     <h6 class="card-title mb-2">{$position['title']}</h6>
                                                                     <div class="mb-1 text-muted small">
-                                                                        <span><i class="bi bi-building"></i> {$position['department']}</span> |
-                                                                        <span><i class="bi bi-geo-alt"></i> {$position['location']}</span> |
-                                                                        <span><i class="bi bi-clock"></i> {($position['created_at']|date:'d.m.Y H:i')}</span>
+                                                                        <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-building"></i> {$position['department']}</span>
+                                                                        <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-geo-alt"></i> {$position['location']}</span>
+                                                                        <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-clock"></i> {($position['created_at']|date:'d.m.Y H:i')}</span>
                                                                     </div>
-                                                                    <p class="card-text mb-2">{$position['description']|truncate:120}</p>
+                                                                    <p class="card-text text-muted mb-2">{$position['description']|truncate:120}</p>
                                                                     <div class="d-flex justify-content-between align-items-end">
-                                                                        <span class="badge bg-secondary d-inline-flex align-items-center gap-2">
+                                                                        <span class="badge bg-white text-muted border border-light shadow-sm d-inline-flex align-items-center gap-2">
                                                                             Søknader
-                                                                            <span class="badge rounded-pill bg-light text-dark">{$position['application_count']}</span>
+                                                                            <span class="badge rounded-pill bg-light text-muted border border-light shadow-sm">{$position['application_count']}</span>
                                                                         </span>
                                                                         <div class="d-flex align-items-center gap-2">
                                                                             <a href="/positions/{$position['id']}/applicants" class="btn btn-outline-primary btn-sm">
@@ -146,33 +146,25 @@
                                             {if !empty($user_applications)}
                                                 <div class="list-group mb-0">
                                                     {foreach $user_applications as $application}
-                                                        <div class="list-group-item">
+                                                        <div class="list-group-item mb-3 border border-white rounded-3 shadow-sm">
                                                             <div class="d-flex w-100 justify-content-between align-items-start mb-2">
                                                                 <div>
                                                                     <h6 class="mb-1">{$application['position_title']}</h6>
-                                                                    <p class="mb-1 text-muted">
-                                                                        <small>
-                                                                            <i class="bi bi-building"></i> {$application['department']}
-                                                                            {if $application['location']}
-                                                                                • <i class="bi bi-geo-alt"></i> {$application['location']}
-                                                                            {/if}
-                                                                        </small>
-                                                                    </p>
-                                                                    <p class="mb-1">
-                                                                        <small class="text-muted">
-                                                                            Søkt: {$application['application_date']|date:'d.m.Y H:i'}
-                                                                        </small>
-                                                                    </p>
+                                                                    <small class="text-muted">
+                                                                        <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-building"></i> {$application['department']}</span>
+                                                                        <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-geo-alt"></i> {$application['location']}</span>
+                                                                        <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-calendar-check"></i> {$application['application_date']|date:'d.m.Y H:i'}</i></span>
+                                                                    </small>
                                                                 </div>
                                                                 <div class="text-end flex-shrink-0">
                                                                     {if $application['status'] === 'pending'}
-                                                                        <span class="badge bg-warning text-dark">Venter</span>
+                                                                        <span class="badge bg-warning text-dark shadow-sm border border-white">Venter</span>
                                                                     {elseif $application['status'] === 'reviewed'}
-                                                                        <span class="badge bg-info">Under vurdering</span>
+                                                                        <span class="badge bg-info shadow-sm border border-white">Under vurdering</span>
                                                                     {elseif $application['status'] === 'accepted'}
-                                                                        <span class="badge bg-success">Akseptert</span>
+                                                                        <span class="badge bg-success shadow-sm border border-white">Akseptert</span>
                                                                     {elseif $application['status'] === 'rejected'}
-                                                                        <span class="badge bg-danger">Avslått</span>
+                                                                        <span class="badge bg-danger shadow-sm border border-white">Avslått</span>
                                                                     {/if}
                                                                 </div>
                                                             </div>
@@ -187,7 +179,7 @@
                                                             </div>
                                                             {if $application['notes']}
                                                                 <hr class="my-2">
-                                                                <p class="mb-0"><small><strong>Svar fra arbeidsgiver: <br></strong> {$application['notes']|truncate:100}</small></p>
+                                                                <p class="mb-0 text-muted"><small><strong>Svar fra arbeidsgiver: <br></strong> {$application['notes']}</small></p>
                                                             {/if}
                                                         </div>
                                                     {/foreach}

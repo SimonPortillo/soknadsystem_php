@@ -5,19 +5,19 @@
 {block content}
 <div class="row justify-content-center">
     <div class="col-lg-8">
-        <div class="card shadow-sm">
+        <div class="card bg-light shadow-sm border-2 border-white rounded-3">
             <div class="card-body p-4">
                 <h1 class="card-title text-center mb-4">Rediger stilling</h1>
 
                 <form method="POST" action="/positions/{$position['id']}/edit" novalidate>
                     <div class="mb-3">
-                        <label for="title" class="form-label">Stillingstittel <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span></label>
-                        <input type="text" class="form-control" id="title" name="title" value="{$position['title'] ?? ''}" required>
+                        <label for="title" class="form-label">Stillingstittel</label>
+                        <input type="text" class="form-control border-2 border-white shadow-sm" id="title" name="title" value="{$position['title'] ?? ''}" required>
                     </div>
                     
                     <div class="mb-3">
-                        <label for="department" class="form-label">Fakultet <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span></label>
-                        <select class="form-select" id="department" aria-label="Velg fakultet" name="department" required>
+                        <label for="department" class="form-label">Fakultet</label>
+                        <select class="form-select border-2 border-white shadow-sm" id="department" aria-label="Velg fakultet" name="department" required>
                             <option disabled selected>Velg fakultet</option>
                             <option value="Handelshøyskolen ved UiA" {if $position['department'] == 'Handelshøyskolen ved UiA'}selected{/if}>Handelshøyskolen ved UiA</option>
                             <option value="Humaniora og pedagogikk" {if $position['department'] == 'Humaniora og pedagogikk'}selected{/if}>Humaniora og pedagogikk</option>
@@ -30,8 +30,8 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="location" class="form-label">Lokasjon <span class="badge rounded-pill bg-warning text-dark">Påkrevd</span></label>
-                        <select class="form-select" id="location" aria-label="Velg campus" name="location" required>
+                        <label for="location" class="form-label">Lokasjon</label>
+                        <select class="form-select border-2 border-white shadow-sm" id="location" aria-label="Velg campus" name="location" required>
                             <option disabled selected>Velg campus</option>
                             <option value="Kristiansand" {if $position['location'] == 'Kristiansand'}selected{/if}>Kristiansand</option>
                             <option value="Grimstad" {if $position['location'] == 'Grimstad'}selected{/if}>Grimstad</option>
@@ -40,14 +40,17 @@
                     
                     
                     <div class="mb-3">
-                        <label for="description" class="form-label">Stillingsbeskrivelse</label>
-                        <textarea class="form-control" id="description" name="description" rows="4">{$position['description'] ?? ''}</textarea>
+                        <label for="description" class="form-label">
+                            <span>Stillingsbeskrivelse</span>
+                            <span class="badge rounded-pill bg-white text-muted shadow-sm">valgfritt</span>
+                        </label>
+                        <textarea class="form-control border-2 border-white shadow-sm" id="description" name="description" rows="4">{$position['description'] ?? ''}</textarea>
                     </div>
                     
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <a href="/min-side" class="btn btn-secondary me-md-2">Avbryt</a>
-                        <button type="submit" class="btn btn-primary btn-loader">Lagre stilling</button>
+                        <a href="/min-side" class="btn bg-white text-muted shadow-sm border border-light me-md-2">Avbryt</a>
+                        <button type="submit" class="btn btn-outline-primary btn-loader">Lagre stilling</button>
                     </div>
                 </form>
             </div>
