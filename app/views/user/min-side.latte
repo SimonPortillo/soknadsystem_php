@@ -8,7 +8,11 @@
         <div class="card bg-light border-2 border-white shadow-sm rounded-3 mt-5">
             <div class="card-body">
                 <h1 class="display-4 mb-4">Min Side</h1>
-                
+                {if $buzzword}
+                    <small class="text-muted">Buzzword of the day:</small>
+                    <p class="fst-italic mb-4">"{$buzzword['phrase']}"</p>
+                {/if}
+
                 {include '../partials/min-side/accordion-user-info.latte'}
             {if $user->getRole() === 'student'}
                 {include '../partials/min-side/accordion-student.latte'}

@@ -7,6 +7,7 @@ use app\models\User;
 use app\models\Document;
 use app\models\Application;
 use app\models\Position;
+use app\utils\ApiUtil;
 
 /**
  * UserController
@@ -69,11 +70,15 @@ class UserController {
             return;
         }
 
-	// Get flash messages and clear them
+	    // Get flash messages and clear them
         $successMessage = $this->app->session()->get('success_message');
         $errorMessage = $this->app->session()->get('error_message');
         $this->app->session()->delete('success_message');
         $this->app->session()->delete('error_message');
+
+        // get buzzword from api
+        $api = new ApiUtil();
+        $buzzword = $api->get("https://corporatebs-generator.sameerkumar.website/");
 
         // Get position count for navbar
         $positionModel = new Position($this->app->db());
@@ -87,7 +92,10 @@ class UserController {
             'errors' => $errorMessage,
             'isLoggedIn' => true,
             'openPositionsCount' => $openPositionsCount,
-        ];        // Student-specific data
+            'buzzword' => $buzzword,
+        ];        
+
+        // Student-specific data
         if ($user->getRole() === 'student') {
             $docModel = new Document($this->app->db());
             $viewData['cv_documents'] = $docModel->findByUser($userId, 'cv');
