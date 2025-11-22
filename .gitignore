@@ -4,5 +4,5 @@ app/config/config.php
 composer.lock
 .vagrant/
 .runway-creds.json
-cache/latte/
+cache/
 uploads/

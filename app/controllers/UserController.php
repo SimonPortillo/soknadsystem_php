@@ -8,6 +8,7 @@ use app\models\Document;
 use app\models\Application;
 use app\models\Position;
 use app\utils\ApiUtil;
+use app\utils\CacheUtil;
 
 /**
  * UserController
@@ -76,9 +77,15 @@ class UserController {
         $this->app->session()->delete('success_message');
         $this->app->session()->delete('error_message');
 
-        // get buzzword from api
-        $api = new ApiUtil();
-        $buzzword = $api->get("https://corporatebs-generator.sameerkumar.website/");
+        // get buzzword from cache or API
+        // caches for 5 minutes to illustrate both caching and API usage
+        $cache = new CacheUtil();
+        $buzzword = $cache->get('buzzword');
+        if (!$buzzword) {
+            $api = new ApiUtil();
+            $buzzword = $api->get("https://corporatebs-generator.sameerkumar.website/");
+            $cache->set('buzzword', $buzzword, 300); // cache for 5 minutes
+        }
 
         // Get position count for navbar
         $positionModel = new Position($this->app->db());

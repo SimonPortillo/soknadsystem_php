@@ -23,9 +23,7 @@ class ApiUtil {
         
         $result = curl_exec($ch);
         
-        $decoded = json_decode($result, true);
-
-        return $decoded;
+        return json_decode($result, true);
     }
 }
 
