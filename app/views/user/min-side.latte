@@ -7,8 +7,21 @@
     <div class="col-md-10 col-lg-7">
         <div class="card bg-light border-2 border-white shadow-sm rounded-3 mt-5">
             <div class="card-body">
-                <h1 class="display-4 mb-4">Min Side</h1>
-                
+                <h1 class="display-4 mb-2">Min Side</h1>
+                {if $buzzword}
+                    <small class="text-muted">Dagens buzzword
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    </small>
+                    <figure class="mb-4">
+                    <blockquote class="blockquote">
+                        <p>{$buzzword['phrase']}</p>
+                    </blockquote>
+                    <figcaption class="blockquote-footer">
+                        Fra: <cite title="Source Title"> <a href="https://github.com/sameerkumar18/corporate-bs-generator-api" target="_blank" rel="noopener noreferrer">Corporate BS Generator API</a></cite>
+                    </figcaption>
+                    </figure>
+                {/if}
+
                 {include '../partials/min-side/accordion-user-info.latte'}
             {if $user->getRole() === 'student'}
                 {include '../partials/min-side/accordion-student.latte'}
