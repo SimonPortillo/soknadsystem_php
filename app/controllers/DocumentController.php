@@ -5,6 +5,21 @@ namespace App\Controllers;
 use flight\Engine;
 use app\models\Document;
 
+/**
+ * Controller for handling document operations.
+ *
+ * Responsibilities:
+ * - Upload and validate user documents (CV, cover letters).
+ * - Delete user documents with ownership verification.
+ * - Serve/download documents with proper authorization checks.
+ * - Enforce file type, size, and MIME type validation.
+ * - Manage document storage and database records.
+ *
+ * This controller ensures only authorized users can access, upload, and delete documents,
+ * with proper security checks including path traversal prevention and MIME type validation.
+ *
+ * @package app\controllers
+ */
 class DocumentController
 {
     protected Engine $app;
@@ -13,6 +28,16 @@ class DocumentController
 		$this->app = $app;
 	}
 
+    /**
+     * Upload documents (CV and/or cover letter)
+     * 
+     * Handles file uploads from authenticated users. Validates file size, type, and MIME type.
+     * Creates user-specific upload directories and saves document metadata to the database.
+     * 
+     * Route: POST /documents/upload
+     * 
+     * @return void Redirects to min-side with success/error message
+     */
     public function upload()
     {
         // Check authentication
