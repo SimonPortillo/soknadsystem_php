@@ -26,8 +26,6 @@
                             <option value="Helse- og idrettsvitenskap">Helse- og idrettsvitenskap</option>
                             <option value="Kunstfag">Kunstfag</option>
                             <option value="Samfunnsvitenskap">Samfunnsvitenskap</option>
-
-                            
                         </select>
                     </div>
                     
@@ -39,7 +37,11 @@
                             <option value="Grimstad">Grimstad</option>
                         </select>
                     </div>
-                    
+
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Antall stillinger</label>
+                        <input type="number" class="form-control border-2 border-white shadow-sm" id="amount" name="amount" min="1" max="25" value="{$amount ?? 1}" required>
+                    </div>
                     
                     <div class="mb-3">
                         <label for="description" class="form-label">

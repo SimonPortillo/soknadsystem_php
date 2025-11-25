@@ -39,6 +39,7 @@
                             <div class="mb-2">
                                 <span class="badge bg-white text-muted border border-light shadow-sm"><i class="bi bi-person"></i> {$position['creator_full_name'] ?: $position['creator_username']}</span>
                                 <span class="badge bg-white text-muted border border-light shadow-sm"><i class="bi bi-calendar"></i> {date('d.m.Y', strtotime($position['created_at']))}</span>
+                                <span class="badge bg-white text-muted border border-light shadow-sm"><i class="bi bi-people"></i> {$position['amount']}</span>
                             </div>
                             <p class="card-text mb-3 text-muted {if isset($role) && $role === 'student' && in_array($position['id'], $appliedPositionIds)}text-muted{/if}">
                                 {if !empty($position['description'])}
@@ -81,6 +82,7 @@
                         <th>Stilling</th>
                         <th>Avdeling</th>
                         <th>Lokasjon</th>
+                        <th>Stillinger</th>
                         <th>Av</th>
                         <th>Dato</th>
                         <th>Søknader</th>
@@ -93,6 +95,7 @@
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['title']}</a></td>
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['department']}</a></td>
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['location']}</a></td>
+                            <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['amount']}</a></td>
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['creator_full_name'] ?: $position['creator_username']}</a></td>
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{date('d.m.Y', strtotime($position['created_at']))}</a></td>
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['application_count']}</a></td>
@@ -100,6 +103,7 @@
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['title']}</a></td>
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['department']}</a></td>
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['location']}</a></td>
+                            <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['amount']}</a></td>
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['creator_full_name'] ?: $position['creator_username']}</a></td>
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{date('d.m.Y', strtotime($position['created_at']))}</a></td>
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['application_count']}</a></td>
@@ -112,6 +116,7 @@
                             </td>
                             <td class="text-muted">{$position['department']}</td>
                             <td class="text-muted">{$position['location']}</td>
+                            <td class="text-muted">{$position['amount']}</td>
                             <td class="text-muted">{$position['creator_full_name'] ?: $position['creator_username']}</td>
                             <td class="text-muted">{date('d.m.Y', strtotime($position['created_at']))}</td>
                             <td class="text-muted">{$position['application_count']}</td>

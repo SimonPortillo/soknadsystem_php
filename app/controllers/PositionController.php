@@ -186,6 +186,7 @@ class PositionController {
         $title = $data->title ?? '';
         $department = $data->department ?? '';
         $location = $data->location ?? '';
+        $amount = $data->amount ?? 1;
         $description = $data->description ?? null;
         
         // Instantiate position model
@@ -225,7 +226,7 @@ class PositionController {
         }
         
         // Create the position
-        $result = $positionModel->create($userId, $title, $department, $location, $description);
+        $result = $positionModel->create($userId, $title, $department, $location, $amount, $description);
         
         if ($result) {
             // Set success message and redirect
@@ -323,6 +324,7 @@ class PositionController {
         $title = $data->title ?? '';
         $department = $data->department ?? '';
         $location = $data->location ?? '';
+        $amount = $data->amount ?? 1;
         $description = $data->description ?? null;
         
         // Instantiate position model and get current position
@@ -341,6 +343,7 @@ class PositionController {
                 'title' => $title,
                 'department' => $department,
                 'location' => $location,
+                'amount' => $amount,
                 'description' => $description
             ]
         ];
@@ -357,7 +360,7 @@ class PositionController {
             $errors[] = 'Lokasjon er påkrevd.';
         }
         
-	// If validation fails, re-render form with errors
+	    // If validation fails, re-render form with errors
         if (!empty($errors)) {
             $viewData = array_merge($baseViewData, ['errors' => $errors]);
             $this->app->latte()->render(__DIR__ . '/../views/user/edit-position.latte', $viewData);
@@ -369,6 +372,7 @@ class PositionController {
             'title' => $title,
             'department' => $department,
             'location' => $location,
+            'amount' => $amount,
             'description' => $description
         ];
 
@@ -378,9 +382,10 @@ class PositionController {
             $currentPosition['title'] === $title &&
             $currentPosition['department'] === $department &&
             $currentPosition['location'] === $location &&
+            ($currentPosition['amount'] ?? 1) === ($amount ?? 1) &&
             ($currentPosition['description'] ?? '') === ($description ?? '')
         );
-	if ($unchanged) {
+	    if ($unchanged) {
             $viewData = array_merge($baseViewData, ['errors' => ['Ingen endringer ble gjort.']]);
             $this->app->latte()->render(__DIR__ . '/../views/user/edit-position.latte', $viewData);
             return;
