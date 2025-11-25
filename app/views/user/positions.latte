@@ -67,12 +67,11 @@
                                         {else}
                                             <a href="/positions/{$position['id']}/apply" class="btn btn-primary btn-sm">Vis stilling</a>
                                         {/if}
-                                    {/if}
-                                    {if isset($role) && ($role === 'admin' || (isset($userId) && $position['creator_id'] == $userId))}
+                                    {elseif isset($role) && ($role === 'admin' || (isset($userId) && $position['creator_id'] == $userId))}
                                         <a href="/positions/{$position['id']}/edit" class="btn btn-primary btn-sm">
                                             <i class="bi bi-pencil"></i> Rediger
                                         </a>
-                                    {else}
+                                    {elseif isset($role)}
                                         <button class="btn btn-secondary btn-sm" disabled style="pointer-events: none; opacity: 0.5;">
                                             <i class="bi bi-pencil"></i> Rediger
                                         </button>
