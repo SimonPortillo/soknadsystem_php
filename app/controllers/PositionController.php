@@ -370,6 +370,12 @@ class PositionController {
         if (empty($location)) {
             $errors[] = 'Lokasjon er påkrevd.';
         }
+        if ($amount < 1 || $amount > 25) {
+            $errors[] = 'Antall stillinger må være mellom 1 og 25.';
+        }
+        if (!empty($resourceUrl) && filter_var($resourceUrl, FILTER_VALIDATE_URL) === false) {
+            $errors[] = 'Universitetsressurs må være en gyldig URL.';
+        }
         
 	    // If validation fails, re-render form with errors
         if (!empty($errors)) {
