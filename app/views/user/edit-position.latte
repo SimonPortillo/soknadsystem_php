@@ -40,7 +40,7 @@
                     
                     <div class="mb-3">
                         <label for="amount" class="form-label">Antall stillinger</label>
-                        <input type="number" class="form-control border-2 border-white shadow-sm" id="amount" name="amount" min="1" value="{$position['amount'] ?? 1}" required>
+                        <input type="number" class="form-control border-2 border-white shadow-sm" id="amount" name="amount" value="{$position['amount'] ?? 1}" required>
                     </div>
                     
                     <div class="mb-3">
@@ -54,7 +54,7 @@
                     <div class="mb-3">
                         <label for="resource_url" class="form-label">Universitetsressurs (URL)</label>
                         <span class="badge rounded-pill bg-white text-muted shadow-sm">valgfritt</span>
-                        <input type="url" class="form-control border-2 border-white shadow-sm" id="resource_url" name="resource_url" value="{$position['resource_url'] ?? ''}" placeholder="https://www.uia.no/studier/emner/år/semester/emnekode.html">
+                        <input type="url" class="form-control border-2 border-white shadow-sm" id="resource_url" name="resource_url" value="{$position['resource_url'] ?? ''}" placeholder="https://www.uia.no/studier/emner/aar/semester/emnekode">
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
