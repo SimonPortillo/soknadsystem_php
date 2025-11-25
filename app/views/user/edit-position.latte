@@ -10,6 +10,7 @@
                 <h1 class="card-title text-center mb-4">Rediger stilling</h1>
 
                 <form method="POST" action="/positions/{$position['id']}/edit" novalidate>
+                    <input type="hidden" name="return_to" value="{$returnTo ?? '/min-side'}">
                     <div class="mb-3">
                         <label for="title" class="form-label">Stillingstittel</label>
                         <input type="text" class="form-control border-2 border-white shadow-sm" id="title" name="title" value="{$position['title'] ?? ''}" required>
@@ -58,7 +59,7 @@
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <a href="/min-side" class="btn bg-white text-muted shadow-sm border border-light me-md-2">Avbryt</a>
+                        <a href="{$returnTo ?? '/min-side'}" class="btn bg-white text-muted shadow-sm border border-light me-md-2">Avbryt</a>
                         <button type="submit" class="btn btn-outline-primary btn-loader">Lagre stilling</button>
                     </div>
                 </form>

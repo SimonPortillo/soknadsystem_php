@@ -285,6 +285,11 @@ class PositionController {
         // Get position count for navbar
         $openPositionsCount = $positionModel->getCount();
         
+        // Capture the referrer to redirect back after edit
+        $referrer = $this->app->request()->getVar('HTTP_REFERER') ?? '/min-side';
+        // Determine return path based on referrer
+        $returnTo = (strpos($referrer, '/positions') !== false && strpos($referrer, '/positions/') === false) ? '/positions' : '/min-side';
+        
         // Base view data
         $viewData = [
             'isLoggedIn' => true,
@@ -293,6 +298,7 @@ class PositionController {
             'csp_nonce' => $this->app->get('csp_nonce'),
             'position' => $position,
             'openPositionsCount' => $openPositionsCount,
+            'returnTo' => $returnTo,
         ];
         
         // Render the edit position form
@@ -341,6 +347,9 @@ class PositionController {
         $positionModel = new Position($this->app->db());
         $openPositionsCount = $positionModel->getCount();
         
+        // Get return destination from form for re-renders
+        $returnTo = $this->app->request()->data->return_to ?? '/min-side';
+        
         // Base view data for re-renders
         $baseViewData = [
             'isLoggedIn' => true,
@@ -348,6 +357,7 @@ class PositionController {
             'role' => $user->getRole(),
             'openPositionsCount' => $openPositionsCount,
             'csp_nonce' => $this->app->get('csp_nonce'),
+            'returnTo' => $returnTo,
             'position' => [
                 'id' => $id,
                 'title' => $title,
@@ -400,7 +410,7 @@ class PositionController {
             $currentPosition['title'] === $title &&
             $currentPosition['department'] === $department &&
             $currentPosition['location'] === $location &&
-            ($currentPosition['amount'] ?? 1) === ($amount ?? 1) &&
+            (int)($currentPosition['amount'] ?? 1) === (int)($amount ?? 1) &&
             ($currentPosition['description'] ?? '') === ($description ?? '') &&
             ($currentPosition['resource_url'] ?? '') === ($resourceUrl ?? '')
         );
@@ -414,9 +424,17 @@ class PositionController {
         $result = $positionModel->update($id, $data);
 
         if ($result) {
-            // Set success message and redirect
-            $this->app->session()->set('success_message', 'Stillingen ble oppdatert.');
-            $this->app->redirect('/min-side');
+            // Get return destination from form
+            $returnTo = $this->app->request()->data->return_to ?? '/min-side';
+            
+            // Set success message based on destination
+            if ($returnTo === '/positions') {
+                $this->app->session()->set('position_success', 'Stillingen ble oppdatert.');
+            } else {
+                $this->app->session()->set('success_message', 'Stillingen ble oppdatert.');
+            }
+            
+            $this->app->redirect($returnTo);
         } else {
             // Re-render form with error
             $viewData = array_merge($baseViewData, ['errors' => ['Kunne ikke oppdatere stilling. Prøv igjen.']]);
