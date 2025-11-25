@@ -5,7 +5,7 @@
 {block content}
 <div class="row justify-content-center">
     <div class="col-12 col-lg-10">
-        <div class="card shadow-sm mt-4">
+        <div class="card bg-light shadow-sm border-2 border-white rounded-3 mt-4">
             <div class="card-body">
                 <div class="d-flex justify-content-end mb-3">
                     <a href="/min-side" class="btn btn-outline-secondary">
@@ -51,7 +51,7 @@
                 {else}
                     <div class="accordion" id="applicantsAccordion">
                         {foreach $applicants as $index => $applicant}
-                            <div class="accordion-item">
+                            <div class="accordion-item bg-light border-2 border-white shadow-sm rounded-3 mb-3">
                                 <h2 class="accordion-header" id="heading{$applicant['id']}">
                                     <button class="accordion-button {if $index > 0}collapsed{/if}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{$applicant['id']}" aria-expanded="{if $index === 0}true{else}false{/if}" aria-controls="collapse{$applicant['id']}">
                                         <div class="d-flex justify-content-between align-items-center w-100 me-3">
@@ -69,13 +69,13 @@
                                             </div>
                                             <div>
                                                 {if $applicant['status'] === 'pending'}
-                                                    <span class="badge bg-warning text-dark">Venter</span>
+                                                    <span class="badge bg-warning-subtle text-warning-emphasis">Venter</span>
                                                 {elseif $applicant['status'] === 'reviewed'}
-                                                    <span class="badge bg-info">Under vurdering</span>
+                                                    <span class="badge bg-info-subtle text-info-emphasis">Under vurdering</span>
                                                 {elseif $applicant['status'] === 'accepted'}
-                                                    <span class="badge bg-success">Akseptert</span>
+                                                    <span class="badge bg-success-subtle text-success-emphasis">Akseptert</span>
                                                 {elseif $applicant['status'] === 'rejected'}
-                                                    <span class="badge bg-danger">Avslått</span>
+                                                    <span class="badge bg-danger-subtle text-danger-emphasis">Avslått</span>
                                                 {/if}
                                             </div>
                                         </div>
