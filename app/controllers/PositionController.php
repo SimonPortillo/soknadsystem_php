@@ -278,9 +278,15 @@ class PositionController {
             return;
         }
 
-	// fetch the position by ID 
+	    // fetch the position by ID 
         $positionModel = new Position($this->app->db());
         $position = $positionModel->findById($id, false, false);
+        
+        // Check if user is authorized (admin or position creator)
+        if (!$position || ($user->getRole() !== 'admin' && $position['creator_id'] != $userId)) {
+            $this->app->redirect('/positions');
+            return;
+        }
         
         // Get position count for navbar
         $openPositionsCount = $positionModel->getCount();
@@ -331,6 +337,12 @@ class PositionController {
         // Only allow admin and employee roles
         if (!$user || !in_array($user->getRole(), ['admin', 'employee'])) {
             $this->app->redirect('/min-side');
+            return;
+        }
+        
+        // Check if user is authorized (admin or position creator)
+        if (!$currentPosition || ($user->getRole() !== 'admin' && $currentPosition['creator_id'] != $userId)) {
+            $this->app->redirect('/positions');
             return;
         }
         
@@ -460,8 +472,17 @@ class PositionController {
             return;
         }
 
-        // Delete the position
+        // Fetch the position to check ownership
         $positionModel = new Position($this->app->db());
+        $position = $positionModel->findById($id, false, false);
+        
+        // Check if user is authorized (admin or position creator)
+        if (!$position || ($user->getRole() !== 'admin' && $position['creator_id'] != $userId)) {
+            $this->app->redirect('/min-side');
+            return;
+        }
+        
+        // Delete the position
         $result = $positionModel->delete($id);
 
         if ($result) {
