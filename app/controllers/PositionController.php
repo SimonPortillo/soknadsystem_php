@@ -188,6 +188,7 @@ class PositionController {
         $location = $data->location ?? '';
         $amount = $data->amount ?? 1;
         $description = $data->description ?? null;
+        $resourceUrl = $data->resource_url ?? null;
         
         // Instantiate position model
         $positionModel = new Position($this->app->db());
@@ -215,7 +216,9 @@ class PositionController {
             'title' => $title,
             'department' => $department,
             'location' => $location,
+            'amount' => $amount,
             'description' => $description,
+            'resource_url' => $resourceUrl,
         ];
         
 	    // If validation fails, re-render form with errors
@@ -226,7 +229,7 @@ class PositionController {
         }
         
         // Create the position
-        $result = $positionModel->create($userId, $title, $department, $location, $amount, $description);
+        $result = $positionModel->create($userId, $title, $department, $location, $amount, $description, $resourceUrl);
         
         if ($result) {
             // Set success message and redirect
@@ -326,6 +329,7 @@ class PositionController {
         $location = $data->location ?? '';
         $amount = $data->amount ?? 1;
         $description = $data->description ?? null;
+        $resourceUrl = $data->resource_url ?? null;
         
         // Instantiate position model and get current position
         $positionModel = new Position($this->app->db());
@@ -344,7 +348,8 @@ class PositionController {
                 'department' => $department,
                 'location' => $location,
                 'amount' => $amount,
-                'description' => $description
+                'description' => $description,
+                'resource_url' => $resourceUrl
             ]
         ];
         
@@ -373,7 +378,8 @@ class PositionController {
             'department' => $department,
             'location' => $location,
             'amount' => $amount,
-            'description' => $description
+            'description' => $description,
+            'resource_url' => $resourceUrl
         ];
 
         // Check if data is unchanged
@@ -383,7 +389,8 @@ class PositionController {
             $currentPosition['department'] === $department &&
             $currentPosition['location'] === $location &&
             ($currentPosition['amount'] ?? 1) === ($amount ?? 1) &&
-            ($currentPosition['description'] ?? '') === ($description ?? '')
+            ($currentPosition['description'] ?? '') === ($description ?? '') &&
+            ($currentPosition['resource_url'] ?? '') === ($resourceUrl ?? '')
         );
 	    if ($unchanged) {
             $viewData = array_merge($baseViewData, ['errors' => ['Ingen endringer ble gjort.']]);

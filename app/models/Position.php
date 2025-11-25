@@ -29,11 +29,11 @@ class Position
      * @param string|null $description Optional detailed description of the position
      * @return bool True on success, false on failure
      */
-    public function create(int $creatorId, string $title, string $department, string $location, int $amount, ?string $description = null): bool
+    public function create(int $creatorId, string $title, string $department, string $location, int $amount, ?string $description = null, ?string $resourceUrl = null): bool
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO positions (creator_id, title, department, location, amount, description) 
-             VALUES (:creator_id, :title, :department, :location, :amount, :description)'
+            'INSERT INTO positions (creator_id, title, department, location, amount, description, resource_url) 
+             VALUES (:creator_id, :title, :department, :location, :amount, :description, :resource_url)'
         );
         
         $result = $stmt->execute([
@@ -42,7 +42,8 @@ class Position
             ':department' => $department,
             ':location' => $location,
             ':amount' => $amount,
-            ':description' => $description
+            ':description' => $description,
+            ':resource_url' => $resourceUrl
         ]);
 
         return $result;
@@ -155,7 +156,7 @@ class Position
      */
     public function update(int $id, array $data): bool
     {
-        $allowedFields = ['title', 'department', 'location', 'amount', 'description'];
+        $allowedFields = ['title', 'department', 'location', 'amount', 'description', 'resource_url'];
         $updates = [];
         $params = [':id' => $id];
         
