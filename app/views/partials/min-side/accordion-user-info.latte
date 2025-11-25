@@ -34,11 +34,11 @@
                             <span><i class="bi bi-person-badge"></i> Rolle</span>
                             <span>
                                 {if $user->getRole() === 'student'}
-                                    <span class="badge rounded-pill bg-primary shadow-sm">Student</span>
+                                    <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis shadow-sm">Student</span>
                                 {elseif $user->getRole() === 'employee'}
-                                    <span class="badge rounded-pill bg-success shadow-sm">Ansatt</span>
+                                    <span class="badge rounded-pill bg-success-subtle text-success-emphasis shadow-sm">Ansatt</span>
                                 {elseif $user->getRole() === 'admin'}
-                                    <span class="badge rounded-pill bg-danger shadow-sm">Admin</span>
+                                    <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis shadow-sm">Admin</span>
                                 {/if}
                             </span>
                         </li>

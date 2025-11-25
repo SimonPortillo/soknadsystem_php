@@ -24,11 +24,11 @@
                                             </div>
                                             <div class="d-flex align-items-center gap-3">
                                                 {if $admin_user['role'] === 'student'}
-                                                    <span class="badge bg-primary">Student</span>
+                                                    <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">Student</span>
                                                 {elseif $admin_user['role'] === 'employee'}
-                                                    <span class="badge bg-success">Ansatt</span>
+                                                    <span class="badge rounded-pill bg-success-subtle text-success-emphasis">Ansatt</span>
                                                 {elseif $admin_user['role'] === 'admin'}
-                                                    <span class="badge bg-danger">Admin</span>
+                                                    <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis">Admin</span>
                                                 {/if}
                                             </div>
                                         </div>
@@ -107,6 +107,7 @@
                                                                     <div class="mb-1 text-muted small">
                                                                         <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-building"></i> {$position['department']}</span>
                                                                         <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-geo-alt"></i> {$position['location']}</span>
+                                                                        <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-people"></i> {$position['amount']}</span>
                                                                         <span class="badge bg-light text-muted border border-white shadow-sm"><i class="bi bi-clock"></i> {($position['created_at']|date:'d.m.Y H:i')}</span>
                                                                     </div>
                                                                     <p class="card-text text-muted mb-2">{$position['description']|truncate:120}</p>
@@ -158,13 +159,13 @@
                                                                 </div>
                                                                 <div class="text-end flex-shrink-0">
                                                                     {if $application['status'] === 'pending'}
-                                                                        <span class="badge bg-warning text-dark shadow-sm border border-white">Venter</span>
+                                                                        <span class="badge bg-warning-subtle text-warning-emphasis shadow-sm">Venter</span>
                                                                     {elseif $application['status'] === 'reviewed'}
-                                                                        <span class="badge bg-info shadow-sm border border-white">Under vurdering</span>
+                                                                        <span class="badge bg-info-subtle text-info-emphasis shadow-sm">Under vurdering</span>
                                                                     {elseif $application['status'] === 'accepted'}
-                                                                        <span class="badge bg-success shadow-sm border border-white">Akseptert</span>
+                                                                        <span class="badge bg-success-subtle text-success-emphasis shadow-sm">Akseptert</span>
                                                                     {elseif $application['status'] === 'rejected'}
-                                                                        <span class="badge bg-danger shadow-sm border border-white">Avslått</span>
+                                                                        <span class="badge bg-danger-subtle text-danger-emphasis shadow-sm">Avslått</span>
                                                                     {/if}
                                                                 </div>
                                                             </div>

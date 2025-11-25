@@ -186,7 +186,9 @@ class PositionController {
         $title = $data->title ?? '';
         $department = $data->department ?? '';
         $location = $data->location ?? '';
+        $amount = $data->amount ?? 1;
         $description = $data->description ?? null;
+        $resourceUrl = $data->resource_url ?? null;
         
         // Instantiate position model
         $positionModel = new Position($this->app->db());
@@ -202,6 +204,12 @@ class PositionController {
         if (empty($location)) {
             $errors[] = 'Lokasjon er påkrevd.';
         }
+        if ($amount < 1 || $amount > 25) {
+            $errors[] = 'Antall stillinger må være mellom 1 og 25.';
+        }
+        if (!empty($resourceUrl) && filter_var($resourceUrl, FILTER_VALIDATE_URL) === false) {
+            $errors[] = 'Universitetsressurs må være en gyldig URL.';
+        }
         
         // Base view data for re-renders
         $openPositionsCount = $positionModel->getCount();
@@ -214,7 +222,9 @@ class PositionController {
             'title' => $title,
             'department' => $department,
             'location' => $location,
+            'amount' => $amount,
             'description' => $description,
+            'resource_url' => $resourceUrl,
         ];
         
 	    // If validation fails, re-render form with errors
@@ -225,7 +235,7 @@ class PositionController {
         }
         
         // Create the position
-        $result = $positionModel->create($userId, $title, $department, $location, $description);
+        $result = $positionModel->create($userId, $title, $department, $location, $amount, $description, $resourceUrl);
         
         if ($result) {
             // Set success message and redirect
@@ -268,12 +278,23 @@ class PositionController {
             return;
         }
 
-	// fetch the position by ID 
+	    // fetch the position by ID 
         $positionModel = new Position($this->app->db());
         $position = $positionModel->findById($id, false, false);
         
+        // Check if user is authorized (admin or position creator)
+        if (!$position || ($user->getRole() !== 'admin' && $position['creator_id'] != $userId)) {
+            $this->app->redirect('/positions');
+            return;
+        }
+        
         // Get position count for navbar
         $openPositionsCount = $positionModel->getCount();
+        
+        // Capture the referrer to redirect back after edit
+        $referrer = $this->app->request()->getVar('HTTP_REFERER') ?? '/min-side';
+        // Determine return path based on referrer
+        $returnTo = (strpos($referrer, '/positions') !== false && strpos($referrer, '/positions/') === false) ? '/positions' : '/min-side';
         
         // Base view data
         $viewData = [
@@ -283,6 +304,7 @@ class PositionController {
             'csp_nonce' => $this->app->get('csp_nonce'),
             'position' => $position,
             'openPositionsCount' => $openPositionsCount,
+            'returnTo' => $returnTo,
         ];
         
         // Render the edit position form
@@ -318,16 +340,27 @@ class PositionController {
             return;
         }
         
+        // Check if user is authorized (admin or position creator)
+        if (!$currentPosition || ($user->getRole() !== 'admin' && $currentPosition['creator_id'] != $userId)) {
+            $this->app->redirect('/positions');
+            return;
+        }
+        
         // Get form data
         $data = $this->app->request()->data;
         $title = $data->title ?? '';
         $department = $data->department ?? '';
         $location = $data->location ?? '';
+        $amount = $data->amount ?? 1;
         $description = $data->description ?? null;
+        $resourceUrl = $data->resource_url ?? null;
         
         // Instantiate position model and get current position
         $positionModel = new Position($this->app->db());
         $openPositionsCount = $positionModel->getCount();
+        
+        // Get return destination from form for re-renders
+        $returnTo = $this->app->request()->data->return_to ?? '/min-side';
         
         // Base view data for re-renders
         $baseViewData = [
@@ -336,12 +369,15 @@ class PositionController {
             'role' => $user->getRole(),
             'openPositionsCount' => $openPositionsCount,
             'csp_nonce' => $this->app->get('csp_nonce'),
+            'returnTo' => $returnTo,
             'position' => [
                 'id' => $id,
                 'title' => $title,
                 'department' => $department,
                 'location' => $location,
-                'description' => $description
+                'amount' => $amount,
+                'description' => $description,
+                'resource_url' => $resourceUrl
             ]
         ];
         
@@ -356,8 +392,14 @@ class PositionController {
         if (empty($location)) {
             $errors[] = 'Lokasjon er påkrevd.';
         }
+        if ($amount < 1 || $amount > 25) {
+            $errors[] = 'Antall stillinger må være mellom 1 og 25.';
+        }
+        if (!empty($resourceUrl) && filter_var($resourceUrl, FILTER_VALIDATE_URL) === false) {
+            $errors[] = 'Universitetsressurs må være en gyldig URL.';
+        }
         
-	// If validation fails, re-render form with errors
+	    // If validation fails, re-render form with errors
         if (!empty($errors)) {
             $viewData = array_merge($baseViewData, ['errors' => $errors]);
             $this->app->latte()->render(__DIR__ . '/../views/user/edit-position.latte', $viewData);
@@ -369,7 +411,9 @@ class PositionController {
             'title' => $title,
             'department' => $department,
             'location' => $location,
-            'description' => $description
+            'amount' => $amount,
+            'description' => $description,
+            'resource_url' => $resourceUrl
         ];
 
         // Check if data is unchanged
@@ -378,9 +422,11 @@ class PositionController {
             $currentPosition['title'] === $title &&
             $currentPosition['department'] === $department &&
             $currentPosition['location'] === $location &&
-            ($currentPosition['description'] ?? '') === ($description ?? '')
+            (int)($currentPosition['amount'] ?? 1) === (int)($amount ?? 1) &&
+            ($currentPosition['description'] ?? '') === ($description ?? '') &&
+            ($currentPosition['resource_url'] ?? '') === ($resourceUrl ?? '')
         );
-	if ($unchanged) {
+	    if ($unchanged) {
             $viewData = array_merge($baseViewData, ['errors' => ['Ingen endringer ble gjort.']]);
             $this->app->latte()->render(__DIR__ . '/../views/user/edit-position.latte', $viewData);
             return;
@@ -390,9 +436,17 @@ class PositionController {
         $result = $positionModel->update($id, $data);
 
         if ($result) {
-            // Set success message and redirect
-            $this->app->session()->set('success_message', 'Stillingen ble oppdatert.');
-            $this->app->redirect('/min-side');
+            // Get return destination from form
+            $returnTo = $this->app->request()->data->return_to ?? '/min-side';
+            
+            // Set success message based on destination
+            if ($returnTo === '/positions') {
+                $this->app->session()->set('position_success', 'Stillingen ble oppdatert.');
+            } else {
+                $this->app->session()->set('success_message', 'Stillingen ble oppdatert.');
+            }
+            
+            $this->app->redirect($returnTo);
         } else {
             // Re-render form with error
             $viewData = array_merge($baseViewData, ['errors' => ['Kunne ikke oppdatere stilling. Prøv igjen.']]);
@@ -418,8 +472,17 @@ class PositionController {
             return;
         }
 
-        // Delete the position
+        // Fetch the position to check ownership
         $positionModel = new Position($this->app->db());
+        $position = $positionModel->findById($id, false, false);
+        
+        // Check if user is authorized (admin or position creator)
+        if (!$position || ($user->getRole() !== 'admin' && $position['creator_id'] != $userId)) {
+            $this->app->redirect('/min-side');
+            return;
+        }
+        
+        // Delete the position
         $result = $positionModel->delete($id);
 
         if ($result) {

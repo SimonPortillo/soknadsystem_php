@@ -7,9 +7,10 @@
     <div class="col-lg-8">
         <div class="card bg-light shadow-sm border-2 border-white rounded-3">
             <div class="card-body p-4">
-                <h1 class="card-title text-center mb-4">Rediger stilling</h1>
+                <h1 class="display-4 mb-4">Rediger stilling</h1>
 
                 <form method="POST" action="/positions/{$position['id']}/edit" novalidate>
+                    <input type="hidden" name="return_to" value="{$returnTo ?? '/min-side'}">
                     <div class="mb-3">
                         <label for="title" class="form-label">Stillingstittel</label>
                         <input type="text" class="form-control border-2 border-white shadow-sm" id="title" name="title" value="{$position['title'] ?? ''}" required>
@@ -38,6 +39,10 @@
                         </select>
                     </div>
                     
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Antall stillinger</label>
+                        <input type="number" class="form-control border-2 border-white shadow-sm" id="amount" name="amount" value="{$position['amount'] ?? 1}" required>
+                    </div>
                     
                     <div class="mb-3">
                         <label for="description" class="form-label">
@@ -46,10 +51,15 @@
                         </label>
                         <textarea class="form-control border-2 border-white shadow-sm" id="description" name="description" rows="4">{$position['description'] ?? ''}</textarea>
                     </div>
-                    
-                    
+
+                    <div class="mb-3">
+                        <label for="resource_url" class="form-label">Universitetsressurs (URL)</label>
+                        <span class="badge rounded-pill bg-white text-muted shadow-sm">valgfritt</span>
+                        <input type="url" class="form-control border-2 border-white shadow-sm" id="resource_url" name="resource_url" value="{$position['resource_url'] ?? ''}" placeholder="https://www.uia.no/studier/emner/aar/semester/emnekode">
+                    </div>
+
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <a href="/min-side" class="btn bg-white text-muted shadow-sm border border-light me-md-2">Avbryt</a>
+                        <a href="{$returnTo ?? '/min-side'}" class="btn bg-white text-muted shadow-sm border border-light me-md-2">Avbryt</a>
                         <button type="submit" class="btn btn-outline-primary btn-loader">Lagre stilling</button>
                     </div>
                 </form>

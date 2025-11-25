@@ -1,4 +1,4 @@
-{layout '../layout.latte'}
+{layout '../home-layout.latte'}
 
 {block title}Hjem - Søknadssystem{/block}
 
@@ -6,15 +6,153 @@
 <div class="px-4 pt-5 my-5 text-center border-bottom">
     <h1 class="display-4 fw-bold mb-4">Søknadssystem for vitenskapelige assistenter</h1>
     <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4 text-muted">Velkommen til UiA's nye søknadssystem! Utforsk ledige stillinger og send inn din søknad for å bli vitenskapelig assistent.</p>
+        <p class="lead mb-4 text-muted">Velkommen til UiA's nye søknadssystem! Utforsk ledige stillinger og send inn søknad og bli vitenskapelig assistent ved Universitetet i Agder.</p>
         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
-            <a href="/positions" class="btn btn-primary btn-lg px-4 me-sm-3 shadow-lg">Gå til stillinger</a>
+            <a href="/positions" class="btn btn-primary btn-lg px-4 me-sm-3 rounded-5 shadow-lg">Gå til stillinger</a>
         </div>
     </div>
-    <div class="overflow-hidden" style="max-height: 40vh;">
+    <div class="overflow-hidden" style="max-height: 52vh;">
         <div class="container">
-            <img src="/images/hero.png" class="img-fluid border rounded-3 shadow-lg mb-4" alt="Eksempel på søknadsside" width="700" height="400" loading="lazy">
+            <img src="/images/hero.png" class="img-fluid border rounded-3 shadow-lg mb-4" alt="Eksempel på søknadsside" width="850" loading="lazy">
         </div>
     </div>
 </div>
+
+<!-- Feature Section with Image -->
+<div class="mt-5 pt-5" style="margin-top: 12rem !important;">
+    <div class="row g-0 align-items-center">
+        <div class="col-lg-6 bg-light rounded-end-5 d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+            <img src="/images/feature.png" class="img-fluid" alt="Søknadssystem skjermbilde" style="max-width: 80%; max-height: 100vh; object-fit: contain;">
+        </div>
+        <div class="col-lg-6 p-5 ps-lg-5 pe-lg-5">
+            <div class="row">
+                <div class="col-12 mb-5">
+                    <h2 class="display-5 fw-bold lh-1 text-body-emphasis mb-3">Oversiktlig og brukervennlig søknadsprosess</h2>
+                    <p class="lead">Vårt søknadssystem er designet for å gjøre det enkelt for studenter å søke på stilling som læringsassistent. Med et moderne grensesnitt kan du raskt finne stillinger som passer deg.</p>
+                </div>
+                <div class="col-12 mb-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="bg-primary-subtle text-primary-emphasis rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="bi bi-search fs-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="h5 fw-bold mb-2">Finn riktig stilling</h3>
+                            <p class="text-muted mb-0">Søk og filtrer gjennom ledige stillinger basert på dine interesser og kvalifikasjoner.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mb-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="bg-primary-subtle text-primary-emphasis rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="bi bi-cloud-upload fs-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="h5 fw-bold mb-2">Last opp dokumenter</h3>
+                            <p class="text-muted mb-0">Send inn CV og søknadsbrev digitalt - ingen papirarbeid nødvendig.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mb-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="bg-primary-subtle text-primary-emphasis rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="bi bi-clock-history fs-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="h5 fw-bold mb-2">Følg søknaden din</h3>
+                            <p class="text-muted mb-0">Få sanntidsoppdateringer om søknadsstatusen din direkte i systemet.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mt-3">
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="/register" class="btn btn-primary btn-lg px-4 me-md-2 rounded-5">Kom i gang</a>
+                        <a href="/positions" class="btn bg-light border-2 border-white shadow-sm btn-lg px-4 rounded-5">Se stillinger</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FAQ Section -->
+<section class="py-5 my-5" id="faq">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="text-uppercase text-primary fw-semibold">FAQ</span>
+            <h2 class="display-6 fw-bold mt-2">Ofte stilte spørsmål</h2>
+            <p class="text-muted">Få svar på de vanligste spørsmålene før du søker.</p>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion mb-4" id="faqAccordion">
+                    <div class="accordion-item bg-light border-2 border-white shadow-sm">
+                        <h3 class="accordion-header" id="faqHeadingOne">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseOne" aria-expanded="false" aria-controls="faqCollapseOne">
+                                Hvem kan søke på stillinger?
+                            </button>
+                        </h3>
+                        <div id="faqCollapseOne" class="accordion-collapse collapse" aria-labelledby="faqHeadingOne" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Alle studenter ved UiA kan søke så lenge de har gyldig studentkonto. Registrer deg med studentepost og fyll ut profilen din.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-light border-2 border-white shadow-sm">
+                        <h3 class="accordion-header" id="faqHeadingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseTwo" aria-expanded="false" aria-controls="faqCollapseTwo">
+                                Hvilke dokumenter må jeg laste opp?
+                            </button>
+                        </h3>
+                        <div id="faqCollapseTwo" class="accordion-collapse collapse" aria-labelledby="faqHeadingTwo" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Systemet krever kun CV og motivasjonsbrev i PDF, DOC og DOCX-format.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-light border-2 border-white shadow-sm">
+                        <h3 class="accordion-header" id="faqHeadingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseThree" aria-expanded="false" aria-controls="faqCollapseThree">
+                                Hvordan følger jeg søknadsstatus?
+                            </button>
+                        </h3>
+                        <div id="faqCollapseThree" class="accordion-collapse collapse" aria-labelledby="faqHeadingThree" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Under "Min side" finner du alle søknadene dine med oppdatert status. Du får også e-post når statusen endres.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-light border-2 border-white shadow-sm">
+                        <h3 class="accordion-header" id="faqHeadingFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseFour" aria-expanded="false" aria-controls="faqCollapseFour">
+                                Kan jeg søke på flere stillinger samtidig?
+                            </button>
+                        </h3>
+                        <div id="faqCollapseFour" class="accordion-collapse collapse" aria-labelledby="faqHeadingFour" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Ja, du kan sende inn søknad på flere stillinger samtidig. Hver søknad vurderes separat, men du kan kun søke på én stilling per søknad.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-light border-2 border-white shadow-sm">
+                        <h3 class="accordion-header" id="faqHeadingFive">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseFive" aria-expanded="false" aria-controls="faqCollapseFive">
+                                Hvor lang tid tar behandlingen?
+                            </button>
+                        </h3>
+                        <div id="faqCollapseFive" class="accordion-collapse collapse" aria-labelledby="faqHeadingFive" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                De fleste stillinger behandles innen 2–4 uker etter søknadsfrist. Du får varsel når en beslutning er tatt.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {/block}

@@ -37,12 +37,13 @@
                                 <span class="me-2"><i class="bi bi-geo-alt"></i> {$position['location']}</span>
                             </div>
                             <div class="mb-2">
-                                <span class="badge bg-white text-muted border border-light shadow-sm"><i class="bi bi-person"></i> {$position['creator_full_name'] ?: $position['creator_username']}</span>
-                                <span class="badge bg-white text-muted border border-light shadow-sm"><i class="bi bi-calendar"></i> {date('d.m.Y', strtotime($position['created_at']))}</span>
+                                <span class="badge bg-white text-muted border border-light shadow-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Opprettet av {$position['creator_full_name'] ?: $position['creator_username']}"><i class="bi bi-person"></i> {$position['creator_full_name'] ?: $position['creator_username']}</span>
+                                <span class="badge bg-white text-muted border border-light shadow-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Opprettet {date('d.m.Y H:i', strtotime($position['created_at']))}"><i class="bi bi-calendar"></i> {date('d.m.Y', strtotime($position['created_at']))}</span>
+                                <span class="badge bg-white text-muted border border-light shadow-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Antall ledige stillinger: {$position['amount']}"><i class="bi bi-people"></i> {$position['amount']}</span>
                             </div>
                             <p class="card-text mb-3 text-muted {if isset($role) && $role === 'student' && in_array($position['id'], $appliedPositionIds)}text-muted{/if}">
                                 {if !empty($position['description'])}
-                                    {$position['description']|truncate:100}
+                                    {$position['description']|truncate:130}
                                 {else}
                                     <span class="fst-italic text-secondary">Ingen beskrivelse tilgjengelig.</span>
                                 {/if}
@@ -53,6 +54,11 @@
                                     <span class="badge rounded-pill bg-light text-muted border border-light shadow-sm">{$position['application_count']}</span>
                                 </span>
                                 <div class="d-flex gap-2">
+                                    {if !empty($position['resource_url'])}
+                                        <a href="{$position['resource_url']}" target="_blank" rel="noopener noreferrer" class="btn btn-sm bg-light border-2 border-white shadow-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Se offisiell ressurs">
+                                            <i class="bi bi-box-arrow-up-right"></i> UiA
+                                        </a>
+                                    {/if}
                                     {if isset($role) && ($role === 'student')}
                                         {if in_array($position['id'], $appliedPositionIds)}
                                             <button class="btn btn-success btn-sm" disabled>
@@ -65,6 +71,10 @@
                                         <a href="/positions/{$position['id']}/edit" class="btn btn-primary btn-sm">
                                             <i class="bi bi-pencil"></i> Rediger
                                         </a>
+                                    {elseif isset($role)}
+                                        <button class="btn btn-secondary btn-sm" disabled style="pointer-events: none; opacity: 0.5;">
+                                            <i class="bi bi-pencil"></i> Rediger
+                                        </button>
                                     {/if}
                                 </div>
                             </div>
@@ -81,6 +91,7 @@
                         <th>Stilling</th>
                         <th>Avdeling</th>
                         <th>Lokasjon</th>
+                        <th>Stillinger</th>
                         <th>Av</th>
                         <th>Dato</th>
                         <th>Søknader</th>
@@ -93,6 +104,7 @@
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['title']}</a></td>
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['department']}</a></td>
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['location']}</a></td>
+                            <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['amount']}</a></td>
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['creator_full_name'] ?: $position['creator_username']}</a></td>
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{date('d.m.Y', strtotime($position['created_at']))}</a></td>
                             <td><a href="/positions/{$position['id']}/apply" class="text-decoration-none text-dark d-block">{$position['application_count']}</a></td>
@@ -100,6 +112,7 @@
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['title']}</a></td>
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['department']}</a></td>
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['location']}</a></td>
+                            <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['amount']}</a></td>
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['creator_full_name'] ?: $position['creator_username']}</a></td>
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{date('d.m.Y', strtotime($position['created_at']))}</a></td>
                             <td><a href="/positions/{$position['id']}/edit" class="text-decoration-none text-dark d-block">{$position['application_count']}</a></td>
@@ -112,6 +125,7 @@
                             </td>
                             <td class="text-muted">{$position['department']}</td>
                             <td class="text-muted">{$position['location']}</td>
+                            <td class="text-muted">{$position['amount']}</td>
                             <td class="text-muted">{$position['creator_full_name'] ?: $position['creator_username']}</td>
                             <td class="text-muted">{date('d.m.Y', strtotime($position['created_at']))}</td>
                             <td class="text-muted">{$position['application_count']}</td>
@@ -124,6 +138,7 @@
     {/if}
 </div>
     {block scripts}
+    <script src="/js/tooltip-logic.js" nonce="{$csp_nonce}"></script>
     <script src="/js/positions-view-toggle.js" nonce="{$csp_nonce}"></script>
     {/block}
 {/block}

@@ -60,6 +60,12 @@ class ApplicationController {
             return;
         }
         
+        // Only allow students to apply
+        if ($user->getRole() !== 'student') {
+            $this->app->redirect('/positions');
+            return;
+        }
+        
         // Get position details
         $positionModel = new Position($this->app->db());
         $position = $positionModel->findById($id);
@@ -82,7 +88,7 @@ class ApplicationController {
         $cvDocuments = $docModel->findByUser($userId, 'cv');
         $coverLetterDocuments = $docModel->findByUser($userId, 'cover_letter'); 
 
-	// Get session messages and clear them
+	    // Get session messages and clear them
         $successMessage = $this->app->session()->get('application_success');
         $errorMessage = $this->app->session()->get('application_error');
         $this->app->session()->delete('application_success');
@@ -133,6 +139,12 @@ class ApplicationController {
         
         if (!$user) {
             $this->app->redirect('/login');
+            return;
+        }
+        
+        // Only allow students to apply
+        if ($user->getRole() !== 'student') {
+            $this->app->redirect('/positions');
             return;
         }
         
@@ -252,7 +264,6 @@ class ApplicationController {
 
         // Only allow admin and employee roles
         if (!in_array($user->getRole(), ['admin', 'employee'])) {
-            $this->app->session()->set('error_message', 'Du har ikke tilgang til denne siden.');
             $this->app->redirect('/positions');
             return;
         }
@@ -456,7 +467,6 @@ class ApplicationController {
         $isAdmin = $user->getRole() === 'admin';
         
         if (!$isOwner && !$isAdmin) {
-            $this->app->session()->set('error_message', 'Du har ikke tilgang til å slette denne søknaden.');
             $this->app->redirect('/min-side');
             return;
         }

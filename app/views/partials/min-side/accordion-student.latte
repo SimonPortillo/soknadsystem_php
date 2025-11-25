@@ -22,13 +22,13 @@
                                     </div>
                                     <div class="text-end flex-shrink-0">
                                         {if $application['status'] === 'pending'}
-                                            <span class="badge bg-warning text-dark shadow-sm border border-white">Venter</span>
+                                            <span class="badge bg-warning-subtle text-warning-emphasis shadow-sm">Venter</span>
                                         {elseif $application['status'] === 'reviewed'}
-                                            <span class="badge bg-info shadow-sm border border-white">Under vurdering</span>
+                                            <span class="badge bg-info-subtle text-info-emphasis shadow-sm">Under vurdering</span>
                                         {elseif $application['status'] === 'accepted'}
-                                            <span class="badge bg-success shadow-sm border border-white">Akseptert</span>
+                                            <span class="badge bg-success-subtle text-success-emphasis shadow-sm">Akseptert</span>
                                         {elseif $application['status'] === 'rejected'}
-                                            <span class="badge bg-danger shadow-sm border border-white">Avslått</span>
+                                            <span class="badge bg-danger-subtle text-danger-emphasis shadow-sm">Avslått</span>
                                         {/if}
                                     </div>
                                 </div>
