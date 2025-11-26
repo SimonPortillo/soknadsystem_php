@@ -1,11 +1,10 @@
 # IS-115 Søknadssystem for vitenskapelige assistenter
-<img width="1903" height="909" alt="image" src="https://github.com/user-attachments/assets/405a6b99-d9e5-4123-94d4-d3cba6fda08e" />
+<img width="1902" height="906" alt="image" src="https://github.com/user-attachments/assets/d6cd1e1e-55ad-40f1-8633-ad6d6fa50091" />
 
 ## Kjør prosjektet lokalt
 Forutsetninger:
- - du xampp installert https://www.apachefriends.org/
- - du har composer dependency manager https://getcomposer.org/
- - du er klar for å få bakoversveis 😎
+ - du xampp installert https://www.apachefriends.org/ (apache og mysql)
+ - du har composer dependency manager https://getcomposer.org/ (kun nødvending hvis du kloner fra github)
    
 ## kommandoer 
 ```bash
@@ -21,7 +20,10 @@ composer start
 ```
 
 ## Mysql database snapshot:
-[soknadsystemdb (7).sql](https://github.com/user-attachments/files/23450390/soknadsystemdb.7.sql) (kan importeres eller kjøres direkte som sql-spørring i myphpadmin)
+[database.sql](database.sql) (kan importeres eller kjøres direkte som sql-spørring i myphpadmin)
+
+
+
 
 ## Config 
 du må endre din config fil til å bruke:
@@ -91,4 +93,7 @@ project-root/
 │
 └── README.md           # Project overview
 ```
+## Database diagram
+<img width="1321" height="669" alt="image" src="https://github.com/user-attachments/assets/f7289327-53cd-49e5-9d1d-54148e4cb54e" />
+
 
