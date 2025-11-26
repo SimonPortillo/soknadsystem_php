@@ -116,4 +116,5 @@ Flight::register('latte', \Latte\Engine::class, [], function($latte) use ($confi
     }
     
     $latte->setTempDirectory($cacheDirectory);
+    $latte->addExtension(new Latte\Bridges\Tracy\TracyExtension);
 });
