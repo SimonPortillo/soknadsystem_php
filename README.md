@@ -73,25 +73,32 @@ Det finnes tre testbrukere i databasen som representer de ulike rollene i system
 ```
 project-root/
 │
-├── app/                # Application-specific code
-│   ├── controllers/    # Route controllers (e.g., HomeController.php)
-│   ├── middlewares/    # Custom middleware classes/functions
-│   ├── models/         # Data models (if needed)
-│   ├── utils/          # Utility/helper functions
-│   ├── views/          # View templates (if using)
-│   └── commands/       # Custom CLI commands for Runway
+├── app/                
+│   ├── config/         # Konfigurasjonsfiler (database, mail, app settings, routes, services)
+│   ├── controllers/    # Kontrollere (ruting + forretningslogikk)
+│   ├── middlewares/    # Mellomvare (for CSP)
+│   ├── models/         # Data modeller (datatilgangsklasse DAO og Active Record i User modellen)
+│   ├── utils/          # Hjelpeklasser
+│   ├── views/          # Presentasjonslogikk
 │
-├── public/             # Web root (index.php, assets, etc.)
+├── cache/
+│   ├── latte/          # Template cache
+│   ├── application     # Api cache
 │
-├── config/             # Configuration files (database, app settings, routes)
+├── public/
+│   ├── images/         # Konfigurasjonsfiler (database, app settings, routes)
+│   ├── js/             # Klientside funksjonalitet        
 │
-├── vendor/             # Composer dependencies
+├── uploads/      
+│   ├── users/          # Opplastningsti for bruker-dokumenter 
 │
-├── tests/              # Unit and integration tests
+├── vendor/             # Composer avhengigheter
 │
 ├── composer.json       # Composer config
 │
-└── README.md           # Project overview
+├── database.sql        # Database dump
+│
+└── README.md
 ```
 ## Database diagram
 <img width="1321" height="669" alt="image" src="https://github.com/user-attachments/assets/f7289327-53cd-49e5-9d1d-54148e4cb54e" />
