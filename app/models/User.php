@@ -3,7 +3,12 @@
 namespace app\models;
 
 use flight\database\PdoWrapper;
-
+/**
+ * User Model
+ * 
+ * This model handles user data, including creating,
+ * retrieving, updating, and deleting users.
+ */
 class User
 {
     /**

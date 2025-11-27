@@ -1,7 +1,12 @@
 <?php
 
 namespace app\utils;
-
+/**
+ * Cache Utility
+ * 
+ * This utility provides simple file-based caching functionality,
+ * allowing storage and retrieval of cached data with expiration.
+ */
 class CacheUtil {
 
     protected string $cacheDir;

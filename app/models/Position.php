@@ -3,7 +3,12 @@
 namespace app\models;
 
 use flight\database\PdoWrapper;
-
+/**
+ * Position Model
+ * 
+ * This model handles position data, including creating,
+ * retrieving, updating, and deleting positions.
+ */
 class Position
 {
     /**

@@ -454,6 +454,12 @@ class PositionController {
         }
     }
    
+    /**
+     * Delete a position
+     * param int $id The ID of the position to delete
+     * route: POST /positions/@id/delete
+     * @return void
+     */
     public function delete($id) {
         // Redirect to login if not authenticated
         if (!$this->app->session()->get('is_logged_in')) {

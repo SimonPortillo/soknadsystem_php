@@ -6,6 +6,12 @@ namespace app\middlewares;
 use flight\Engine;
 use Tracy\Debugger;
 
+/**
+ * Security Headers Middleware
+ * 
+ * This middleware adds security headers to all HTTP responses,
+ * including a Content Security Policy (CSP) with a nonce for inline scripts.
+ */
 class SecurityHeadersMiddleware
 {
 	protected Engine $app;
