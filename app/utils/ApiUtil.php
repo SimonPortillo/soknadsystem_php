@@ -1,7 +1,12 @@
 <?php
 
 namespace app\utils;
-
+/**
+ * API Utility
+ * 
+ * This utility provides methods to perform HTTP requests,
+ * specifically GET requests that return JSON-decoded responses.
+ */
 class ApiUtil {
 
     /**

@@ -4,6 +4,12 @@ namespace app\models;
 
 use flight\database\PdoWrapper;
 
+/**
+ * Application Model
+ * 
+ * This model handles job application data, including creating,
+ * retrieving, updating, and deleting applications.
+ */
 class Application
 {
     /**

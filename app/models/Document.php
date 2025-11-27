@@ -2,7 +2,12 @@
 namespace app\models;
 
 use flight\database\PdoWrapper;
-
+/**
+ * Document Model
+ * 
+ * This model handles document data, including creating,
+ * retrieving, and deleting documents.
+ */
 class Document 
 { 
     /**
