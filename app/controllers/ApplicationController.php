@@ -61,7 +61,7 @@ class ApplicationController {
         }
         
         // Only allow students to apply
-        if ($user->getRole() !== 'student') {
+        if ($user['role'] !== 'student') {
             $this->app->redirect('/positions');
             return;
         }
@@ -100,8 +100,8 @@ class ApplicationController {
         // Render the application form
         $this->app->latte()->render(__DIR__ . '/../views/user/apply-position.latte', [
             'isLoggedIn' => true,
-            'username' => $user->getUsername(),
-            'role' => $user->getRole(),
+            'username' => $user['username'],
+            'role' => $user['role'],
             'position' => $position,
             'hasApplied' => $hasApplied,
             'message' => $successMessage,
@@ -143,7 +143,7 @@ class ApplicationController {
         }
         
         // Only allow students to apply
-        if ($user->getRole() !== 'student') {
+        if ($user['role'] !== 'student') {
             $this->app->redirect('/positions');
             return;
         }
@@ -263,7 +263,7 @@ class ApplicationController {
         }
 
         // Only allow admin and employee roles
-        if (!in_array($user->getRole(), ['admin', 'employee'])) {
+        if (!in_array($user['role'], ['admin', 'employee'])) {
             $this->app->redirect('/positions');
             return;
         }
@@ -279,7 +279,7 @@ class ApplicationController {
         }
 
         // Check if user is the creator of the position (add admin exception if admins should see all applicants)
-        if ($position['creator_id'] !== $userId && $user->getRole() !== 'admin') {
+        if ($position['creator_id'] !== $userId && $user['role'] !== 'admin') {
             $this->app->session()->set('error_message', 'Du har ikke tilgang til å se søkere for denne stillingen.');
             $this->app->redirect('/min-side');
             return;
@@ -301,8 +301,8 @@ class ApplicationController {
         // Render the applicants view
         $this->app->latte()->render(__DIR__ . '/../views/user/view-applicants.latte', [
             'isLoggedIn' => true,
-            'username' => $user->getUsername(),
-            'role' => $user->getRole(),
+            'username' => $user['username'],
+            'role' => $user['role'],
             'position' => $position,
             'applicants' => $applicants,
             'message' => $successMessage,
@@ -342,7 +342,7 @@ class ApplicationController {
         }
 
         // Only allow admin and employee roles
-        if (!in_array($user->getRole(), ['admin', 'employee'])) {
+        if (!in_array($user['role'], ['admin', 'employee'])) {
             $this->app->session()->set('error_message', 'Du har ikke tilgang til denne handlingen.');
             $this->app->redirect('/positions');
             return;
@@ -359,7 +359,7 @@ class ApplicationController {
         }
 
         // Check if user is the creator of the position (add admin exception if admins should update all applications)
-        if ($position['creator_id'] !== $userId && $user->getRole() !== 'admin') {
+        if ($position['creator_id'] !== $userId && $user['role'] !== 'admin') {
             $this->app->session()->set('error_message', 'Du har ikke tilgang til å oppdatere søknader for denne stillingen.');
             $this->app->redirect('/min-side');
             return;
@@ -464,7 +464,7 @@ class ApplicationController {
 
         // Check permissions: user must own the application OR be an admin
         $isOwner = $application['user_id'] === $userId;
-        $isAdmin = $user->getRole() === 'admin';
+        $isAdmin = $user['role'] === 'admin';
         
         if (!$isOwner && !$isAdmin) {
             $this->app->redirect('/min-side');

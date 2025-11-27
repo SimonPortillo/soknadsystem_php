@@ -131,7 +131,7 @@ class PositionController {
         $user = $userModel->findById($userId);
         
 	// Only allow admin and employee roles
-        if (!$user || !in_array($user->getRole(), ['admin', 'employee'])) {
+        if (!$user || !in_array($user['role'], ['admin', 'employee'])) {
             $this->app->redirect('/positions');
             return;
         }
@@ -143,8 +143,8 @@ class PositionController {
         // Base view data
         $viewData = [
             'isLoggedIn' => true,
-            'username' => $user->getUsername(),
-            'role' => $user->getRole(),
+            'username' => $user['username'],
+            'role' => $user['role'],
             'openPositionsCount' => $openPositionsCount,
             'csp_nonce' => $this->app->get('csp_nonce')
         ];
@@ -176,7 +176,7 @@ class PositionController {
         $user = $userModel->findById($userId);
         
         // Only allow admin and employee roles
-        if (!$user || !in_array($user->getRole(), ['admin', 'employee'])) {
+        if (!$user || !in_array($user['role'], ['admin', 'employee'])) {
             $this->app->redirect('/positions');
             return;
         }
@@ -215,8 +215,8 @@ class PositionController {
         $openPositionsCount = $positionModel->getCount();
         $baseViewData = [
             'isLoggedIn' => true,
-            'username' => $user->getUsername(),
-            'role' => $user->getRole(),
+            'username' => $user['username'],
+            'role' => $user['role'],
             'openPositionsCount' => $openPositionsCount,
             'csp_nonce' => $this->app->get('csp_nonce'),
             'title' => $title,
@@ -273,7 +273,7 @@ class PositionController {
         $user = $userModel->findById($userId);
         
         // Only allow admin and employee roles
-        if (!$user || !in_array($user->getRole(), ['admin', 'employee'])) {
+        if (!$user || !in_array($user['role'], ['admin', 'employee'])) {
             $this->app->redirect('/positions');
             return;
         }
@@ -283,7 +283,7 @@ class PositionController {
         $position = $positionModel->findById($id, false, false);
         
         // Check if user is authorized (admin or position creator)
-        if (!$position || ($user->getRole() !== 'admin' && $position['creator_id'] != $userId)) {
+        if (!$position || ($user['role'] !== 'admin' && $position['creator_id'] != $userId)) {
             $this->app->redirect('/positions');
             return;
         }
@@ -299,8 +299,8 @@ class PositionController {
         // Base view data
         $viewData = [
             'isLoggedIn' => true,
-            'username' => $user->getUsername(),
-            'role' => $user->getRole(),
+            'username' => $user['username'],
+            'role' => $user['role'],
             'csp_nonce' => $this->app->get('csp_nonce'),
             'position' => $position,
             'openPositionsCount' => $openPositionsCount,
@@ -335,13 +335,13 @@ class PositionController {
         $user = $userModel->findById($userId);
         
         // Only allow admin and employee roles
-        if (!$user || !in_array($user->getRole(), ['admin', 'employee'])) {
+        if (!$user || !in_array($user['role'], ['admin', 'employee'])) {
             $this->app->redirect('/min-side');
             return;
         }
         
         // Check if user is authorized (admin or position creator)
-        if (!$currentPosition || ($user->getRole() !== 'admin' && $currentPosition['creator_id'] != $userId)) {
+        if (!$currentPosition || ($user['role'] !== 'admin' && $currentPosition['creator_id'] != $userId)) {
             $this->app->redirect('/positions');
             return;
         }
@@ -365,8 +365,8 @@ class PositionController {
         // Base view data for re-renders
         $baseViewData = [
             'isLoggedIn' => true,
-            'username' => $user->getUsername(),
-            'role' => $user->getRole(),
+            'username' => $user['username'],
+            'role' => $user['role'],
             'openPositionsCount' => $openPositionsCount,
             'csp_nonce' => $this->app->get('csp_nonce'),
             'returnTo' => $returnTo,
@@ -467,7 +467,7 @@ class PositionController {
         $user = $userModel->findById($userId);
         
         // Only allow admin and employee roles
-        if (!$user || !in_array($user->getRole(), ['admin', 'employee'])) {
+        if (!$user || !in_array($user['role'], ['admin', 'employee'])) {
             $this->app->redirect('/positions');
             return;
         }
@@ -477,7 +477,7 @@ class PositionController {
         $position = $positionModel->findById($id, false, false);
         
         // Check if user is authorized (admin or position creator)
-        if (!$position || ($user->getRole() !== 'admin' && $position['creator_id'] != $userId)) {
+        if (!$position || ($user['role'] !== 'admin' && $position['creator_id'] != $userId)) {
             $this->app->redirect('/min-side');
             return;
         }

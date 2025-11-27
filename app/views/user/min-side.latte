@@ -23,15 +23,15 @@
                 {/if}
 
                 {include '../partials/min-side/accordion-user-info.latte'}
-            {if $user->getRole() === 'student'}
+            {if $user['role'] === 'student'}
                 {include '../partials/min-side/accordion-student.latte'}
             {/if}
              
-            {if $user->getRole() === 'employee' || $user->getRole() === 'admin'}
+            {if $user['role'] === 'employee' || $user['role'] === 'admin'}
                 {include '../partials/min-side/accordion-positions.latte'}
             {/if}
                 
-            {if $user->getRole() === 'admin'}
+            {if $user['role'] === 'admin'}
                 {include '../partials/min-side/accordion-admin.latte'}
             {/if}
                 

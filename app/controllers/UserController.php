@@ -103,7 +103,7 @@ class UserController {
         ];        
 
         // Student-specific data
-        if ($user->getRole() === 'student') {
+        if ($user['role'] === 'student') {
             $docModel = new Document($this->app->db());
             $viewData['cv_documents'] = $docModel->findByUser($userId, 'cv');
             $viewData['cover_letter_documents'] = $docModel->findByUser($userId, 'cover_letter');
@@ -112,13 +112,13 @@ class UserController {
         }
 
         // Employee or admin-specific data
-        if ($user->getRole() === 'employee' || $user->getRole() === 'admin') {
+        if ($user['role'] === 'employee' || $user['role'] === 'admin') {
             $positionModel = new Position($this->app->db());
             $viewData['positions'] = $positionModel->findByCreatorId($userId, false, true);
         }
 
         // Admin-specific data
-        if ($user->getRole() === 'admin') {
+        if ($user['role'] === 'admin') {
             // Fetch all users, applications, positions, etc.
             $allUsers = $userModel->getAll();
             $applicationModel = new Application($this->app->db());
@@ -193,8 +193,8 @@ class UserController {
         }
 
         // Check if data is unchanged
-        $isFullNameSame = ($fullName === null || $fullName === $user->getFullName());
-        $isPhoneSame = ($phone === null || $phone === $user->getPhone());
+        $isFullNameSame = ($fullName === null || $fullName === $user['full_name']);
+        $isPhoneSame = ($phone === null || $phone === $user['phone']);
 
         if ($isFullNameSame && $isPhoneSame) {
             $this->app->session()->set('error_message', 'Ingen endringer gjort.');
@@ -251,7 +251,7 @@ class UserController {
 
         // Check if this is an admin deleting another user or a user deleting themselves
         $targetUserId = (int) ($this->app->request()->data->user_id ?? $currentUserId);
-        $isAdmin = $currentUser->getRole() === 'admin';
+        $isAdmin = $currentUser['role'] === 'admin';
         $isSelfDeletion = $targetUserId === $currentUserId;
 
         // If trying to delete another user, must be admin
@@ -311,7 +311,7 @@ class UserController {
         $userModel = new User($this->app->db());
         $currentUser = $userModel->findById($currentUserId);
 
-        if (!$currentUser || $currentUser->getRole() !== 'admin') {
+        if (!$currentUser || $currentUser['role'] !== 'admin') {
             $this->app->session()->set('error_message', 'Ingen tilgang.');
             $this->app->redirect('/min-side');
             return;
@@ -343,7 +343,7 @@ class UserController {
             return;
         }
 
-        $currentRole = $targetUser->getRole();
+        $currentRole = $targetUser['role'];
 
         // Clean up related data if role is changing
         if ($currentRole !== $newRole) {

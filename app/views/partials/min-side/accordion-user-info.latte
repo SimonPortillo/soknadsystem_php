@@ -10,41 +10,41 @@
                 <form method="post" action="/min-side/update" enctype="multipart/form-data" novalidate>
                     <h5 class="mb-3">Kontoinformasjon</h5>
                     <ul class="list-group mb-4">
-                        {if $user->getFullName()}
+                        {if $user['full_name']}
                             <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                                 <span><i class="bi bi-person-lines-fill"></i> Fullt navn</span>
-                                <span>{$user->getFullName()}</span>
+                                <span>{$user['full_name']}</span>
                             </li>
                         {/if}
-                        {if $user->getPhone()}
+                        {if $user['phone']}
                             <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                                 <span><i class="bi bi-telephone"></i> Telefon</span>
-                                <span>{$user->getPhone()}</span>
+                                <span>{$user['phone']}</span>
                             </li>
                         {/if}
                         <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                             <span><i class="bi bi-person"></i> Brukernavn</span>
-                            <span>{$user->getUsername()}</span>
+                            <span>{$user['username']}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                             <span><i class="bi bi-envelope"></i> E-post</span>
-                            <span>{$user->getEmail()}</span>
+                            <span>{$user['email']}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                             <span><i class="bi bi-person-badge"></i> Rolle</span>
                             <span>
-                                {if $user->getRole() === 'student'}
+                                {if $user['role'] === 'student'}
                                     <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis shadow-sm">Student</span>
-                                {elseif $user->getRole() === 'employee'}
+                                {elseif $user['role'] === 'employee'}
                                     <span class="badge rounded-pill bg-success-subtle text-success-emphasis shadow-sm">Ansatt</span>
-                                {elseif $user->getRole() === 'admin'}
+                                {elseif $user['role'] === 'admin'}
                                     <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis shadow-sm">Admin</span>
                                 {/if}
                             </span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center border border-light shadow-sm">
                             <span><i class="bi bi-calendar"></i> Konto opprettet</span>
-                            <span>{date('d.m.Y H:i', strtotime($user->getCreatedAt()))}</span>
+                            <span>{date('d.m.Y H:i', strtotime($user['created_at']))}</span>
                         </li>
                     </ul>
                     <hr class="my-4">
@@ -55,7 +55,7 @@
                             <span>Fullt navn</span>
                             <span class="badge rounded-pill bg-white text-muted shadow-sm">valgfritt</span>
                         </label>
-                        <input type="text" class="form-control border-2 border-white shadow-sm" id="full_name" name="full_name" value="{$user->getFullName() ?? ''}" autocomplete="name">
+                        <input type="text" class="form-control border-2 border-white shadow-sm" id="full_name" name="full_name" value="{$user['full_name'] ?? ''}" autocomplete="name">
                     </div>
                     <!-- Phone field: Editable -->
                     <div class="mb-3">
@@ -65,7 +65,7 @@
                         </label>
                         <div class="input-group mb-3">
                             <span class="input-group-text border-2 border-white shadow-sm" id="basic-addon1">+47</span>
-                            <input class="form-control border-2 border-white shadow-sm" type="tel" id="phone" name="phone" value="{$user->getPhone() ?? ''}" autocomplete="tel">
+                            <input class="form-control border-2 border-white shadow-sm" type="tel" id="phone" name="phone" value="{$user['phone'] ?? ''}" autocomplete="tel">
                         </div>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
