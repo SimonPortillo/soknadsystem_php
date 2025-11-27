@@ -143,8 +143,8 @@ class AuthController {
         $message = 'Hvis e-postadressen finnes, har vi sendt instruksjoner for tilbakestilling av passord.';
 
         if ($user) {
-            $token = $userModel->createPasswordResetToken($user->getId());
-            $this->sendResetEmail($email, $token, $user->getUsername());
+            $token = $userModel->createPasswordResetToken($user['id']);
+            $this->sendResetEmail($email, $token, $user['username']);
         } else {
             // Add delay to prevent timing attacks that could reveal valid emails
             usleep(2000000); // 2 second delay
@@ -392,12 +392,15 @@ class AuthController {
         
         try {
             // Create new user
-            $user = new User($this->app->db());
-            $result = $user->create($username, $password, $email, $full_name, $phone);
+            $userModel = new User($this->app->db());
+            $result = $userModel->create($username, $password, $email, $full_name, $phone);
             
             if (!$result) {
                 throw new \Exception('Kunne ikke opprette bruker');
             }
+            
+            // Fetch the newly created user
+            $user = $userModel->findByUsername($username);
             
             $this->app->session()->set('registration_success', 'Registreringen var vellykket. Velkommen, ' . $username . '!');
 
@@ -488,7 +491,7 @@ class AuthController {
         }
 
         // Check if the account is locked
-        if ($user->getLockoutUntil() && strtotime($user->getLockoutUntil()) > time()) {
+        if ($user['lockout_until'] && strtotime($user['lockout_until']) > time()) {
             $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
                 'errors' => ['Kontoen din er midlertidig låst. Prøv igjen senere.'],
                 'csp_nonce' => $this->app->get('csp_nonce')
@@ -497,13 +500,13 @@ class AuthController {
         }
 
         // Verify password
-        if (!$user->verifyPassword($password)) {
+        if (!$userModel->verifyPassword($user, $password)) {
             // Increment failed attempts
-            $userModel->incrementFailedAttempts($user->getId());
+            $userModel->incrementFailedAttempts($user['id']);
 
             // Check if the account should be locked
-            if ($user->getFailedAttempts() + 1 >= 3) { // Lock after 3 failed attempts
-                $userModel->lockAccount($user->getId());
+            if ($user['failed_attempts'] + 1 >= 3) { // Lock after 3 failed attempts
+                $userModel->lockAccount($user['id']);
                 $this->app->latte()->render(__DIR__ . '/../views/auth/login.latte', [
                     'errors' => ['For mange mislykkede forsøk. Kontoen din er låst i 60 minutter.'],
                     'csp_nonce' => $this->app->get('csp_nonce')
@@ -519,14 +522,14 @@ class AuthController {
         }
 
         // Reset failed attempts on successful login
-        $userModel->resetFailedAttempts($user->getId());
+        $userModel->resetFailedAttempts($user['id']);
 
        
 
         // Login successful - create session 
         $this->createUserSession($user);
 
-        $this->app->session()->set('login_success', 'Velkommen tilbake, ' . $user->getUsername() . '!');
+        $this->app->session()->set('login_success', 'Velkommen tilbake, ' . $user['username'] . '!');
 
         // Redirect to positions page
         $this->app->redirect('/positions');
@@ -571,13 +574,13 @@ class AuthController {
      * 
      * After setting session variables, the user is redirected to the positions page.
      * 
-     * @param User $user The authenticated user object
+     * @param array $user The authenticated user array
      * @return void Redirects to positions page after setting session
      */
-    private function createUserSession($user) {
-        $this->app->session()->set('user_id', $user->getId());
-        $this->app->session()->set('username', $user->getUsername());
-        $this->app->session()->set('role', $user->getRole());
+    private function createUserSession(array $user): void {
+        $this->app->session()->set('user_id', $user['id']);
+        $this->app->session()->set('username', $user['username']);
+        $this->app->session()->set('role', $user['role']);
         $this->app->session()->set('is_logged_in', true);
     }
 }
