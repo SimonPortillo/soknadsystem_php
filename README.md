@@ -1,7 +1,7 @@
 # IS-115 Søknadssystem for vitenskapelige assistenter
 <img width="1902" height="906" alt="image" src="https://github.com/user-attachments/assets/d6cd1e1e-55ad-40f1-8633-ad6d6fa50091" />
 
-## Kjør prosjektet lokalt
+## Kjør prosjektet lokalt fra github
 Forutsetninger:
  - du xampp installert https://www.apachefriends.org/ (apache og mysql)
  - du har composer dependency manager https://getcomposer.org/ (kun nødvending hvis du kloner fra github)
@@ -19,11 +19,28 @@ composer install
 composer start
 ```
 
+## Kjør fra zip
+
+### Uten Composer
+- Unzip prosjektet.
+- Alle avhengigheter er inkludert i `vendor/` mappen.
+- Start lokal server
+  ```
+  php -S localhost:8080 -t public
+  ```
+
+### Med Composer
+- Unzip prosjektet.
+- kjør:
+  ```
+  composer install
+  ```
+- Start lokal server
+  ```
+  composer start
+
 ## Mysql database snapshot:
 [database.sql](database.sql) (kan importeres eller kjøres direkte som sql-spørring i myphpadmin)
-
-
-
 
 ## Config 
 du må endre din config fil til å bruke:
@@ -77,7 +94,7 @@ project-root/
 │   ├── config/         # Konfigurasjonsfiler (database, mail, app settings, routes, services)
 │   ├── controllers/    # Kontrollere (ruting + forretningslogikk)
 │   ├── middlewares/    # Mellomvare (for CSP)
-│   ├── models/         # Data modeller (datatilgangsklasse DAO og Active Record i User modellen)
+│   ├── models/         # Data modeller (datatilgangsklasse DAO)
 │   ├── utils/          # Hjelpeklasser
 │   ├── views/          # Presentasjonslogikk
 │
